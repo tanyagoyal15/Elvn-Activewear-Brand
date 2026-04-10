@@ -1,0 +1,439 @@
+{%- if blog.comments_enabled? -%}
+
+  {%- assign color_scheme = section.settings.color_scheme -%}
+
+  {%- style -%}
+    {%- if section.settings.background_mode == 'color' -%}
+      #{{ section.id }} { background: {{ section.settings.background_color }}; }
+    {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+      #{{ section.id }} {
+        background: {% render 'custom-gradient',
+                        type: section.settings.background_gradient_curve,
+                        start_color: section.settings.background_gradient_stop_1,
+                        end_color: section.settings.background_gradient_stop_2
+                    %};
+      }
+    {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+      #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+    {%- endif -%}
+  {%- endstyle -%}
+
+  <div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+    {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+      <div class="absolute inset-0">
+        {%- render 'image',
+          image: section.settings.background_image,
+          src_width: 1400,
+          widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+          class: 'img-fit cover',
+          sizes: '100vw'
+        -%}
+      </div>
+    {%- endif -%}
+
+    <div class="flex{% if section.settings.full_width == false %} container{% endif %}">
+      <div class="section
+                {%- if section.settings.full_width %}
+                  section--padded-more section--full-width
+                {%- else %}
+                  section--standard
+                {%- endif %}
+                {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                z-3
+                {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                color-scheme
+                {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                color-scheme--{{ color_scheme }}">
+
+        <div class="container">
+          <div id="comments" class="relative top-header-offset"></div>
+          <div class="reading-width article-width">
+            {%- if article.comments_count > 0 -%}
+              <h2 class="article__comments-title {{ section.settings.heading_align }} {{ section.settings.heading_size }}" id="comments-{{ article.id }}">
+                {{ 'blogs.comments.title' | t }}
+              </h2>
+
+              {%- paginate article.comments by section.settings.comments_per_page -%}
+                <div class="article__comments {{ section.settings.text_align }} mb-16">
+                  {%- if comment.status == 'pending' and comment.content -%}
+                    <article class="comment" id="{{ comment.id }}">
+                      {{ comment.content }}
+                      <footer class="comment__footer">
+                        - <span class="comment__author">{{ comment.author }}</span>
+                      </footer>
+                    </article>
+                  {%- endif -%}
+
+                  {%- for comment in article.comments -%}
+                    <article class="comment" id="{{ comment.id }}">
+                      {{ comment.content }}
+                      <footer class="comment__footer">
+                        - <span class="comment__author">{{ comment.author }}, </span>
+                        <span class="">{{ comment.created_at | time_tag: format: 'date' }}</span>
+                      </footer>
+                    </article>
+
+                    {%- unless forloop.last -%}
+                      <hr class="mb-12 mt-12">
+                    {%- endunless -%}
+                  {%- endfor -%}
+
+                  {%- render 'pagination', paginate: paginate, class: 'mt-10', pagination_suffix: '#comments' -%}
+                </div>
+              {%- endpaginate -%}
+            {%- endif -%}
+          </div>
+        </div>
+
+
+        <div class="container {% if section.settings.mob_center_text %} md-down:text-center{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+          <div class="reading-width--fixed">
+            {% form 'new_comment', article, class: 'form reading-width' %}
+              <h2 class="{{ section.settings.heading_size }} {{ section.settings.heading_align }}{% unless blog.moderated? %} mb-8{% endunless %}">
+                {{ 'blogs.comments.form_title' | t }}
+              </h2>
+
+              {%- if blog.moderated? -%}
+                <p class="mb-8 {{ section.settings.text_align }}">{{ 'blogs.comments.moderated' | t }}</p>
+              {%- endif -%}
+
+              {%- if form.posted_successfully? -%}
+                <div class="alert mb-8 bg-success-bg text-success-text {{ section.settings.text_align }}" role="status">
+                  {%- if blog.moderated? and comment.status == 'unapproved' -%}
+                    {{ 'blogs.comments.success_moderated' | t }}
+                  {%- else -%}
+                    {{ 'blogs.comments.success' | t }}
+                  {%- endif -%}
+                </div>
+              {%- elsif form.errors -%}
+                <div class="alert mb-8 bg-error-bg text-error-text" role="alert">
+                  <h2 class="h6 text-current">{{ 'blogs.comments.error_heading' | t }}</h2>
+                  <ul class="styled-list">
+                    {%- for field in form.errors -%}
+                      <li>
+                        <a class="link text-current" href="#comment-{{ field }}">
+                          {%- if form.errors.translated_fields[field] contains 'author' %}
+                            {{- 'blogs.comments.name' | t }}
+                          {%- elsif form.errors.translated_fields[field] contains 'body' %}
+                            {{- 'blogs.comments.message' | t }}
+                          {%- else %}
+                            {{- form.errors.translated_fields[field] }}
+                          {%- endif -%}
+                          {{ form.errors.messages[field] -}}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- endif -%}
+
+              <div class="form__grid grid grid-cols-2 gap-x-theme gap-y-6" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+                <div class="col-span-2 md:col-span-1 is-required">
+                  <label class="label" for="comment-author">{{ 'blogs.comments.name' | t }}</label>
+                  <input type="text"
+                        class="input w-full"
+                        id="comment-author"
+                        name="comment[author]"
+                        autocomplete="name"
+                        value="{{ form.author }}"
+                          {%- if form.errors contains 'author' %}
+                            aria-invalid="true"
+                            aria-describedby="comment-author-error"
+                          {% endif -%}
+                        aria-required="true"
+                        required>
+                  {%- if form.errors contains 'author' -%}
+                    <p class="form__field-error" id="comment-author-error">
+                      {{ 'blogs.comments.name' | t }} {{ form.errors.messages['author'] }}
+                    </p>
+                  {%- endif -%}
+                </div>
+                <div class="col-span-2 md:col-span-1 is-required">
+                  <label class="label" for="comment-email">{{ 'blogs.comments.email' | t }}</label>
+                  <input type="email"
+                        class="input w-full"
+                        id="comment-email"
+                        name="comment[email]"
+                        autocomplete="email"
+                        value="{{ form.email }}"
+                          {%- if form.errors contains 'email' %}
+                            aria-invalid="true"
+                            aria-describedby="comment-email-error"
+                          {% endif -%}
+                        aria-required="true"
+                        required>
+                  {%- if form.errors contains 'email' -%}
+                    <p class="form__field-error" id="comment-email-error">
+                      {{ 'blogs.comments.email' | t }} {{ form.errors.messages['email'] }}
+                    </p>
+                  {%- endif -%}
+                </div>
+                <div class="col-span-2 is-required">
+                  <label class="label" for="comment-body">{{ 'blogs.comments.message' | t }}</label>
+                  <textarea class="input w-full"
+                            id="comment-body"
+                            name="comment[body]"
+                            rows="5"
+                              {%- if form.errors contains 'body' %}
+                                aria-invalid="true"
+                                aria-describedby="comment-body-error"
+                              {% endif -%}
+                              aria-required="true"
+                            required>{{ form.body }}</textarea>
+                  {%- if form.errors contains 'body' -%}
+                    <p class="form__field-error" id="comment-body-error">
+                      {{ 'blogs.comments.message' | t }} {{ form.errors.messages['body'] }}
+                    </p>
+                  {%- endif -%}
+                </div>
+              </div>
+
+              <div class="mt-6" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+                <button class="{{ section.settings.button_style }} w-full md:w-auto">{{ 'blogs.comments.post' | t }}</button>
+              </div>
+            {% endform %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+
+{% schema %}
+{
+  "name": "Blog post comments",
+  "class": "cc-article-comments section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "comments_per_page",
+      "label": "Comments per page",
+      "min": 5,
+      "max": 50,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button",
+      "options": [
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--primary"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+        {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ]
+}
+{% endschema %}

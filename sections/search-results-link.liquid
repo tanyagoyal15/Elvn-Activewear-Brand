@@ -1,0 +1,7 @@
+{%- if search.performed -%}
+  {%- if search.results_count > 0 -%}
+    {{- 'general.search.view_all_with_count_and_terms' | t: terms: search.terms, count: search.results_count -}}
+  {%- else -%}
+    {{- 'general.search.no_results' | t: terms: search.terms -}}
+  {%- endif -%}
+{%- endif -%}

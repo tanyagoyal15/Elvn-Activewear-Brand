@@ -1,0 +1,117 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "aside",
+  "name": "Overlay Group",
+  "sections": {
+    "cart-drawer": {
+      "type": "cart-drawer",
+      "settings": {
+        "show_backorder_text": true,
+        "suggested_products_heading": "You might like",
+        "suggested_products": [],
+        "stick_footer": true,
+        "show_order_note": true,
+        "show_tax_and_shipping": true,
+        "show_checkout_button": true,
+        "cart_terms_page": ""
+      }
+    },
+    "pop-up": {
+      "type": "pop-up",
+      "blocks": {
+        "subheading_TMzJCM": {
+          "type": "subheading",
+          "disabled": true,
+          "settings": {
+            "text": "Welcome to Beautify"
+          }
+        },
+        "heading_JwxXNd": {
+          "type": "heading",
+          "settings": {
+            "heading": "Find your perfect fit",
+            "heading_size": "h3"
+          }
+        },
+        "text_8K4HgH": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Not sure about your bra size? Grab a measuring tape and follow our simple guide to measure at home.</p>",
+            "text_size": ""
+          }
+        },
+        "newsletter_signup_fRK4N7": {
+          "type": "newsletter-signup",
+          "disabled": true,
+          "settings": {}
+        },
+        "button_6CzHWq": {
+          "type": "button",
+          "settings": {
+            "button_1_label": "Get started",
+            "button_1_style": "btn btn--secondary",
+            "button_1_link": "",
+            "button_2_label": "",
+            "button_2_style": "btn btn--secondary",
+            "button_2_link": ""
+          }
+        },
+        "text_ExTX8C": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Entice customers to sign up for your mailing list with discounts or exclusive offers.</p>",
+            "text_size": "small-text"
+          }
+        },
+        "social_ECNLxa": {
+          "type": "social",
+          "disabled": true,
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "subheading_TMzJCM",
+        "heading_JwxXNd",
+        "text_8K4HgH",
+        "newsletter_signup_fRK4N7",
+        "button_6CzHWq",
+        "text_ExTX8C",
+        "social_ECNLxa"
+      ],
+      "disabled": true,
+      "settings": {
+        "delay": 8,
+        "show_to_guests_only": true,
+        "dismiss_days": 30,
+        "show_on_mobile": true,
+        "popup_width": 640,
+        "text_align": "text-center",
+        "image_size": 300,
+        "image_position": "top",
+        "mobile_image_enabled": true,
+        "mobile_image_height": 250,
+        "mobile_image_position": "top",
+        "image_cutout": false,
+        "image_cutout_shadow": false,
+        "cutout_offset": 0,
+        "cutout_radius": 26,
+        "color_scheme": "scheme-1",
+        "tint_color": "#ffffff",
+        "tint_opacity": 0
+      }
+    }
+  },
+  "order": [
+    "cart-drawer",
+    "pop-up"
+  ]
+}

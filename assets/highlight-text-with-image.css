@@ -1,0 +1,23 @@
+.highlight-text__item {
+  margin-right: 0.25em;
+}
+
+.highlight-text__image .media {
+  width: var(--mob-image-width);
+  margin: 4px;
+}
+.highlight-text__image .media .media__placeholder,
+.highlight-text__image .media img {
+  border-radius: var(--fluid-small-image-border-radius);
+  vertical-align: middle;
+}
+
+.highlight-text__text {
+  margin-bottom: 0;
+}
+
+@media (min-width: 480px) {
+  .highlight-text__image .media {
+    width: var(--image-width);
+  }
+}

@@ -1,0 +1,153 @@
+{% comment %}
+  Parameters:
+  - type {String} - Gradient type. One of: 'down-out' 'ease-up' 'ease-down' 'linear'
+  - start_color {String} - Starting color of gradient, 'r g b' format.
+  - end_color {String} - Ending color of gradient, 'r g b' format (optional).
+  - start_opacity {Number} - Opacity used at start of gradient (optional). Number between 0 and 1.
+
+  Usage:
+  {% render 'custom-gradient',
+    type: 'down-out',
+    start_color: settings.gradient_start_color.rgb,
+    start_opacity: 0.9
+  %}
+{% endcomment %}
+
+{%- case type -%}
+{%- when 'up-out' -%}
+linear-gradient(
+  to top,
+  rgb({{ start_color }} / {{ start_opacity }}) 0%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.738 }}) 19%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.541 }}) 34%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.382 }}) 47%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.278 }}) 56.5%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.194 }}) 65%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.126 }}) 73%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.075 }}) 80.2%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.042 }}) 86.1%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.021 }}) 91%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.008 }}) 95.2%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.002 }}) 98.2%,
+  transparent 100%
+);
+
+{%- when 'down-out' -%}
+linear-gradient(
+  to bottom,
+  rgb({{ start_color }} / {{ start_opacity }}) 0%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.738 }}) 19%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.541 }}) 34%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.382 }}) 47%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.278 }}) 56.5%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.194 }}) 65%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.126 }}) 73%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.075 }}) 80.2%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.042 }}) 86.1%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.021 }}) 91%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.008 }}) 95.2%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.002 }}) 98.2%,
+  transparent 100%
+);
+
+{%- when 'ease-up' -%}
+linear-gradient(
+  to top,
+  {{ end_color }} 0%,
+  {{ end_color | color_mix: start_color, 73.8 | color_to_rgb }} 19%,
+  {{ end_color | color_mix: start_color, 54.1 | color_to_rgb }} 34%,
+  {{ end_color | color_mix: start_color, 38.2 | color_to_rgb }} 47%,
+  {{ end_color | color_mix: start_color, 27.8 | color_to_rgb }} 56.5%,
+  {{ end_color | color_mix: start_color, 19.4 | color_to_rgb }} 65%,
+  {{ end_color | color_mix: start_color, 12.6 | color_to_rgb }} 73%,
+  {{ end_color | color_mix: start_color, 07.5 | color_to_rgb }} 80.2%,
+  {{ end_color | color_mix: start_color, 04.2 | color_to_rgb }} 86.1%,
+  {{ end_color | color_mix: start_color, 02.1 | color_to_rgb }} 91%,
+  {{ end_color | color_mix: start_color, 00.8 | color_to_rgb }} 95.2%,
+  {{ end_color | color_mix: start_color, 00.2 | color_to_rgb }} 98.2%,
+  {{ start_color }} 100%
+);
+
+{%- when 'ease-down' -%}
+linear-gradient(
+  to bottom,
+  {{ start_color }} 0%,
+  {{ start_color | color_mix: end_color, 73.8 | color_to_rgb }} 19%,
+  {{ start_color | color_mix: end_color, 54.1 | color_to_rgb }} 34%,
+  {{ start_color | color_mix: end_color, 38.2 | color_to_rgb }} 47%,
+  {{ start_color | color_mix: end_color, 27.8 | color_to_rgb }} 56.5%,
+  {{ start_color | color_mix: end_color, 19.4 | color_to_rgb }} 65%,
+  {{ start_color | color_mix: end_color, 12.6 | color_to_rgb }} 73%,
+  {{ start_color | color_mix: end_color, 07.5 | color_to_rgb }} 80.2%,
+  {{ start_color | color_mix: end_color, 04.2 | color_to_rgb }} 86.1%,
+  {{ start_color | color_mix: end_color, 02.1 | color_to_rgb }} 91%,
+  {{ start_color | color_mix: end_color, 00.8 | color_to_rgb }} 95.2%,
+  {{ start_color | color_mix: end_color, 00.2 | color_to_rgb }} 98.2%,
+  {{ end_color }} 100%
+);
+
+{%- when 'ease-up-out' -%}
+linear-gradient(
+  to bottom,
+  rgb({{ start_color }} / {{ start_opacity }}) 0%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9961 }}) 4%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9844 }}) 8%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9653 }}) 12%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9382 }}) 16%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9045 }}) 20%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.8659 }}) 24%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.8187 }}) 28%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.7680 }}) 32%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.7120 }}) 36%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.6545 }}) 40%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.5950 }}) 44%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.5314 }}) 48%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.4686 }}) 52%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.4050 }}) 56%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.3455 }}) 60%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.2880 }}) 64%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.2320 }}) 68%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.1815 }}) 72%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.1342 }}) 76%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0955 }}) 80%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0619 }}) 84%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0348 }}) 88%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0156 }}) 92%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0040 }}) 96%,
+  transparent 100%
+);
+
+{%- when 'ease-down-out' -%}
+linear-gradient(
+  to top,
+  rgb({{ start_color }} / {{ start_opacity }}) 0%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9961 }}) 4%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9844 }}) 8%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9653 }}) 12%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9382 }}) 16%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.9045 }}) 20%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.8659 }}) 24%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.8187 }}) 28%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.7680 }}) 32%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.7120 }}) 36%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.6545 }}) 40%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.5950 }}) 44%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.5314 }}) 48%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.4686 }}) 52%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.4050 }}) 56%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.3455 }}) 60%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.2880 }}) 64%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.2320 }}) 68%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.1815 }}) 72%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.1342 }}) 76%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0955 }}) 80%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0619 }}) 84%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0348 }}) 88%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0156 }}) 92%,
+  rgb({{ start_color }} / {{ start_opacity | times: 0.0040 }}) 96%,
+  transparent 100%
+);
+
+{%- when 'linear' -%}
+linear-gradient(to bottom, {{ start_color }}, {{ end_color }});
+{%- endcase -%}

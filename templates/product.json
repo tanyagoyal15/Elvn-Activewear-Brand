@@ -1,0 +1,513 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "product_labels": {
+          "type": "product-labels",
+          "settings": {
+            "show_sale_label": true
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "vendor_title": false
+          }
+        },
+        "rating": {
+          "type": "rating",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_tax_and_shipping": false,
+            "show_percentage_discount": false
+          }
+        },
+        "richtext_Gbk9Dj": {
+          "type": "richtext",
+          "disabled": true,
+          "settings": {
+            "text": "{{ product.description }}"
+          }
+        },
+        "selling_points_jMkBR3": {
+          "type": "selling-points",
+          "settings": {
+            "title": "",
+            "layout": "carousel",
+            "usp_icon_width": 72,
+            "usp_1_icon": "self-love",
+            "usp_1_text": "Soft & Breathable",
+            "usp_2_icon": "body-positivity",
+            "usp_2_text": "Flattering Fit",
+            "usp_3_icon": "none",
+            "usp_3_text": "",
+            "usp_4_icon": "none",
+            "usp_4_text": "",
+            "usp_5_icon": "none",
+            "usp_5_text": "",
+            "usp_6_icon": "none",
+            "usp_6_text": ""
+          }
+        },
+        "divider_TgCK73": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "settings": {
+            "prefix_choose": true,
+            "enable_dynamic_availability": true,
+            "show_backorder_text": true,
+            "swatch_dual_selectors": false,
+            "enable_size_chart": true,
+            "size_chart_label": "Size guide",
+            "size_chart_variant": "Band,Size",
+            "size_chart_source": "page",
+            "size_chart_page": "size-guide"
+          }
+        },
+        "buy-buttons": {
+          "type": "buy-buttons",
+          "settings": {
+            "show_qty_selector": true,
+            "enable_dynamic_checkout": true,
+            "show_pickup_availability": true,
+            "show_gift_card_recipient": false
+          }
+        },
+        "video_testimonials_t6w9EX": {
+          "type": "video-testimonials",
+          "settings": {
+            "title": "In Motion",
+            "include_product_video": true,
+            "video_preview_width": 80,
+            "border_color": "#9e4b2d"
+          }
+        },
+        "description_6rAjrE": {
+          "type": "description",
+          "settings": {
+            "show_as_collapsible_content": true,
+            "open": false,
+            "icon": "none"
+          }
+        },
+        "collapsible_content_mGrf79": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Product Details",
+            "icon": "none",
+            "text": "{{ product.metafields.custom.product_details | metafield_tag }}",
+            "page": "",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "collapsible_content_xpUQED": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Where to wear",
+            "icon": "none",
+            "text": "{{ product.metafields.custom.where_to_were | metafield_tag }}",
+            "page": "",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "collapsible_content_2": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Key Features",
+            "icon": "none",
+            "text": "{{ product.metafields.custom.key_features | metafield_tag }}",
+            "page": "",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "collapsible_content_rPxErm": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Exchanges & Returns",
+            "icon": "none",
+            "text": "<p>Not the right fit?<br/>7-day easy exchanges & returns. <br/>Keep it unworn, unwashed, and in original condition.</p>",
+            "page": "",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "collapsible_content_zyQcar": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Wash & Care",
+            "icon": "none",
+            "text": "",
+            "page": "wash-care",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "collapsible_content_xFkWGX": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Find Your Perfect Fit",
+            "icon": "none",
+            "text": "",
+            "page": "size-guide",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "complementary": {
+          "type": "complementary",
+          "settings": {
+            "heading": "You may also like:",
+            "products_to_show": 4
+          }
+        },
+        "sa_variants_product_swatch_block_Xgj8iX": {
+          "type": "shopify://apps/sa-variants/blocks/product-swatch-block/ff68b20f-8c8f-491e-92bf-3e5b8f17ef88",
+          "settings": {}
+        },
+        "cashfree_codfirm_checkout_otp_login_ecom_mx4V6K": {
+          "type": "shopify://apps/cashfree-codfirm-checkout/blocks/otp-login-ecom/4b2740e2-6734-4fdc-8588-96ba7faec9fd",
+          "disabled": true,
+          "settings": {}
+        },
+        "sa_variants_product_swatch_block_9x8YGe": {
+          "type": "shopify://apps/sa-variants/blocks/product-swatch-block/ff68b20f-8c8f-491e-92bf-3e5b8f17ef88",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "product_labels",
+        "title",
+        "rating",
+        "price",
+        "richtext_Gbk9Dj",
+        "selling_points_jMkBR3",
+        "divider_TgCK73",
+        "variant-picker",
+        "buy-buttons",
+        "video_testimonials_t6w9EX",
+        "description_6rAjrE",
+        "collapsible_content_mGrf79",
+        "collapsible_content_xpUQED",
+        "collapsible_content_2",
+        "collapsible_content_rPxErm",
+        "collapsible_content_zyQcar",
+        "collapsible_content_xFkWGX",
+        "complementary",
+        "sa_variants_product_swatch_block_Xgj8iX",
+        "cashfree_codfirm_checkout_otp_login_ecom_mx4V6K",
+        "sa_variants_product_swatch_block_9x8YGe"
+      ],
+      "settings": {
+        "stick_media": true,
+        "media_layout": "slider",
+        "media_stacked_type": "1-2",
+        "media_size": "medium",
+        "media_ratio": "natural",
+        "media_crop": "center",
+        "stacked_scroll": "always",
+        "underline_active": false,
+        "enable_video_looping": false,
+        "enable_video_autoplay": false,
+        "enable_video_controls": true,
+        "slider_full_width_mobile": true,
+        "media_thumbs": "desktop",
+        "enable_zoom": true,
+        "enable_lightbox_mobile": true,
+        "hover_zoom": "large",
+        "border_color": "#333333",
+        "bg_color": "#ffffff",
+        "sticky_atc_panel": true,
+        "sticky_atc_mobile": false,
+        "sticky_atc_position": "sticky-atc-panel--inset",
+        "enable_media_grouping": false,
+        "media_grouping_option": "Color,Colour,Couleur,Farbe"
+      }
+    },
+    "get_the_look_eaizVe": {
+      "type": "get-the-look",
+      "blocks": {
+        "product_range_cQxmWM": {
+          "type": "product-range",
+          "settings": {
+            "heading": "Complete the look",
+            "product_1": "advantage-set-haulter-top-grape-purple",
+            "product_2": "advantage-set-leggings-grape-purple",
+            "open": true
+          }
+        },
+        "product_range_Q8jgit": {
+          "type": "product-range",
+          "settings": {
+            "heading": "Range 2",
+            "product_1": "",
+            "product_2": "",
+            "open": false
+          }
+        },
+        "product_range_Ueyi9z": {
+          "type": "product-range",
+          "settings": {
+            "heading": "Range 3",
+            "product_1": "",
+            "product_2": "",
+            "open": false
+          }
+        },
+        "product_range_tabHAr": {
+          "type": "product-range",
+          "settings": {
+            "heading": "Range 4",
+            "product_1": "",
+            "product_2": "",
+            "open": false
+          }
+        }
+      },
+      "block_order": [
+        "product_range_cQxmWM",
+        "product_range_Q8jgit",
+        "product_range_Ueyi9z",
+        "product_range_tabHAr"
+      ],
+      "disabled": true,
+      "name": "Get the look",
+      "settings": {
+        "heading": "Get the look",
+        "heading_size": "font-body",
+        "range_heading_size": "font-body",
+        "heading_h1": false,
+        "secondary_image_border_radius": 50,
+        "roundel_enabled": true,
+        "color": "#b28362",
+        "outer_text": "",
+        "outer_text_line_offset": 2.7,
+        "outer_text_letter_spacing": 2.6,
+        "inner_type": "text",
+        "inner_text_1": "",
+        "inner_text_1_size": 20,
+        "inner_text_2": "",
+        "inner_text_2_size": 26,
+        "inner_text_font": "body",
+        "icon": "box",
+        "usp_icon": "beauty-routine",
+        "roundel_size": 100,
+        "spin": "scroll",
+        "enable_inner_frame": false,
+        "enable_outer_frame": false,
+        "color_scheme": "",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#cccccc",
+        "background_gradient_stop_2": "#ffffff",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "card_cutout": false
+      }
+    },
+    "product_list_e7tbWX": {
+      "type": "product-list",
+      "blocks": {
+        "heading_GtGCrR": {
+          "type": "heading",
+          "settings": {
+            "heading": "Complete the Look",
+            "heading_size": "h3",
+            "heading_h1": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_GtGCrR"
+      ],
+      "name": "Product list",
+      "settings": {
+        "product_list": "{{ product.metafields.custom.shop_the_look2.value }}",
+        "layout": "carousel",
+        "carousel_effect": "slide",
+        "products_per_row": "2",
+        "products_per_row_desktop": "4",
+        "products_to_show": 12,
+        "card_cutout": false,
+        "show_view_all": false,
+        "view_all_text": "View all",
+        "view_all_url": "",
+        "view_all_style": "btn btn--secondary",
+        "text_align": "text-center",
+        "text_width_override": false,
+        "text_max_width": 640,
+        "text_column_to_edge": false,
+        "mob_center_text": true,
+        "full_width": true,
+        "color_scheme": "",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#cccccc",
+        "background_gradient_stop_2": "#ffffff",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "remove_top_padding": true,
+        "section_height": "small",
+        "section_join_mode": "default"
+      }
+    },
+    "featured_collection_xG8XzT": {
+      "type": "featured-collection",
+      "blocks": {
+        "heading_6xLHrF": {
+          "type": "heading",
+          "settings": {
+            "heading": "You may also Like",
+            "heading_size": "h3",
+            "heading_h1": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_6xLHrF"
+      ],
+      "disabled": true,
+      "name": "Featured collection",
+      "settings": {
+        "collection": "",
+        "layout": "carousel",
+        "carousel_effect": "slide",
+        "products_per_row": "2",
+        "products_per_row_desktop": "5",
+        "products_to_show": 5,
+        "card_cutout": false,
+        "show_view_all": false,
+        "view_all_text": "View all",
+        "view_all_style": "btn btn--secondary",
+        "text_align": "text-center",
+        "text_width_override": false,
+        "text_max_width": 640,
+        "text_column_to_edge": false,
+        "mob_center_text": true,
+        "full_width": true,
+        "color_scheme": "scheme-1",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#fbfaf2",
+        "background_gradient_stop_2": "#f9f4ea",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "remove_top_padding": false,
+        "section_height": "small",
+        "section_join_mode": "tight"
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h4",
+        "heading_align": "text-start",
+        "mob_center_text": true,
+        "color_scheme": "",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#cccccc",
+        "background_gradient_stop_2": "#ffffff",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "products_to_show": 8,
+        "products_per_row": "2",
+        "products_per_row_desktop": "4",
+        "layout": "carousel"
+      }
+    },
+    "icons_with_text_QWQ9AP": {
+      "type": "icons-with-text",
+      "blocks": {
+        "item_fNAA3t": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "usp_icon": "none",
+            "heading": "Free shipping",
+            "text": "<p>Free shipping on all orders</p>"
+          }
+        },
+        "item_iHAPFn": {
+          "type": "item",
+          "disabled": true,
+          "settings": {
+            "icon": "price_tag",
+            "usp_icon": "none",
+            "heading": "Special offers",
+            "text": "<p>Regular sales and discounts</p>"
+          }
+        },
+        "item_jpkmcQ": {
+          "type": "item",
+          "settings": {
+            "icon": "return",
+            "usp_icon": "none",
+            "heading": "Easy returns",
+            "text": "<p>Hassle free returns policy</p>"
+          }
+        },
+        "item_3QKKqM": {
+          "type": "item",
+          "settings": {
+            "icon": "check_mark",
+            "usp_icon": "none",
+            "heading": "Performance First",
+            "text": "<p>Built to move, made to last</p>"
+          }
+        }
+      },
+      "block_order": [
+        "item_fNAA3t",
+        "item_iHAPFn",
+        "item_jpkmcQ",
+        "item_3QKKqM"
+      ],
+      "name": "Icons with text",
+      "settings": {
+        "heading": "",
+        "heading_size": "x-large-heading",
+        "icon_size": 48,
+        "icon_position": "above",
+        "height": "py-6",
+        "color_scheme": ""
+      }
+    }
+  },
+  "order": [
+    "main",
+    "get_the_look_eaizVe",
+    "product_list_e7tbWX",
+    "featured_collection_xG8XzT",
+    "recommendations",
+    "icons_with_text_QWQ9AP"
+  ]
+}

@@ -1,0 +1,102 @@
+{%- comment -%}
+  Parameters:
+  - products {Array} - Array of dropdos to show
+  - heading {String} - Heading for the list (optional).
+  - grid_classes {String} - Classes for the grid
+  - heading_classes {String} - Classes for the heading element
+
+  Usage:
+  {%- render 'product-list',
+    heading: settings.suggested_products_heading,
+    layout: 'carousel',
+    grid_classes: 'grid grid-flow-col auto-cols-[100%] gap-x-theme'
+  -%}
+{%- endcomment -%}
+{%- assign enable_quick_add = true -%}
+
+{%- if enable_quick_add -%}
+  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- liquid
+  if layout == 'carousel' or layout == nil
+    assign carousel = true
+  else
+    assign carousel = false
+  endif
+-%}
+
+<div class="product-list mt-4 w-full block">
+  {%- if carousel -%}
+    <carousel-slider class="carousel block xl:overflow-hidden" inactive>
+  {%- endif -%}
+
+  {%- if carousel and settings.slider_show_arrows != 'never' -%}
+    <div class="flex items-center justify-between">
+      {%- if heading != blank -%}
+        <h2 class="flex-auto mb-0 text-start regular-text font-bold{% if heading_classes %} {{ heading_classes }}{% endif %}">
+          {{- heading | escape -}}
+        </h2>
+      {%- endif -%}
+
+      <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}flex gap-x-2 items-center justify-center no-js-hidden">
+        <button type="button" class="slider-nav__btn slider-nav__btn--sm btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}-product-list" aria-label="{{ 'general.slider.previous' | t }}">
+          {% render 'icon-chevron-left' %}
+        </button>
+        <button type="button" class="slider-nav__btn slider-nav__btn--sm btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}-product-list" aria-label="{{ 'general.slider.next' | t }}">
+          {% render 'icon-chevron-right' %}
+        </button>
+      </div>
+    </div>
+  {%- elsif heading != blank -%}
+    <h2 class="h3 mb-4 text-start">
+      {{- heading | escape -}}
+    </h2>
+  {%- endif -%}
+
+  {%- if carousel -%}
+    <div class="slider slider--no-container slider--no-scrollbar" id="slider-{{ section.id }}-product-list">
+  {%- endif -%}
+
+  <ul class="{% if carousel %}slider__grid {% endif %}{{ grid_classes }}" role="list">
+    {%- if settings.recommendations_promo_image != blank or settings.recommendations_promo_content != blank -%}
+      <li{% if carousel %} class="slider__item"{% endif %}>
+        <div class="cart-recommendations__promo h-full card card--related card--row relative flex color-scheme color-scheme--{{ settings.recommendations_promo_color_scheme.id }}">
+          {%- if settings.recommendations_promo_image != blank -%}
+            <div class="card__media relative">
+              <div class="media relative custom-aspect-ratio" style="--ratio: {{ settings.recommendations_promo_image.aspect_ratio }};">
+                {% render 'image', image: settings.recommendations_promo_image, src_width: 78, srcset_2x: true, class: 'img-fit' %}
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- if settings.recommendations_promo_content != blank -%}
+            <div class="card__info card__info--compact">
+              <div class="card__content text-sm rte">
+                {{ settings.recommendations_promo_content }}
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+      </li>
+    {%- endif -%}
+
+    {%- for product in products -%}
+      {%- capture cc_animate_attr -%}data-cc-animate="fade-in-up" data-cc-animate-delay="{{ forloop.index | times: 0.09 }}s"{%- endcapture -%}
+      <li{% if carousel %} class="slider__item"{% endif %}{% if settings.animate_cards %}{%- render 'animation-attrs', attrs: cc_animate_attr %}{% endif %}>
+        {% render 'product-card', product: product, card_type: 'related', disable_labels: true %}
+      </li>
+    {%- endfor -%}
+  </ul>
+
+  {%- if carousel -%}
+    </div> {% # slider %}
+  {%- endif -%}
+
+  {%- if carousel -%}
+    </carousel-slider>
+  {%- endif -%}
+</div>

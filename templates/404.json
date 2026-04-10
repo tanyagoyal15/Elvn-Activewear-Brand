@@ -1,0 +1,82 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-404",
+      "settings": {
+        "color_scheme": ""
+      }
+    },
+    "collection_list_dVyPMx": {
+      "type": "collection-list",
+      "blocks": {
+        "collection_3gNJMi": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_wWV7Td": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_Dtrpx9": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_78zjHW": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_3gNJMi",
+        "collection_wWV7Td",
+        "collection_Dtrpx9",
+        "collection_78zjHW"
+      ],
+      "name": "Collection list",
+      "settings": {
+        "title": "",
+        "heading_h1": false,
+        "heading_size": "h2",
+        "heading_align": "text-center",
+        "heading_after_blocks": false,
+        "card_size": "small",
+        "card_style": "text-over",
+        "card_show_count": true,
+        "card_compact": true,
+        "grid_offset": true,
+        "color_scheme": "scheme-1",
+        "remove_top_padding": true,
+        "replace_color_scheme_bg": true,
+        "bg_color": "",
+        "bg_gradient": "linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 244, 240, 1) 99%)",
+        "card_inherit_color_scheme": true,
+        "card_color_scheme": ""
+      }
+    }
+  },
+  "order": [
+    "main",
+    "collection_list_dVyPMx"
+  ]
+}

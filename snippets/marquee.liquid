@@ -1,0 +1,40 @@
+{%- comment -%}
+  Parameters:
+  - class {String} - Class name(s) for the containers 'class' attribute (optional).
+  - content_element {String} - Element for the content (optional, default is 'p').
+  - content_class {String} - Class name(s) for the content elements 'class' attribute (optional).
+  - content {String} - Marquee content.
+  - limit {Number} - The amount of times to render the content (optional, default is 25 or 40).
+  - disable_animate {Boolean} - Prevent reveal animation on the marquee (optional, default is false).
+
+  Usage:
+  {% render 'marquee',
+    class: 'w-full',
+    content_element: 'h1',
+    content_class: 'text-xl',
+    content: section.settings.content,
+    limit: 10
+  %}
+{%- endcomment -%}
+
+{%- if content != blank -%}
+  {%- liquid
+    assign content_element = content_element | default: 'p'
+    assign content_size = content.size
+    if content_size < 10
+      assign limit = limit | default: 40
+    else
+      assign limit = limit | default: 25
+    endif
+  -%}
+  <div class="marquee marquee--animate{% if class %} {{ class }}{% endif %}"{% unless disable_animate %}{%- render 'animation-attrs', attrs: 'data-cc-animate="slide-in-up"' %}{% endunless %}>
+    <{{ content_element }} class="marquee-content whitespace-nowrap has-motion{% if content_class %} {{ content_class }}{% endif %}">
+      {{- content | escape -}}
+    </{{ content_element }}>
+    {%- for n in (1..limit) %}
+      <span class="marquee-content whitespace-nowrap has-motion{% if content_class %} {{ content_class }}{% endif %}" aria-hidden="true">
+        {{- content | escape -}}
+      </span>
+    {%- endfor -%}
+  </div>
+{%- endif -%}

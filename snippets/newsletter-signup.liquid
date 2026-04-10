@@ -1,0 +1,77 @@
+{% comment %}
+  Parameters:
+  - id {String} - Unique ID.
+  - class {String} - Classes for the form element (optional, default is 'form').
+  - tags {String} - Contact tags (optional, default is 'newsletter').
+  - hide_label {Boolean} - Visually hide the label (optional, default is true).
+
+  Usage:
+  {% render 'newsletter-signup',
+    id: 'footer-signup',
+    tags: 'newsletter, footer',
+    hide_label: true
+  %}
+{% endcomment %}
+
+{%- liquid
+  if class == blank
+    assign class = 'form'
+  endif
+
+  if tags == blank
+    assign tags = 'newsletter'
+  endif
+
+  if hide_label != false
+    assign hide_label = true
+  endif
+-%}
+
+{% form 'customer', class: class %}
+  <input type="hidden" name="contact[tags]" value="prospect, {{ tags }}">
+
+  {%- if form.posted_successfully? -%}
+    <div class="alert mb-8 bg-success-bg text-success-text" id="{{ id }}-success" tabindex="-1" autofocus>
+      {{ 'newsletter.success' | t }}
+    </div>
+  {%- endif -%}
+
+  <div class="form__field">
+    <label class="label{% if hide_label %} visually-hidden{% endif %}" for="{{ id }}">
+      {{- 'newsletter.label' | t -}}
+    </label>
+
+    <div class="input-plain">
+
+      <input type="email"
+             class="input w-full focus-inset"
+             id="{{ id }}"
+             name="contact[email]"
+             value="{{ form.email }}"
+             placeholder="{{ 'newsletter.placeholder' | t }}"
+             autocomplete="email"
+             {%- if form.posted_successfully? %}
+               aria-describedby="{{ id }}-success"
+             {%- elsif form.errors %}
+               aria-invalid="true"
+               aria-describedby="{{ id }}-error"
+               autofocus
+             {%- endif %}
+             aria-required="true"
+             required>
+
+
+        <button class="btn btn--plain btn--icon has-ltr-icon" aria-label="{{ 'newsletter.button_label' | t }}">
+          {% render 'icon-arrow-right' %}
+        </button>
+    </div>
+
+
+    {%- if form.errors -%}
+      <p class="form__field-error" id="{{ id }}-error">
+        {{ form.errors.translated_fields['email'] | capitalize }}
+        {{ form.errors.messages['email'] }}
+      </p>
+    {%- endif -%}
+  </div>
+{% endform %}

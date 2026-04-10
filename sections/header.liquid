@@ -1,0 +1,2904 @@
+{%- liquid
+  assign breakpoint_sm_down = 479.98
+  assign breakpoint_md = 768
+  assign tabbed_collection_block = section.blocks | where: 'type', 'mega-menu-coll-tabs'
+
+  assign show_language = settings.show_language
+  if localization.available_languages.size <= 1
+    assign show_language = false
+  endif
+
+  assign show_country = settings.show_country
+  if localization.available_countries.size <= 1
+    assign show_country = false
+  endif
+-%}
+
+{%- if section.settings.enable_search and settings.enable_predictive_search -%}
+  <link rel="stylesheet" href="{{ 'predictive-search.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'predictive-search.js' | asset_url }}" defer></script>
+  <script src="{{ 'tabs.js' | asset_url }}" defer></script>
+{%- elsif tabbed_collection_block -%}
+  <script src="{{ 'tabs.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- style -%}
+  {%- if section.settings.logo != blank -%}
+    .logo__image {
+      width: {{ section.settings.logo_width | plus: 0 }}px;
+    }
+
+    @media (max-width: {{ breakpoint_sm_down }}px) {
+      .logo__image {
+        width: {{ section.settings.logo_width_mobile | plus: 0 }}px;
+      }
+    }
+  {%- endif -%}
+
+  {%- if section.settings.enable_sticky -%}
+    .cc-header { position: -webkit-sticky; position: sticky; }
+    .viewport-height, .viewport-height .slide {
+      min-height: calc(100svh - var(--header-height) + 24px);
+    }
+  {%- endif -%}
+
+  {%- if section.settings.enable_transparency -%}
+    .cc-header { min-height: calc(var(--header-height) - var(--announcement-height, 0px)) }
+    .cc-header ~ .banner-candidate.shopify-section-group-header-group,
+    .cc-header ~ #main-content > .banner-candidate:first-child { margin-top: calc(var(--header-height) * -1); }
+    .cc-header ~ .banner-candidate.shopify-section-group-header-group .screen-height,
+    .cc-header ~ #main-content > .banner-candidate:first-child .screen-height { min-height: 100svh; }
+    .cc-header ~ .banner-candidate.shopify-section-group-header-group .text-overlay,
+    .cc-header ~ #main-content > .banner-candidate:first-child .text-overlay { margin-top: calc(var(--header-height) + 20px); }
+    @media (max-width: {{ breakpoint_sm_down }}px) {
+      .cc-header ~ .banner-candidate.shopify-section-group-header-group .mobile-stacked .text-overlay,
+      .cc-header ~ #main-content > .banner-candidate:first-child .mobile-stacked .text-overlay { margin-top: 0; }
+    }
+    @media (min-width: {{ breakpoint_md }}px) {
+      .cc-header ~ .banner-candidate.shopify-section-group-header-group .text-overlay,
+      .cc-header ~ #main-content > .banner-candidate:first-child .text-overlay { margin-top: calc(var(--header-height) + 40px); }
+    }
+  {%- else -%}
+    .cc-header ~ .banner-candidate.shopify-section-group-header-group .screen-height,
+    .cc-header ~ #main-content > .banner-candidate:first-child .screen-height {
+      min-height: calc(100svh - var(--header-height));
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+<main-header class="header js-header-height block relative bg-theme-bg text-theme-text
+             {%- if section.settings.enable_sticky %} header--sticky{% endif -%}
+             {%- if section.settings.enable_transparency %} header--transparent{% endif -%}
+             {%- if section.settings.enable_divider_line %} header--divider-line{% endif -%}">
+  <div class="overlay absolute top-0 right-0 {% if section.settings.enable_divider_line %}bottom-[-1px]{% else %}bottom-0{% endif %} left-0 header__overlay"></div>
+  <div class="header__grid px-6 md:px-12 lg:px-14 py-3 sm:py-4 lg:py-6 flex items-center">
+    {%- capture logo_html -%}
+      <div class="logo logo--position-{{ section.settings.logo_position }}{% if section.settings.logo_position == 'left' %} lg:pe-12{% else %} lg:px-12{% endif %}">
+        <a class="logo__link block relative" href="{{ routes.root_url }}">
+          {%- if section.settings.logo != blank -%}
+            {%- liquid
+              assign logo_width = section.settings.logo_width | at_least: section.settings.logo_width_mobile
+              if section.settings.logo.width < logo_width
+                assign logo_width = section.settings.logo.width
+              endif
+            -%}
+            {% render 'image',
+              image: section.settings.logo,
+              src_width: logo_width,
+              srcset_2x: true,
+              lazy_load: false,
+              alt_text: false,
+              class: 'logo__image block'
+            %}
+            {%- if section.settings.contrast_logo -%}
+              {% render 'image',
+                image: section.settings.contrast_logo,
+                src_width: logo_width,
+                srcset_2x: true,
+                lazy_load: false,
+                alt_text: false,
+                class: 'logo__contrast-image img-fit img-fit--contain'
+              %}
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if request.page_type == 'index' and section.settings.logo_h1 -%}
+            <h1 class="logo__text x-large-heading text-theme-text m-0{% if section.settings.logo != blank %} visually-hidden{% endif %}">{{ shop.name }}</h1>
+          {%- else -%}
+            <span class="logo__text x-large-heading text-theme-text m-0{% if section.settings.logo != blank %} visually-hidden{% endif %}">{{ shop.name }}</span>
+          {%- endif -%}
+        </a>
+      </div>
+    {%- endcapture -%}
+
+    {%- if section.settings.logo_position == 'left' -%}
+      {{ logo_html }}
+    {%- endif -%}
+
+    {%- if section.settings.menu != blank -%}
+      <main-menu class="main-menu{% if section.settings.logo_position == 'middle' %} flex-1{% endif %}" data-parent-opens-child-mobile="{{ section.settings.parent_opens_child_mobile }}">
+        <details class="main-menu__disclosure" open>
+          <summary class="main-menu__toggle lg:hidden">
+            <div class="main-menu__toggle-icon has-ltr-icon" aria-hidden="true">{% render 'icon-menu' %}</div>
+            <span class="visually-hidden">{{ 'general.icon_labels.menu' | t }}</span>
+          </summary>
+          <div class="main-menu__content">
+
+            <div class="main-menu__mobile-nav-header pt-6 md:pt-8 pb-6 flex justify-between lg:hidden">
+              <button class="header__icon header__icon--close text-current js-close-nav">
+                {% render 'icon-close' %}
+                <span class="visually-hidden">{{ 'general.icon_labels.close' | t }}</span>
+              </button>
+
+              {%- if section.settings.enable_localization or shop.customer_accounts_enabled -%}
+                <div class="flex">
+
+                  {%- if section.settings.enable_localization -%}
+                    {% if show_country or show_language %}
+                      <button class="localization-options localization-options--header text-current js-toggle-localization" data-localization-trigger="localization-drawer-header">
+                        {% if show_language %}
+                          <span class="active-language">{{ localization.language.iso_code }}</span>
+                        {% endif %}
+                        {% if show_country %}
+                          <span class="active-currency">{{ localization.country.currency.symbol }}</span>
+                        {% endif %}
+                      </button>
+                    {% endif %}
+                  {%- endif -%}
+
+                  {%- if shop.customer_accounts_enabled -%}
+                    {%- if customer -%}
+                      <a class="header__icon text-current lg:hidden" href="{{ routes.account_url }}">
+                        {% render 'icon-customer' %}
+                        <span class="visually-hidden">{{ 'sections.header.account' | t }}</span>
+                      </a>
+                    {%- else -%}
+                      <a class="header__icon text-current lg:hidden" href="{{ routes.account_login_url }}">
+                        {% render 'icon-customer' %}
+                        <span class="visually-hidden">{{ 'sections.header.log_in' | t }}</span>
+                      </a>
+                    {%- endif -%}
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+
+            <nav aria-label="{{ 'accessibility.main_navigation' | t }}">
+              <ul class="main-nav">
+                {%- for link in section.settings.menu.links -%}
+                  {%- liquid
+                    assign mega_menu_block = false
+                    assign link_title_sanitised = link.title | downcase | strip
+                    for block in section.blocks
+                      assign menu_link_title_sanitised = block.settings.menu_link_title | downcase | strip
+                      if menu_link_title_sanitised == link_title_sanitised and block.type contains 'mega-menu'
+                        assign mega_menu_block = block
+                      endif
+                    endfor
+                  -%}
+                  <li>
+                    {%- if link.links == blank and mega_menu_block == false -%}
+                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>
+                        {{- link.title | escape -}}
+                      </a>
+                    {%- else -%}
+                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>
+                        {{- link.title | escape -}}
+                      </a>
+                      <details>
+                        <summary class="main-nav__summary js-toggle" aria-label="{{ 'accessibility.toggle_submenu' | t: title: link.title }}">
+                          {%- render 'icon-chevron-down' -%}
+                        </summary>
+                        <div class="main-nav__child{% if mega_menu_block %} mega-nav{% endif %}">
+                          {% if mega_menu_block %}<div class="mega-nav__grid {{ mega_menu_block.type }} container lg:px-14" {{ mega_menu_block.shopify_attributes }}>{% endif %}
+                            <ul class="child-nav">
+                              <li class="lg:hidden">
+                                <button type="button" class="main-nav__item main-nav__item--back js-back">
+                                  <div class="main-nav__item-content has-ltr-icon" aria-label="{{ 'accessibility.close_submenu' | t: title: link.title }}">
+                                    {%- render 'icon-chevron-left' %} <span aria-hidden="true">{{ link.title | escape -}}</span>
+                                  </div>
+                                </button>
+                              </li>
+
+                              {%- if mega_menu_block and mega_menu_block.type == 'mega-menu-coll-tabs' -%}
+                                <li class="lg:flex-1">
+                                  {%- if link.links != blank -%}
+                                    <tabbed-content class="w-full block">
+                                      <div class="tablist overflow-hidden mb-2">
+                                        <div class="tablist__scroller flex" role="tablist">
+                                          {%- for child_link in link.links -%}
+                                            <button type="button"
+                                                    class="tablist__tab custom-case"
+                                                    id="mmct-{{ mega_menu_block.id }}-{{ forloop.index }}-tab"
+                                                    role="tab"
+                                                    {%- unless forloop.first %}tabindex="-1"{% endunless %}
+                                                    aria-controls="mmct-{{ mega_menu_block.id }}-{{ forloop.index }}"
+                                                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                                    {{ child_link.title | escape }}
+                                            </button>
+                                          {% endfor -%}
+                                        </div>
+                                      </div>
+
+                                      {%- for child_link in link.links -%}
+                                        <div class="main-nav__collection-tabpanel" id="mmct-{{ mega_menu_block.id }}-{{ forloop.index }}" role="tabpanel" aria-labelledby="mmct-{{ mega_menu_block.id }}-{{ forloop.index }}-tab"{% unless forloop.first %} hidden{% endunless %}>
+                                          <a class="main-nav__collection-tabpanel-view-all link" href="{{ child_link.url }}">
+                                            {{- 'sections.featured_collection.view_all' | t -}}
+                                          </a>
+                                          {%- liquid
+                                            assign product_limit = 6
+                                            if promo contains 'div'
+                                              assign product_limit = 4
+                                            endif
+
+                                            if mega_menu_block.settings.product_rows == '2'
+                                              assign product_limit = product_limit | times: 2
+                                            endif
+
+                                            capture promo
+                                              if forloop.index < 6
+                                                assign promo_settings_suffix = '_' | append: forloop.index
+                                                assign column_index = child_link.object.products.size | at_most: product_limit
+                                                render 'nav-promo', promo_settings: mega_menu_block.settings, settings_suffix: promo_settings_suffix, element: 'div', column_index: column_index
+                                              endif
+                                            endcapture
+                                          -%}
+                                          <div class="main-nav__collection-tabpanel-grid max-lg-peek-carousel overflow-auto{% if mega_menu_block.settings.card_cutout %} has-cutout-cards{% endif %}" data-limit="{{ product_limit }}">
+                                            {%- for product in child_link.object.products limit: product_limit -%}
+                                              {%- if settings.show_gift_wrapping and product.id == settings.gift_wrap_product.id -%}{% continue %}{%- endif -%}
+                                              <div class="flex" style="--column-index: {{ forloop.index0 }}">{%- render 'product-card', product: product, disable_quick_shop: true, disable_animate: true, disable_image_blending: mega_menu_block.settings.card_cutout -%}</div>
+                                            {%- endfor -%}
+                                          </div>
+                                          {{- promo -}}
+                                        </div>
+                                      {%- endfor -%}
+                                    </tabbed-content>
+                                  {%- endif -%}
+                                </li>
+
+                              {%- else -%}
+                                {%- liquid
+                                  assign find_collection_ratio = false
+                                  if mega_menu_block and mega_menu_block.type == 'mega-menu-coll-cards'
+                                    assign find_collection_ratio = true
+                                    assign card_color_scheme = nil
+                                    if mega_menu_block.settings.card_inherit_color_scheme == false
+                                      assign card_color_scheme = mega_menu_block.settings.card_color_scheme
+                                    endif
+                                  endif
+                                  if find_collection_ratio
+                                    if settings.coll_card_image_ratio == 'shortest'
+                                      assign coll_image_ratio = 0
+                                      for child_link in link.links
+                                        if child_link.type == 'collection_link'
+                                          assign collection_featured_image = child_link.object.featured_image | default: child_link.object.products.first.featured_image
+                                          if collection_featured_image.aspect_ratio > coll_image_ratio
+                                            assign coll_image_ratio = collection_featured_image.aspect_ratio
+                                          endif
+                                        endif
+                                      endfor
+                                    elsif settings.coll_card_image_ratio == 'tallest'
+                                      assign coll_image_ratio = 99
+                                      for child_link in link.links
+                                        if child_link.type == 'collection_link'
+                                          assign collection_featured_image = child_link.object.featured_image | default: child_link.object.products.first.featured_image
+                                          if collection_featured_image.aspect_ratio < coll_image_ratio
+                                            assign coll_image_ratio = collection_featured_image.aspect_ratio
+                                          endif
+                                        endif
+                                      endfor
+                                    else
+                                      assign coll_image_ratio = settings.coll_card_image_ratio
+                                    endif
+                                  endif
+                                -%}
+                                {%- for child_link in link.links -%}
+                                  <li style="--column-index: {{ forloop.index0 }}">
+                                    {%- if mega_menu_block and mega_menu_block.type == 'mega-menu-coll-cards' and child_link.type == 'collection_link' -%}
+                                      {%- render 'collection-card',
+                                          collection: child_link.object,
+                                          image_ratio: coll_image_ratio,
+                                          style: mega_menu_block.settings.card_style,
+                                          show_count: mega_menu_block.settings.card_show_count,
+                                          compact: mega_menu_block.settings.card_compact,
+                                          disable_animate: true,
+                                          color_scheme: card_color_scheme
+                                      -%}
+
+                                    {%- elsif child_link.links == blank -%}
+                                      <a class="main-nav__item child-nav__item" href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
+                                        {{- child_link.title | escape -}}
+                                      </a>
+
+                                    {%- else -%}
+                                      <a class="main-nav__item child-nav__item" href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
+                                        {%- if mega_menu_block and mega_menu_block.type == 'mega-menu-columns' and mega_menu_block.settings.show_collection_images and child_link.type == 'collection_link' %}
+                                          {%- liquid
+                                            assign column_image = false
+                                            if mega_menu_block.settings.collection_image_source == 'featured'
+                                              assign column_image = child_link.object.featured_image
+                                            elsif mega_menu_block.settings.collection_image_source == 'metafield'
+                                              assign column_image = child_link.object.metafields.theme.icon
+                                            endif
+                                          -%}
+                                          {%- if column_image -%}
+                                            <div class="main-nav__item-image relative lg:mb-4 custom-aspect-ratio" style="--ratio: {{ mega_menu_block.settings.collection_image_ratio }};">
+                                              {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: 1, sm: 2, lg: 3, xl: 4 %}{% endcapture -%}
+                                              {%- liquid
+                                                assign class = 'img-fit'
+                                                if settings.coll_card_image_fit == 'contain'
+                                                  assign class = 'img-fit img-fit--contain'
+                                                else
+                                                  assign class = 'img-fit ' | append: settings.coll_image_align
+                                                endif
+                                              -%}
+                                              {%- render 'image',
+                                                image: column_image,
+                                                widths: '320, 460, 600, 700, 800, 900, 1200',
+                                                src_width: 460,
+                                                sizes: sizes,
+                                                class: class
+                                              -%}
+                                            </div>
+                                          {%- endif -%}
+                                        {% endif -%}
+                                        <span class="{% if mega_menu_block %}main-nav__heading{% endif %}" role="heading" aria-level="2">{{- child_link.title | escape -}}</span>
+                                      </a>
+                                      <details open>
+                                        <summary class="main-nav__summary js-toggle" aria-label="{{ 'accessibility.toggle_submenu' | t: title: child_link.title }}">
+                                          {%- render 'icon-chevron-right' -%}
+                                        </summary>
+                                        <ul class="main-nav__grandchild{% if mega_menu_block %} mega-nav__list{% endif %}">
+                                          {%- for grandchild_link in child_link.links -%}
+                                            <li>
+                                              <a class="main-nav__item{% if mega_menu_block %} mega-nav__item{% endif %}" href="{{ grandchild_link.url }}"{% if grandchild_link.current %} aria-current="page"{% endif %}>
+                                                {{- grandchild_link.title | escape -}}
+                                              </a>
+                                            </li>
+                                          {%- endfor -%}
+                                        </ul>
+                                      </details>
+                                    {%- endif -%}
+                                  </li>
+                                {%- endfor -%}
+                              {%- endif -%}
+                            </ul>
+                            {%- if mega_menu_block -%}
+                              {%- if mega_menu_block.type == 'mega-menu-columns' or mega_menu_block.type == 'mega-menu-promos' -%}
+                                {%- liquid
+                                  assign column_index = link.links.size
+                                  capture nav_promo_html
+                                    render 'nav-promo', promo_settings: mega_menu_block.settings, settings_suffix: '_1', column_index: column_index
+                                    assign column_index = column_index | plus: 1
+                                    render 'nav-promo', promo_settings: mega_menu_block.settings, settings_suffix: '_2', column_index: column_index
+                                    assign column_index = column_index | plus: 1
+                                    if mega_menu_block.type == 'mega-menu-promos'
+                                      render 'nav-promo', promo_settings: mega_menu_block.settings, settings_suffix: '_3', column_index: column_index
+                                      assign column_index = column_index | plus: 1
+                                      render 'nav-promo', promo_settings: mega_menu_block.settings, settings_suffix: '_4', column_index: column_index
+                                      assign column_index = column_index | plus: 1
+                                      render 'nav-promo', promo_settings: mega_menu_block.settings, settings_suffix: '_5', column_index: column_index
+                                    endif
+                                  endcapture
+                                  assign promo_count = nav_promo_html | split: 'main-nav__promo ' | size | minus: 1
+                                -%}
+                                {%- if promo_count > 0 -%}
+                                  <ul class="main-nav__adjacent-promos" data-count="{{ promo_count }}">
+                                    {{- nav_promo_html -}}
+                                  </ul>
+                                {%- endif -%}
+                              {%- endif -%}
+                            {%- endif -%}
+                          {% if mega_menu_block %}</div>{% endif %}
+                        </div>
+                      </details>
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </nav>
+
+            {%- capture social_media -%}{%- render 'social-media', icon: settings.social_custom_icon, icon_height: 28, class: ' gap-4 justify-start w-full' -%}{%- endcapture -%}
+            {% if social_media contains '</a>' %}
+              <div class="main-nav__social pt-10 flex-none lg:hidden">
+                {{- social_media -}}
+              </div>
+            {% endif %}
+          </div>
+        </details>
+      </main-menu>
+    {%- endif -%}
+
+    {%- if section.settings.logo_position == 'middle' -%}
+      {{ logo_html }}
+    {%- endif -%}
+
+    <div class="header__icons flex-1 flex justify-end items-center">
+      {%- if section.settings.enable_localization -%}
+        {% if show_country or show_language %}
+          <button class="localization-options localization-options--header text-current js-toggle-localization" data-localization-trigger="localization-drawer-header">
+            {% if show_language %}
+              <span class="active-language">{{ localization.language.iso_code }}</span>
+            {% endif %}
+            {% if show_country %}
+              <span class="active-currency">{{ localization.country.currency.symbol }}</span>
+            {% endif %}
+          </button>
+          {% render 'localization-drawer', drawer_id: 'localization-drawer-header' %}
+        {% endif %}
+      {%- endif -%}
+
+      {%- if shop.customer_accounts_enabled -%}
+        {%- if customer -%}
+          <a class="header__icon text-current hidden lg:inline" href="{{ routes.account_url }}">
+            {% render 'icon-customer' %}
+            <span class="visually-hidden">{{ 'sections.header.account' | t }}</span>
+          </a>
+        {%- else -%}
+          <a class="header__icon text-current hidden lg:inline" href="{{ routes.account_login_url }}">
+            {% render 'icon-customer' %}
+            <span class="visually-hidden">{{ 'sections.header.log_in' | t }}</span>
+          </a>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if section.settings.enable_search -%}
+        <a class="header__icon text-current js-toggle-search" href="{{ routes.search_url }}">
+          {% render 'icon-search' %}
+          <span class="visually-hidden">{{ 'general.search.title' | t }}</span>
+        </a>
+      {%- endif -%}
+
+      <a class="header__icon relative text-current" id="cart-icon" href="{{ routes.cart_url }}">
+        {%- if section.settings.cart_icon == 'bag' -%}
+          {%- render 'icon-bag' -%}
+          <span class="visually-hidden">{{ 'sections.header.bag' | t }}</span>
+        {%- elsif section.settings.cart_icon == 'makeupbag' -%}
+          {%- render 'icon-makeupbag' -%}
+          <span class="visually-hidden">{{ 'sections.header.bag' | t }}</span>
+        {%- elsif section.settings.cart_icon == 'basket' -%}
+          {%- render 'icon-basket' -%}
+          <span class="visually-hidden">{{ 'sections.header.basket' | t }}</span>
+        {%- else -%}
+          {%- render 'icon-cart' -%}
+          <span class="visually-hidden">{{ 'sections.header.cart' | t }}</span>
+        {%- endif -%}
+
+        <div id="cart-icon-bubble">
+          {%- if cart != empty -%}
+            <div class="header__cart-count count-badge absolute text-center">
+              {%- if cart.item_count < 100 -%}
+                <span aria-hidden="true">{{ cart.item_count }}</span>
+              {%- endif -%}
+              <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+            </div>
+          {%- endif -%}
+        </div>
+      </a>
+    </div>
+  </div>
+
+  {%- if section.settings.enable_search -%}
+    <div class="header__search absolute left-0 top-0 w-full" hidden>
+      <div class="px-6 md:px-12 lg:px-14 py-6">
+        <div class="relative">
+          <div class="header__search-logo-container absolute top-0 start-0 hidden lg:flex items-center">
+            {{- logo_html | remove: 'lg:px-12' | replace: '<h1 ', '<span ' | replace: '</h1>', '</span>' | remove: 'shrink-0' -}}
+          </div>
+          <div class="flex-1">
+            {%- render 'predictive-search', id: 'header-search' -%}
+          </div>
+        </div>
+      </div>
+      {% if section.settings.search_popular_menu != blank or section.settings.search_popular_products != blank %}
+        <div class="header__search-popular">
+          <div class="container">
+            <div class="lg:flex">
+              {% if section.settings.search_popular_menu != blank %}
+                <div class="header__search-popular-menu pt-6 pb-6 lg:pb-8 flex-none lg:w-[232px] lg:pe-4 lg:me-6">
+                  <div class="main-nav__heading h1 mb-4" role="heading" aria-level="2">{{ section.settings.search_popular_menu.title | escape }}</div>
+                  <ul>
+                    {% for link in section.settings.search_popular_menu.links %}
+                      <li class="mb-2 inline-block me-2 lg:block lg:me-0"><a class="pill-link text-sm" href="{{ link.url }}">{{ link.title | escape }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+              {% if section.settings.search_popular_products != blank %}
+                <div class="header__search-popular-products flex-1 {% if section.settings.search_popular_menu != blank %}lg:pt-6{% else %}pt-6{% endif %} pb-6 lg:pb-8">
+                  {%- if section.settings.search_popular_products_title != blank -%}
+                    <div class="main-nav__heading h1 mb-4" role="heading" aria-level="2">{{ section.settings.search_popular_products_title | escape }}</div>
+                  {%- endif -%}
+                  <div class="grid grid-cols-2 md:grid-flow-col md:auto-cols-4 gap-x-theme gap-y-10{% if section.settings.search_popular_products_card_cutout %} has-cutout-cards{% endif %}">
+                    {% for product in section.settings.search_popular_products limit: 4 %}
+                      {%- if settings.show_gift_wrapping and product.id == settings.gift_wrap_product.id -%}{% continue %}{%- endif -%}
+                      {% render 'product-card', product: product, disable_quick_shop: true, disable_animate: true, disable_image_blending: section.settings.search_popular_products_card_cutout %}
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {%- endif -%}
+</main-header>
+
+{% render 'structured-data-header' %}
+
+<script>
+  // From set-dimensions.js
+  requestAnimationFrame(() => {
+    const header = document.querySelector('.js-header-height');
+    if (!header) return;
+    let height = header.offsetHeight;
+
+    // Add announcement bar height (if shown).
+    const announcement = document.querySelector('.cc-announcement');
+    const announcementHeight = announcement ? announcement.offsetHeight : 0;
+    height += announcementHeight;
+
+    document.documentElement.style.setProperty('--announcement-height', `${announcementHeight}px`);
+    document.documentElement.style.setProperty('--header-height', `${height}px`);
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "cc-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky",
+      "label": "Enable sticky header",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_divider_line",
+      "label": "Enable divider line",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "select",
+      "id": "logo_position",
+      "label": "Logo position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "middle",
+          "label": "Middle"
+        }
+      ]
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 30,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 150
+    },
+    {
+      "type": "range",
+      "id": "logo_width_mobile",
+      "min": 30,
+      "max": 160,
+      "step": 5,
+      "unit": "px",
+      "label": "Mobile logo width",
+      "default": 120
+    },
+    {
+      "type": "checkbox",
+      "id": "logo_h1",
+      "label": "Enable logo <h1> on home page",
+      "info": "For SEO. Deselect only if another section on the home page contains a primary page heading. [Learn more](https://cleancanvas.co.uk/support/beautify/seo)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Transparency"
+    },
+    {
+      "type": "paragraph",
+      "content": "Applied when the first section includes a full width image, excluding section background images."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_transparency",
+      "label": "Enable transparent header",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "contrast_logo",
+      "label": "Alternative logo (optional)"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Main menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "parent_opens_child_mobile",
+      "label": "Parent links open dropdowns on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Localization"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_localization",
+      "label": "Enable localization",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_localization }}",
+      "type": "paragraph",
+      "content": "Localization settings can be modified within [Theme Settings > Localization](/editor?context=theme&category=localization)"
+    },
+    {
+      "type": "header",
+      "content": "Cart"
+    },
+    {
+      "type": "select",
+      "id": "cart_icon",
+      "label": "Cart icon",
+      "options": [
+        {
+          "value": "bag",
+          "label": "Bag"
+        },
+        {
+          "value": "makeupbag",
+          "label": "Makeup Bag"
+        },
+        {
+          "value": "basket",
+          "label": "Basket"
+        },
+        {
+          "value": "cart",
+          "label": "Cart"
+        }
+      ],
+      "default": "makeupbag"
+    },
+    {
+      "type": "header",
+      "content": "Search"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_search",
+      "label": "Enable search",
+      "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "search_popular_menu",
+      "label": "Popular searches",
+      "info": "Choose a menu containing links to popular pages"
+    },
+    {
+      "type": "text",
+      "id": "search_popular_products_title",
+      "label": "Popular products title",
+      "default": "Popular products"
+    },
+    {
+      "type": "product_list",
+      "id": "search_popular_products",
+      "label": "Popular products",
+      "limit": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "search_popular_products_card_cutout",
+      "label": "Show cutout cards",
+      "info": "This setting works best with transparent background images. This will prevent hover images and image blending from taking effect.",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "mega-menu-columns",
+      "name": "Menu: Columns",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "The columns dropdown menu is suited to showing lists of links, with optional promos to the side."
+        },
+        {
+          "type": "text",
+          "id": "menu_link_title",
+          "label": "Link name",
+          "info": "The name of any first-level link that you wish to turn into a columns mega menu."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_collection_images",
+          "label": "Show column heading images",
+          "info": "Parent links must connect to collections",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "collection_image_source",
+          "label": "Collection image source",
+          "info": "\"Featured\" uses the collection image and will fallback to the first product image. \"Metafield\" will use the following image metafield `theme.icon`.",
+          "options": [
+            {
+              "value": "featured",
+              "label": "Featured"
+            },
+            {
+              "value": "metafield",
+              "label": "Metafield"
+            }
+          ],
+          "default": "featured"
+        },
+        {
+          "type": "select",
+          "id": "collection_image_ratio",
+          "label": "Image aspect ratio",
+          "options": [
+            {
+              "value": "2",
+              "label": "Landscape (2:1)"
+            },
+            {
+              "value": "1.5",
+              "label": "Landscape (3:2)"
+            },
+            {
+              "value": "1.25",
+              "label": "Landscape (5:4)"
+            },
+            {
+              "value": "1",
+              "label": "Square (1:1)"
+            },
+            {
+              "value": "0.8",
+              "label": "Portrait (4:5)"
+            },
+            {
+              "value": "0.67",
+              "label": "Portrait (2:3)"
+            }
+          ],
+          "default": "1"
+        },
+        {
+          "type": "header",
+          "content": "Promotions"
+        },
+        {
+          "type": "select",
+          "id": "promo_image_ratio",
+          "label": "Image aspect ratio",
+          "options": [
+            {
+              "value": "1.33",
+              "label": "Landscape"
+            },
+            {
+              "value": "1",
+              "label": "Square"
+            },
+            {
+              "value": "0.75",
+              "label": "Portrait"
+            }
+          ],
+          "default": "1"
+        },
+        {
+          "type": "header",
+          "content": "Promotion 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_1",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_1",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_1",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_1",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_1",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_1",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_1",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_1",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_1",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_1",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_1",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_2",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_2",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_2",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_2",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_2",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_2",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_2",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_2",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_2",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_2",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        }
+      ]
+    },
+    {
+      "type": "mega-menu-coll-tabs",
+      "name": "Menu: Collection tabs",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Shows links to in tabs with product cards below. This mega menu works best with 2nd level links to collections."
+        },
+        {
+          "type": "text",
+          "id": "menu_link_title",
+          "label": "Link name",
+          "info": "The name of any first-level link that you wish to turn into a collection tabs mega menu (e.g. Shop)"
+        },
+        {
+          "type": "select",
+          "id": "product_rows",
+          "label": "Rows",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            }
+          ],
+          "default": "2"
+        },
+        {
+          "type": "checkbox",
+          "id": "card_cutout",
+          "label": "Show cutout cards",
+          "info": "This setting works best with transparent background images. This will prevent hover images and image blending from taking effect.",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Promotions"
+        },
+        {
+          "type": "select",
+          "id": "promo_image_ratio",
+          "label": "Image aspect ratio",
+          "options": [
+            {
+              "value": "1.33",
+              "label": "Landscape"
+            },
+            {
+              "value": "1",
+              "label": "Square"
+            },
+            {
+              "value": "0.75",
+              "label": "Portrait"
+            }
+          ],
+          "default": "1"
+        },
+        {
+          "type": "header",
+          "content": "Promotion in tab 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_1",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_1",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_1",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_1",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_1",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_1",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_1",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_1",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_1",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_1",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_1",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion in tab 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_2",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_2",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_2",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_2",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_2",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_2",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_2",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_2",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_2",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_2",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion in tab 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_3",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_3",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_3",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_3",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_3",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_3",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_3",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_3",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_3",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_3",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_3",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_3",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion in tab 4"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_4",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_4",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_4",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_4",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_4",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_4",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_4",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_4",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_4",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_4",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_4",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_4",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion in tab 5"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_5",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_5",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_5",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_5",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_5",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_5",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_5",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_5",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_5",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_5",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_5",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_5",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        }
+      ]
+    },
+    {
+      "type": "mega-menu-coll-cards",
+      "name": "Menu: Collection cards",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "The collection cards dropdown menu displays second level links to collections as cards. Third level links are not shown."
+        },
+        {
+          "type": "text",
+          "id": "menu_link_title",
+          "label": "Link name",
+          "info": "The name of any first-level link that you wish to turn into a collection cards mega menu (e.g. Shop)"
+        },
+        {
+          "type": "header",
+          "content": "Cards"
+        },
+        {
+          "type": "select",
+          "id": "card_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "text-below",
+              "label": "Text below"
+            },
+            {
+              "value": "text-over",
+              "label": "Text over"
+            }
+          ],
+          "default": "text-over"
+        },
+        {
+          "type": "checkbox",
+          "id": "card_show_count",
+          "label": "Show product count",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "card_compact",
+          "label": "Compact",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "card_inherit_color_scheme",
+          "label": "Cards inherit header colors",
+          "default": true
+        },
+        {
+          "type": "color_scheme",
+          "id": "card_color_scheme",
+          "label": "Card color scheme",
+          "default": "scheme-1",
+          "visible_if": "{{ block.settings.card_inherit_color_scheme == false }}"
+        }
+      ]
+    },
+    {
+      "type": "mega-menu-promos",
+      "name": "Menu: Promos",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "The promos dropdown menu shows up to 5 promos, with no other links."
+        },
+        {
+          "type": "text",
+          "id": "menu_link_title",
+          "label": "Link name",
+          "info": "The name of any first-level link that you wish to show the promo dropdown underneath (e.g. Shop)"
+        },
+        {
+          "type": "header",
+          "content": "Promotions"
+        },
+        {
+          "type": "select",
+          "id": "promo_image_ratio",
+          "label": "Image aspect ratio",
+          "options": [
+            {
+              "value": "1.33",
+              "label": "Landscape"
+            },
+            {
+              "value": "1",
+              "label": "Square"
+            },
+            {
+              "value": "0.75",
+              "label": "Portrait"
+            }
+          ],
+          "default": "1"
+        },
+        {
+          "type": "header",
+          "content": "Promotion 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_1",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_1",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_1",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_1",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_1",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_1",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_1",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_1",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_1",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_1",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_1",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_2",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_2",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_2",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_2",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_2",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_2",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_2",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_2",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_2",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_2",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_3",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_3",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_3",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_3",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_3",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_3",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_3",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_3",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_3",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_3",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_3",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_3",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion 4"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_4",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_4",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_4",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_4",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_4",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_4",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_4",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_4",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_4",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_4",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_4",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_4",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Promotion 5"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_5",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link_5",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "overline_5",
+          "label": "Overline"
+        },
+        {
+          "type": "text",
+          "id": "heading_5",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_5",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "text",
+          "id": "button_label_5",
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_style_5",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "text_position_5",
+          "label": "Text position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment_5",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme_5",
+          "label": "Color scheme",
+          "default": "scheme-3"
+        },
+        {
+          "type": "color",
+          "id": "tint_color_5",
+          "label": "Image tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity_5",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Image tint opacity",
+          "default": 0
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

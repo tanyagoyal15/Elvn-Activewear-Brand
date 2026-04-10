@@ -1,0 +1,95 @@
+{%- if predictive_search.performed -%}
+  <div class="predictive-search bg-theme-bg text-theme-text text-start -mx-6 md:-mx-12 lg:-mx-14">
+    <div class="predictive-search__results container lg:flex">
+      <div class="predictive-search__suggestions pt-6 pb-8 flex-none lg:w-[232px] lg:pe-4 lg:me-6">
+        {%- if predictive_search.resources.queries.size > 0 -%}
+          <h3 class="predictive-result__title main-nav__heading mb-4">{{ 'general.search.queries' | t }}</h3>
+          <ul class="predictive-search__list predictive-result__list-suggestions mb-4" role="list">
+            {%- for suggestion in predictive_search.resources.queries -%}
+              <li class="predictive-search__item mb-2 inline-block me-2 lg:block lg:me-0" role="option">
+                <a class="pill-link text-sm focus-inset" href="{{ suggestion.url }}">
+                  {{- suggestion.styled_text -}}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        <button class="predictive-search__view-all link w-full text-start focus-inset has-ltr-icon js-search-link custom-case" hidden>
+          {{- 'general.search.view_all' | t -}}
+        </button>
+      </div>
+
+      {%- if predictive_search.resources.products.size > 0 or predictive_search.resources.collections.size > 0 or predictive_search.resources.pages.size > 0 or predictive_search.resources.articles.size > 0 -%}
+        {%- assign resource_types = 'products collections articles pages' | split: ' ' -%}
+        <tabbed-content class="block w-full lg:pt-6 pb-8">
+          <div class="tablist overflow-hidden mb-2">
+            <div class="tablist__scroller flex" role="tablist">
+              {%- for type in resource_types -%}
+                {%- assign resource = predictive_search.resources[type] -%}
+                {%- if resource.size > 0 -%}
+                  <button type="button"
+                          class="tablist__tab custom-case"
+                          id="psearch-{{ type }}-tab"
+                          role="tab"
+                          {%- unless forloop.first %}tabindex="-1"{% endunless %}
+                          aria-controls="psearch-{{ type }}"
+                          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                    {%- if type == 'products' -%}
+                      {{- 'general.search.products' | t -}}
+                    {%- elsif type == 'collections' -%}
+                      {{- 'general.search.collections' | t -}}
+                    {%- elsif type == 'articles' -%}
+                      {{- 'general.search.articles' | t -}}
+                    {%- else -%}
+                      {{- 'general.search.pages' | t -}}
+                    {%- endif -%}
+                  </button>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+
+          {%- for type in resource_types -%}
+            {%- assign resource = predictive_search.resources[type] -%}
+            {%- if resource.size > 0 -%}
+              <div class="predictive-search__tabpanel focus-inset" id="psearch-{{ type }}" role="tabpanel" tabindex="0" aria-labelledby="psearch-{{ type }}-tab"{% unless forloop.first %} hidden{% endunless %}>
+                <ul class="predictive-search__list{% if type == 'products' or type == 'collections' %} grid grid-flow-col auto-cols-2 md:auto-cols-4 gap-x-theme gap-y-10 pb-1{% endif %}" role="list">
+                  {%- for item in resource limit: 4 -%}
+                    <li class="predictive-search__item" role="option">
+                      {%- if type == 'products' -%}
+                        {%- render 'product-card', product: item, disable_quick_shop: true, disable_animate: true -%}
+
+                      {%- elsif type == 'collections' -%}
+                        {%- render 'collection-card',
+                            collection: item,
+                            style: settings.search_coll_card_style,
+                            show_count: settings.search_coll_card_show_count,
+                            compact: settings.search_coll_card_compact,
+                            disable_animate: true
+                        -%}
+
+                      {%- else -%}
+                        <div class="mb-3">
+                          <a class="predictive-result hover:font-bold text-sm focus-inset js-search-link inline-flex" href="{{ item.url }}">
+                            <span class="me-2">{%- render 'icon-page' %}</span>
+                            {{ item.title | escape -}}
+                          </a>
+                        </div>
+                      {%- endif -%}
+
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </tabbed-content>
+      {%- else -%}
+        <div class="predictive-search__no-results">
+          {{ 'general.search.no_results' | t: terms: predictive_search.terms }}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

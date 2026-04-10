@@ -1,0 +1,87 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "footer",
+  "name": "Footer Group",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "text-1": {
+          "type": "text",
+          "settings": {
+            "image": "shopify://shop_images/IMG_4723_4cf6a8d2-745e-4637-9223-5e7780a14444.png",
+            "image_width": 110,
+            "text": "<p>For the ones who keep going, even when it’s hard. Even when no one’s watching.</p><p><br/>Movement, beyond ten.</p>",
+            "button_label": "",
+            "button_link": "",
+            "button_style": "btn btn--primary",
+            "text_align": "text-start items-start",
+            "enable_follow_on_shop": true,
+            "enable_social_icons": true,
+            "social_icons_color": "#9e4b2d"
+          }
+        },
+        "menu-1": {
+          "type": "link_list",
+          "settings": {
+            "menu": "footer",
+            "text_align": "text-start justify-start"
+          }
+        },
+        "newsletter_6prG9w": {
+          "type": "newsletter",
+          "settings": {
+            "heading": "Join ELVN Movement.",
+            "heading_size": "h3",
+            "heading_font": "font-heading",
+            "text": "<p>Unlock members-only rewards, early access, and more.</p>",
+            "text_align": "text-start ms-0 me-auto",
+            "enable_social_icons": false,
+            "social_icons_color": "#b78390"
+          }
+        }
+      },
+      "block_order": [
+        "text-1",
+        "menu-1",
+        "newsletter_6prG9w"
+      ],
+      "settings": {
+        "color_scheme": "scheme-2",
+        "enable_footer_image": false,
+        "image_mobile_ratio": "natural",
+        "link_to_home": true,
+        "show_large_store_name": false,
+        "logo_image": "shopify://shop_images/IMG_4724.png",
+        "large_store_name": "",
+        "large_store_name_size": 19,
+        "large_store_name_letter_spacing": 0,
+        "large_store_name_height": 1,
+        "large_store_name_mob_pos": "bottom",
+        "large_store_name_scroll": true,
+        "large_scroll_image_height": 300,
+        "large_scroll_image_height_mobile": 160,
+        "speed": 24,
+        "direction": "normal",
+        "pausable": true,
+        "spacing": 160,
+        "show_payment_icons": true,
+        "show_copyright": "always",
+        "show_powered_by": true,
+        "secondary_menu": "",
+        "enable_localization": true
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

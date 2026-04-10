@@ -1,0 +1,245 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "header",
+  "name": "Header Group",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement_KpK7CV": {
+          "type": "announcement",
+          "settings": {
+            "text": "Free Shipping on all orders*",
+            "bg_color": "#944325",
+            "bg_gradient": "",
+            "text_color": "#ffffff"
+          }
+        },
+        "announcement-2": {
+          "type": "announcement",
+          "settings": {
+            "text": "Movement Beyond Ten",
+            "bg_color": "#944325",
+            "bg_gradient": "",
+            "text_color": "#ffffff"
+          }
+        }
+      },
+      "block_order": [
+        "announcement_KpK7CV",
+        "announcement-2"
+      ],
+      "settings": {
+        "home_page_only": true,
+        "enable_close": true,
+        "font_size": 14,
+        "read_time": 4
+      }
+    },
+    "header": {
+      "type": "header",
+      "blocks": {
+        "mega_menu_coll_cards_mdGVfk": {
+          "type": "mega-menu-coll-cards",
+          "settings": {
+            "menu_link_title": "Activity",
+            "card_style": "text-below",
+            "card_show_count": false,
+            "card_compact": true,
+            "card_inherit_color_scheme": true,
+            "card_color_scheme": "scheme-1"
+          }
+        },
+        "mega_menu_coll_cards_cEWgUE": {
+          "type": "mega-menu-coll-cards",
+          "settings": {
+            "menu_link_title": "Category",
+            "card_style": "text-below",
+            "card_show_count": false,
+            "card_compact": true,
+            "card_inherit_color_scheme": true,
+            "card_color_scheme": "scheme-1"
+          }
+        },
+        "mega_menu_coll_cards_pcDpiY": {
+          "type": "mega-menu-coll-cards",
+          "settings": {
+            "menu_link_title": "Collections",
+            "card_style": "text-below",
+            "card_show_count": false,
+            "card_compact": true,
+            "card_inherit_color_scheme": true,
+            "card_color_scheme": "scheme-1"
+          }
+        },
+        "mega_menu_coll_cards_HtqfW9": {
+          "type": "mega-menu-coll-cards",
+          "disabled": true,
+          "settings": {
+            "menu_link_title": "Shop By Activity",
+            "card_style": "text-over",
+            "card_show_count": true,
+            "card_compact": true,
+            "card_inherit_color_scheme": true,
+            "card_color_scheme": "scheme-1"
+          }
+        },
+        "mega_menu_coll_tabs_yzfnhf": {
+          "type": "mega-menu-coll-tabs",
+          "disabled": true,
+          "settings": {
+            "menu_link_title": "Activities",
+            "product_rows": "2",
+            "card_cutout": true,
+            "promo_image_ratio": "1",
+            "link_1": "",
+            "overline_1": "",
+            "heading_1": "",
+            "heading_size_1": "h3",
+            "button_label_1": "",
+            "button_style_1": "btn btn--primary",
+            "text_position_1": "justify-center items-end",
+            "text_alignment_1": "text-start",
+            "color_scheme_1": "scheme-3",
+            "tint_color_1": "#000000",
+            "tint_opacity_1": 0,
+            "link_2": "",
+            "overline_2": "",
+            "heading_2": "",
+            "heading_size_2": "h3",
+            "button_label_2": "",
+            "button_style_2": "btn btn--primary",
+            "text_position_2": "justify-center items-end",
+            "text_alignment_2": "text-start",
+            "color_scheme_2": "scheme-3",
+            "tint_color_2": "#000000",
+            "tint_opacity_2": 0,
+            "link_3": "",
+            "overline_3": "",
+            "heading_3": "",
+            "heading_size_3": "h3",
+            "button_label_3": "",
+            "button_style_3": "btn btn--primary",
+            "text_position_3": "justify-center items-end",
+            "text_alignment_3": "text-start",
+            "color_scheme_3": "scheme-3",
+            "tint_color_3": "#000000",
+            "tint_opacity_3": 0,
+            "link_4": "",
+            "overline_4": "",
+            "heading_4": "",
+            "heading_size_4": "h3",
+            "button_label_4": "",
+            "button_style_4": "btn btn--primary",
+            "text_position_4": "justify-center items-end",
+            "text_alignment_4": "text-start",
+            "color_scheme_4": "scheme-3",
+            "tint_color_4": "#000000",
+            "tint_opacity_4": 0,
+            "link_5": "",
+            "overline_5": "",
+            "heading_5": "",
+            "heading_size_5": "h3",
+            "button_label_5": "",
+            "button_style_5": "btn btn--primary",
+            "text_position_5": "justify-center items-end",
+            "text_alignment_5": "text-start",
+            "color_scheme_5": "scheme-3",
+            "tint_color_5": "#000000",
+            "tint_opacity_5": 0
+          }
+        },
+        "mega_menu_columns_xJbx4d": {
+          "type": "mega-menu-columns",
+          "settings": {
+            "menu_link_title": "Shop",
+            "show_collection_images": true,
+            "collection_image_source": "featured",
+            "collection_image_ratio": "1",
+            "promo_image_ratio": "1",
+            "image_1": "shopify://shop_images/132_1746e276-444b-416a-ad2b-56a0a70ff823.png",
+            "link_1": "shopify://pages/elvn-rewards",
+            "overline_1": "EXCLUSIVE",
+            "heading_1": "Join Our Loyalty Club",
+            "heading_size_1": "h3",
+            "button_label_1": "HERE",
+            "button_style_1": "btn btn--primary",
+            "text_position_1": "justify-center items-end",
+            "text_alignment_1": "text-start",
+            "color_scheme_1": "scheme-3",
+            "tint_color_1": "#000000",
+            "tint_opacity_1": 0,
+            "image_2": "shopify://shop_images/67_44f4f5bc-b907-45e0-b2af-5e7b96f2be82.png",
+            "link_2": "",
+            "overline_2": "but you’re not everyone!",
+            "heading_2": "Everyone agreed on ten,",
+            "heading_size_2": "h3",
+            "button_label_2": "",
+            "button_style_2": "btn btn--primary",
+            "text_position_2": "justify-center items-end",
+            "text_alignment_2": "text-start",
+            "color_scheme_2": "scheme-3",
+            "tint_color_2": "#000000",
+            "tint_opacity_2": 15
+          }
+        },
+        "mega_menu_coll_cards_Dw4R9G": {
+          "type": "mega-menu-coll-cards",
+          "settings": {
+            "menu_link_title": "Shop",
+            "card_style": "text-below",
+            "card_show_count": false,
+            "card_compact": true,
+            "card_inherit_color_scheme": true,
+            "card_color_scheme": "scheme-1"
+          }
+        }
+      },
+      "block_order": [
+        "mega_menu_coll_cards_mdGVfk",
+        "mega_menu_coll_cards_cEWgUE",
+        "mega_menu_coll_cards_pcDpiY",
+        "mega_menu_coll_cards_HtqfW9",
+        "mega_menu_coll_tabs_yzfnhf",
+        "mega_menu_columns_xJbx4d",
+        "mega_menu_coll_cards_Dw4R9G"
+      ],
+      "settings": {
+        "enable_sticky": true,
+        "enable_divider_line": false,
+        "logo_position": "left",
+        "logo": "shopify://shop_images/IMG_4723_4cf6a8d2-745e-4637-9223-5e7780a14444.png",
+        "logo_width": 85,
+        "logo_width_mobile": 75,
+        "logo_h1": true,
+        "enable_transparency": true,
+        "menu": "main-menu",
+        "parent_opens_child_mobile": false,
+        "enable_localization": true,
+        "cart_icon": "cart",
+        "enable_search": true,
+        "search_popular_menu": "",
+        "search_popular_products_title": "Popular products",
+        "search_popular_products": [
+          "advantage-set-zipper-t-shirt-grape-purple",
+          "advantage-set-skirt-grape-purple",
+          "aircourt-full-sleeve-top-premium-black",
+          "aerosculpt-jumpsuit-apricot-bud-yellow"
+        ],
+        "search_popular_products_card_cutout": false
+      }
+    }
+  },
+  "order": [
+    "announcement-bar",
+    "header"
+  ]
+}

@@ -1,0 +1,3457 @@
+<link rel="stylesheet" href="{{ 'media-with-text.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+<link rel="stylesheet" href="{{ 'product.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+<link rel="stylesheet" href="{{ 'featured-product.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+
+{%- if section.settings.product.media.size > 0 -%}
+  <link rel="stylesheet" href="{{ 'media-gallery.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+  <script src="{{ 'video.js' | asset_url }}" defer></script>
+  {{ 'video.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+<script src="{{ 'product-form.js' | asset_url }}" defer></script>
+
+{%- liquid
+  # constants
+  assign breakpoint_md = 768
+  assign breakpoint_lg = 1024
+  assign breakpoint_xl = 1280
+
+  assign product = all_products[section.settings.product]
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_media = product.selected_or_first_available_variant.featured_media | default: product.featured_media
+  assign select_first_variant = true
+
+  unless product.has_only_default_variant
+    if select_first_variant == false and product.variants.size > 1
+      assign current_variant = product.selected_variant | default: false
+      unless current_variant
+        assign featured_media = product.featured_media
+      endunless
+    endif
+  endunless
+
+  assign product_form_id = 'product-form-' | append: section.id
+  assign first_3d_model = product.media | where: 'media_type', 'model' | first
+  assign media_ratio = section.settings.media_ratio
+  assign thumb_ratio = section.settings.media_ratio
+  assign media_crop = section.settings.media_crop
+
+  if media_ratio == 'natural'
+    assign media_ratio = 99
+    for media in product.media
+      if media.preview_image.aspect_ratio < media_ratio
+        assign media_ratio = media.preview_image.aspect_ratio
+      endif
+    endfor
+  endif
+
+  if thumb_ratio == 'natural'
+    assign thumb_ratio = 99
+    for media in product.media
+      if media.preview_image.aspect_ratio < thumb_ratio
+        assign thumb_ratio = media.preview_image.aspect_ratio
+      endif
+    endfor
+  endif
+
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  {%- if section.settings.media_layout == 'stacked' -%}
+    @media (max-width:  {{ breakpoint_md | minus: 0.02 }}px) {
+      #{{ section.id }} .media-gallery__main .media-xr-button { display: none; }
+      #{{ section.id }} .active .media-xr-button:not([data-shopify-xr-hidden]) { display: block; }
+    }
+  {%- else -%}
+    #{{ section.id }} .media-gallery__main .media-xr-button { display: none; }
+    #{{ section.id }} .active .media-xr-button:not([data-shopify-xr-hidden]) { display: block; }
+  {%- endif -%}
+
+  {%- if section.settings.border_color.alpha == 0 -%}
+    #{{ section.id }} .media-thumbs__btn {
+      --media-thumbs-inactive-border: var(--text-color) / 0;
+      --media-thumbs-active-border: var(--text-color) / 0.5;
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+{%- if first_3d_model -%}
+  <link rel="stylesheet" href="https://cdn.shopify.com/shopifycloud/model-viewer-ui/assets/v1.0/model-viewer-ui.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'model-viewer.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'product-model.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+<div id="{{ section.id }}" class="flex section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+  <div class="section section--inset-banner container">
+    <div class="product
+                product--featured
+                md:flex
+                js-product
+                {%- if color_scheme != settings.default_color_scheme or section.settings.background_mode != 'default' %} product--spaced-info{% endif %}
+                product--style-{{ section.settings.style }}
+                color-scheme
+                color-scheme--{{ color_scheme }}"
+        data-section-id="{{ section.id }}"
+        {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      <div class="{%- if section.settings.use_cover_image %}
+                    product-cover-media
+                    flex-1
+                    relative
+                  {%- else %}
+                    product-media
+                    product-media--{{ section.settings.media_layout }}
+                    {%- if section.settings.media_layout == 'stacked' %} product-media--stacked-type-{{ section.settings.media_stacked_type }}{% endif %}
+                    {%- if section.settings.enable_media_grouping %} product-media--grouped{% endif %}
+                  {%- endif %}">
+        {%- if section.settings.use_cover_image -%}
+          {%- if section.settings.cover_image != blank -%}
+            {%- capture sizes -%}
+              {%- render 'sizes-attribute', min: 'page', sm: 'page', md: '50vw', lg: '800px', xl: false, max: false -%}
+            {%- endcapture -%}
+            {% render 'image',
+              image: section.settings.cover_image,
+              widths: '536, 800, 1072, 1280',
+              mobile_widths: '690, 800',
+              src_width: 536,
+              sizes: sizes,
+              section_index: section.index,
+              class: 'md:absolute md:top-0 md:left-0 md:h-full md:w-full object-cover'
+            %}
+          {%- else -%}
+            {{- 'image' | placeholder_svg_tag: 'media__placeholder md:absolute md:top-0 md:left-0 md:h-full md:w-full' -}}
+          {%- endif -%}
+        {%- elsif product.media.size > 0 -%}
+          <a class="skip-link btn btn--primary visually-hidden" href="#product-info-{{ section.id }}">
+            {{- 'accessibility.skip_to_product_info' | t -}}
+          </a>
+          {% render 'media-gallery',
+            product: product,
+            featured_product: true,
+            featured_media: featured_media,
+            media_ratio: media_ratio,
+            media_crop: media_crop,
+            thumb_ratio: thumb_ratio,
+            thumb_crop: media_crop,
+            first_3d_model: first_3d_model,
+            enable_zoom: section.settings.enable_zoom,
+            enable_lightbox_mobile: section.settings.enable_lightbox_mobile,
+            zoom_mode: 'click',
+            zoom_level: section.settings.hover_zoom
+          %}
+        {%- else -%}
+          <div class="media relative">
+            {{ 'image' | placeholder_svg_tag: 'media__placeholder' }}
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div id="product-info-{{ section.id }}" class="product-info custom-case">
+        <div class="product-info__inner">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when '@app' -%}
+                <div class="product-info__block" {{ block.shopify_attributes }}>
+                  {% render block %}
+                </div>
+
+              {%- when 'product-subtitle' -%}
+                <div class="product-info__block product-info__block--sm product-vendor-sku text-sm" data-dynamic-product-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                  {{ product.metafields.descriptors.subtitle }}
+                </div>
+
+              {%- when 'vendor-sku' -%}
+                {%- if block.settings.show_vendor or block.settings.show_sku or block.settings.show_barcode -%}
+                  <div class="product-info__block product-info__block--sm product-vendor-sku text-sm" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                    {%- if product != blank -%}
+                      {%- if block.settings.show_vendor and product.vendor != blank -%}
+                        {%- if block.settings.vendor_is_link -%}
+                          {%- liquid
+                            assign vendor_handle = product.vendor | handle
+                            if collections[vendor_handle].handle == vendor_handle
+                              assign vendor_url = collections[vendor_handle].url
+                            else
+                              assign vendor_url = product.vendor | url_for_vendor
+                            endif
+                          -%}
+                          <span class="product-vendor">
+                            {{ product.vendor | link_to: vendor_url, class: 'hover:underline' }}
+                          </span>
+                        {%- else -%}
+                          <span class="product-vendor">{{ product.vendor }}</span>
+                        {%- endif -%}
+                      {%- endif -%}
+                    {%- else -%}
+                      {{ 'onboarding.product.vendor' | t }}
+                    {%- endif -%}
+
+                    {%- if block.settings.show_sku -%}
+                      <span class="product-sku"{% if current_variant.sku == blank %} hidden{% endif %}>
+                        {%- if block.settings.show_vendor and product.vendor != blank %} &nbsp;|&nbsp; {% endif -%}
+                        <span>{{ 'products.product.sku' | t }}</span>
+                        <span class="product-sku__value">{{ current_variant.sku }}</span>
+                      </span>
+                    {%- endif -%}
+
+                    {%- if block.settings.show_barcode -%}
+                      <span class="product-info__barcode"{% if current_variant.barcode == blank %} hidden{% endif %}>
+                        {%- if block.settings.show_vendor or block.settings.show_sku %} &nbsp;|&nbsp; {% endif -%}
+                        <span>{{ 'products.product.barcode' | t }}</span>
+                        <span class="product-info__barcode-value">{% if current_variant.barcode %}{{ current_variant.barcode }}{% endif %}</span>
+                      </span>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'type' -%}
+                <div class="product-info__block product-info__block--sm text-sm" data-dynamic-product-content="{{ section.id }}-{{ block.id }}"{% if product.type == blank %} hidden{% endif %} {{ block.shopify_attributes }}>
+                  {%- if product.type != blank -%}
+                    {%- if block.settings.is_link -%}
+                      {%- liquid
+                        assign product_type_handle = product.type | handle
+                        if collections[product_type_handle].handle == product_type_handle
+                          assign type_url = collections[product_type_handle].url
+                        else
+                          assign type_url = product.type | url_for_type
+                        endif
+                      -%}
+                      {{ product.type | link_to: type_url, class: 'hover:underline' }}
+                    {%- else -%}
+                      {{ product.type }}
+                    {%- endif -%}
+                  {%- endif -%}
+                </div>
+
+              {%- when 'title' -%}
+                {%- if product and product.title != blank -%}
+                  {%- liquid
+                    assign product_title = product.title
+                    if settings.enable_sibling_products and product.title contains ' / '
+                      assign split_product_title = product.title | split: ' / '
+                      assign product_title = split_product_title | first
+                    endif
+                  -%}
+                  <div class="product-info__block product-info__block--sm product-info__title" data-dynamic-product-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                    <a href="{{ product.url }}" class="block">
+                      <h2 class="product-title h2 mb-0">
+                        {%- if block.settings.vendor_title -%}
+                          {{- product.vendor }}
+                        {%- endif -%}
+                        {{- product_title | escape -}}
+                        {%- if split_product_title %} <span class="visually-hidden">/ {{ split_product_title | last }}</span>{% endif -%}
+                      </h2>
+                    </a>
+                  </div>
+                {%- else -%}
+                  <div class="product-info__block product-info__block--sm product-info__title" {{ block.shopify_attributes }}>
+                    <h2 class="product-title h3 mb-0">
+                      {{ 'onboarding.product.title' | t }}
+                    </h2>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'weight' -%}
+                <div class="product-info__block product-info__block--sm product-info__weight text-sm" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}"{% unless current_variant.weight > 0 %} hidden{% endunless %} {{ block.shopify_attributes }}>
+                  {% if current_variant.weight > 0 %}
+                    {{ current_variant.weight_in_unit | append: current_variant.weight_unit }}
+                  {% endif %}
+                </div>
+
+              {%- when 'barcode' -%}
+                <div class="product-info__block product-info__block--sm product-info__barcode text-sm" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}"{% if current_variant.barcode == blank %} hidden{% endif %} {{ block.shopify_attributes }}>
+                  <span class="product-info-label">{{ 'products.product.barcode' | t }}</span>
+                  <span class="product-info__barcode-value">{% if current_variant.barcode %}{{ current_variant.barcode }}{% endif %}</span>
+                </div>
+
+              {%- when 'price' -%}
+                <div class="product-info__block product-info__block--sm product-price" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                  <div class="product-info__price h4 js-product-price">
+                    {% render 'price', product: product, current_variant: current_variant, use_variant: true, show_discount_percent: block.settings.show_percentage_discount %}
+                  </div>
+
+                  {%- if block.settings.show_tax_and_shipping -%}
+                    {%- if cart.taxes_included or shop.shipping_policy.body != blank -%}
+                      <div class="product-policies text-sm rte">
+                        {%- if cart.taxes_included -%}
+                          {{ 'products.product.include_taxes' | t }}
+                        {%- endif -%}
+                        {%- if shop.shipping_policy.body != blank -%}
+                          {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                        {%- endif -%}
+                      </div>
+                    {%- endif -%}
+                  {%- endif -%}
+                </div>
+
+              {%- when 'installments' -%}
+                {%- if product != blank -%}
+                  <div class="product-info__block product-info__block--sm{% if block.settings.show_in_box %} p-4 bg-theme-bg-accent rounded-card{% endif %}" {{ block.shopify_attributes }}>
+                    {%- assign instalments_form_id = 'instalments-form-' | append: section.id -%}
+                    {%- form 'product', product, class: 'js-instalments-form text-sm', id: instalments_form_id -%}
+                      <input type="hidden" name="id" value="{% if current_variant %}{{ current_variant.id }}{% endif %}" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-input-id">
+                      {{ form | payment_terms }}
+                    {%- endform -%}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'rating' -%}
+                <div class="product-rating product-info__block product-info__block--sm product-info__rating flex items-end" data-dynamic-product-content="{{ section.id }}-{{ block.id }}"{% if product.metafields.reviews.rating.value == blank %} hidden{% endif %} {{ block.shopify_attributes }}>
+                  {%- if product.metafields.reviews.rating.value != blank -%}
+                    {% render 'rating',
+                      rating_value: product.metafields.reviews.rating.value,
+                      rating_count: product.metafields.reviews.rating_count
+                    %}
+                  {%- endif -%}
+                </div>
+
+              {%- when 'variant-picker' -%}
+                {%- liquid
+                  if settings.enable_sibling_products
+                    assign metaref = settings.sibling_products_metafield | split: '.'
+                    assign sibling_products = product.metafields[metaref.first][metaref.last].value
+                    unless sibling_products.size or settings.sibling_products_metaobject_product_field == blank
+                      assign sibling_products_metaobject = settings.sibling_products_metaobject_product_field | split: '.' | last
+                      assign sibling_products = sibling_products[sibling_products_metaobject].value
+                    endunless
+                  endif
+                -%}
+                {%- if settings.enable_sibling_products and sibling_products -%}
+                  {%- capture sibling_products_styles -%}
+                    --swatch-size: {{ settings.sibling_selector_size }}px;
+                    {%- if settings.sibling_selector_size < 24 %} --swatch-border-width: 1px; --swatch-inset-border-width: 1.5px;
+                    {%- elsif settings.sibling_selector_size < 48 %} --swatch-border-width: 1.1px; --swatch-inset-border-width: 2.5px;
+                    {%- elsif settings.sibling_selector_size < 64 %} --swatch-border-width: 1.25px; --swatch-inset-border-width: 3px;
+                    {%- else %} --swatch-border-width: 1.4px; --swatch-inset-border-width: 3.5px;
+                    {%- endif -%}
+                    {%- if settings.sibling_selector_shape == 'square' %} --swatch-radius: 4px{% endif -%}
+                  {%- endcapture -%}
+                  <div class="product-info__block product-options" style="{{ sibling_products_styles }}" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-siblings">
+                    <div class="product-options__siblings product-siblings">
+                      {%- if settings.sibling_label != blank -%}
+                        <legend class="label">
+                          {% if block.settings.prefix_choose %}{{ 'products.product.choose' | t }} {% endif %}{{ settings.sibling_label }}{% if block.settings.prefix_choose %}:{% endif %} <span class="option-selector__label-value">{{ product.title | split: ' / ' | last | escape }}</span>
+                        </legend>
+                      {%- endif -%}
+
+                      {%- liquid
+                        assign shade_array = ''
+                      -%}
+                      {%- capture shades -%}{%- for sibling_product in sibling_products -%}{{- sibling_product.metafields.theme.shade -}};{%- endfor -%}{%- endcapture -%}
+                      {%- assign shade_array = shades | split: ';' | uniq -%}
+
+                      {% if block.settings.swatch_dual_selectors or shade_array != blank %}
+                        <dual-swatch-selector class="dual-option-selector block"{% if hide_this %} hidden{% endif %}>
+                          {% if block.settings.swatch_dual_selectors %}
+                            {%- assign shade_id = product_form_id | append: '-' | append: block.id | append: '-siblings-label' -%}
+                            <div class="dual-option-selector dual-option-selector__dropdown">
+                              <label class="label visually-hidden" id="{{ shade_id }}" for="{{ shade_id }}-button">{% if block.settings.prefix_choose %}{{ 'products.product.choose' | t }} {% endif %}{{- option.name -}}{% if block.settings.prefix_choose %}: {% endif %}</label>
+                              <div class="dual-option-selector">
+                                <custom-select id="{{ shade_id }}">
+                                  <div class="custom-select relative w-full no-js-hidden">
+                                    {%- liquid
+                                      # Determine if the first option is a swatch with a single value
+                                      assign swatch_image = nil
+                                      assign swatch_color = nil
+
+                                      for option in product.options_with_values
+                                        assign swatch_options = option.values | where: 'swatch'
+                                        assign swatch = swatch_options | first
+                                        assign num_swatches = swatch_options | size
+
+                                        if num_swatches == 1
+                                          assign swatch_color = swatch.swatch.color
+                                          if swatch.swatch.image
+                                            assign swatch_image = swatch.swatch.image
+                                          endif
+                                          break
+                                        endif
+                                      endfor
+                                    -%}
+                                    <button class="custom-select__btn input items-center{% if product.available == false %} is-unavailable{% endif %}" type="button"
+                                            aria-expanded="false" aria-haspopup="listbox" id="{{ shade_id }}-button">
+                                      <span class="custom-select__swatch"
+                                        data-swatch="{{ product.handle }}"
+                                        {% if swatch_color or num_swatches == 1 and swatch_image == nil %}style="--swatch-color: rgb({{ swatch_color.rgb }})"{%- endif %}>
+                                        {%- assign swatch_size_double = settings.sibling_selector_size | times: 2 -%}
+                                        {%- if num_swatches == 1 and swatch_image -%}
+                                          {%- assign image_width = swatch_image.aspect_ratio | at_least: 1.0 | times: swatch_size_double | ceil -%}
+                                          {%- render 'image', image: swatch_image, src_width: image_width, srcset_2x: true, class: 'img-fit' -%}
+                                        {%- elsif num_swatches != 1 and swatch_color == blank -%}
+                                          {%- assign image_width = product.featured_image.aspect_ratio | at_least: 1.0 | times: swatch_size_double | ceil -%}
+                                          {%- render 'image', class: 'img-fit', image: product.featured_image, src_width: settings.sibling_selector_size, srcset_2x: true -%}
+                                        {%- endif -%}
+                                      </span>
+                                      <span class="text-start custom-case">{{- product.title | split: ' / ' | last -}}</span>
+                                      <svg width="20" height="20" viewBox="0 0 24 24" class="icon" role="presentation" focusable="false" aria-hidden="true">
+                                        <path d="M20 8.5 12.5 16 5 8.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                                      </svg>
+                                    </button>
+                                    <ul class="custom-select__listbox absolute invisible" role="listbox" tabindex="-1"
+                                        aria-hidden="true" hidden>
+                                      {%- for sibling_product in sibling_products -%}
+                                        {%- liquid
+                                          # Determine if the first option is a swatch with a single value
+                                          assign swatch_image = nil
+                                          assign swatch_color = nil
+
+                                          for option in sibling_product.options_with_values
+                                            assign swatch_options = option.values | where: 'swatch'
+                                            assign swatch = swatch_options | first
+                                            assign num_swatches = swatch_options | size
+
+                                            if num_swatches == 1
+                                              assign swatch_color = swatch.swatch.color
+                                              if swatch.swatch.image
+                                                assign swatch_image = swatch.swatch.image
+                                              endif
+                                              break
+                                            endif
+                                          endfor
+                                        -%}
+                                        <li class="custom-select__option flex items-center{% unless sibling_product.available %} is-unavailable{% endunless %} js-option" id="{{ shade_id }}-opt-{{ forloop.index0 }}" role="option"
+                                            data-shade="{{ sibling_product.metafields.theme.shade }}"
+                                            data-value="{{ sibling_product.url }}"
+                                            {%- if sibling_product == product %} aria-selected="true"{% endif %}>
+                                          <span class="custom-select__swatch"
+                                            data-swatch="{{ swatch | replace: '"', '' | downcase | escape }}"
+                                            {% if swatch_color or num_swatches == 1 and swatch_image == nil %}style="--swatch-color: rgb({{ swatch_color.rgb }})"{%- endif %}>
+                                            {%- assign swatch_size_double = settings.sibling_selector_size | times: 2 -%}
+                                            {%- if num_swatches == 1 and swatch_image -%}
+                                              {%- assign image_width = swatch_image.aspect_ratio | at_least: 1.0 | times: swatch_size_double | ceil -%}
+                                              {%- render 'image', image: swatch_image, src_width: image_width, srcset_2x: true, class: 'img-fit' -%}
+                                            {%- elsif num_swatches != 1 and swatch_color == blank -%}
+                                              {%- assign image_width = sibling_product.featured_image.aspect_ratio | at_least: 1.0 | times: swatch_size_double | ceil -%}
+                                              {%- render 'image', class: 'img-fit', image: sibling_product.featured_image, src_width: settings.sibling_selector_size, srcset_2x: true -%}
+                                            {%- endif -%}
+                                          </span>
+                                          <span class="pointer-events-none">{{- sibling_product.title | split: ' / ' | last -}}</span>
+                                          {% unless sibling_product.available %}<em class="pointer-events-none">{{ "products.variant.no_stock" | t }}</em>{% endunless %}
+                                        </li>
+                                      {%- endfor -%}
+                                    </ul>
+                                  </div>
+                                </custom-select>
+                              </div>
+                            </div>
+                          {% endif %}
+
+                          {%- if shade_array != blank -%}
+                            <div class="shade-filters flex flex-wrap custom-case text-sm gap-x-6 gap-y-2 mb-2">
+                              <button class="link font-bold js-change-shade" data-selected-shade="">{{ 'products.product.filter_all' | t }}</button>
+                              {% for shade in shade_array %}
+                                {% if shade != blank %}
+                                  <button class="link js-change-shade" data-selected-shade="{{ shade }}">{{ shade }}</button>
+                                {% endif %}
+                              {% endfor %}
+                            </div>
+                          {%- endif -%}
+                      {% endif %}
+
+                      <script src="{{ 'sibling-links.js' | asset_url }}" defer></script>
+                      <sibling-links class="flex flex-wrap -mt-1 mb-8">
+                        {%- for sibling_product in sibling_products -%}
+                          {%- liquid
+                            # Determine if the first option is a swatch with a single value
+                            assign swatch_image = nil
+                            assign swatch_color = nil
+
+                            for option in sibling_product.options_with_values
+                              assign swatch_options = option.values | where: 'swatch'
+                              assign swatch = swatch_options | first
+                              assign num_swatches = swatch_options | size
+
+                              if num_swatches == 1
+                                assign swatch_color = swatch.swatch.color
+                                if swatch.swatch.image
+                                  assign swatch_image = swatch.swatch.image
+                                endif
+                                break
+                              endif
+                            endfor
+                          -%}
+                          <button id="sibling-product-{{ block.id }}-{{ forloop.index }}" class="opt-label opt-label--swatch relative{% if product.id == sibling_product.id %} active{% endif %}{% if sibling_product.available == false %} is-unavailable{% endif %}"
+                            data-swatch="{% if num_swatches == 1 and swatch_image == nil %}{{ swatch | replace: '"', '' | downcase }}{% endif %}"
+                            data-shade="{{ sibling_product.metafields.theme.shade }}"
+                            data-product-url="{% if collection and sibling_product.collections contains collection %}{{ sibling_product.url | within: collection }}{% else %}{{ sibling_product.url }}{% endif %}">
+                            <span class="opt-swatch{% if settings.sibling_selector_shape == 'square' %} opt-swatch--square{% endif %}"
+                              data-swatch="{{ swatch | replace: '"', '' | downcase | escape }}"
+                              {% if swatch_color or num_swatches == 1 and swatch_image == nil %}style="--swatch-color: rgb({{ swatch_color.rgb }})"{%- endif %}>
+                              {%- assign swatch_size_double = settings.sibling_selector_size | times: 2 -%}
+                              {%- if num_swatches == 1 and swatch_image -%}
+                                {%- assign image_width = swatch_image.aspect_ratio | at_least: 1.0 | times: swatch_size_double | ceil -%}
+                                {%- render 'image', image: swatch_image, src_width: image_width, srcset_2x: true, class: 'img-fit' -%}
+                              {%- elsif num_swatches != 1 and swatch_color == blank -%}
+                                {%- assign image_width = sibling_product.featured_image.aspect_ratio | at_least: 1.0 | times: swatch_size_double | ceil -%}
+                                {%- render 'image', class: 'img-fit', image: sibling_product.featured_image, src_width: settings.sibling_selector_size, srcset_2x: true -%}
+                              {%- endif -%}
+                            </span>
+                            <span class="visually-hidden js-value">{{ sibling_product.title }}</span>
+                          </button>
+                        {%- endfor -%}
+                      </sibling-links>
+
+                      {% if block.settings.swatch_dual_selectors or shade_array != blank %}
+                        </dual-swatch-selector>
+                        <script src="{{ 'custom-select.js' | asset_url }}" defer></script>
+                        <script src="{{ 'dual-swatch-selector.js' | asset_url }}" defer></script>
+                      {% endif %}
+                    </div>
+                  </div>
+                {%- endif -%}
+
+                {%- unless product.has_only_default_variant -%}
+                  {%- if section.settings.sticky_atc_panel and product.available -%}
+                    <a class="product-options--anchor" id="variants" rel="nofollow"></a>
+                  {%- endif -%}
+                  <div class="product-info__block product-options" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                    {%- capture size_chart_link -%}
+                      {%- if block.settings.enable_size_chart -%}
+                        {%- if block.settings.size_chart_source == 'section' or block.settings.size_chart_page != blank -%}
+                          <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
+                          <script src="{{ 'open-or-scroll-to.js' | asset_url }}" defer></script>
+                          <open-or-scroll-to data-target-id="size-chart-{{ product.id }}">
+                            <button type="button" class="link block text-sm size-chart-link">
+                              <span class="size-chart-link__text">{{- block.settings.size_chart_label -}}</span>
+                            </button>
+                          </open-or-scroll-to>
+                        {%- endif -%}
+                      {%- endif -%}
+                    {%- endcapture -%}
+                    {% render 'variant-picker',
+                      product: product,
+                      current_variant: current_variant,
+                      product_form_id: product_form_id,
+                      block: block,
+                      media_ratio: media_ratio,
+                      swatch_crop: media_crop,
+                      update_url: false,
+                      size_chart_link: size_chart_link,
+                      is_featured: true
+                    %}
+                  </div>
+                {%- else -%}
+                  <div hidden>
+                    {% render 'variant-picker',
+                        product: product,
+                        current_variant: current_variant,
+                        product_form_id: product_form_id,
+                        block: block,
+                        media_ratio: media_ratio,
+                        swatch_crop: section.settings.media_crop
+                      %}
+                  </div>
+                {%- endunless -%}
+
+                {%- if block.settings.show_backorder_text -%}
+                  <div class="product-info__block product-backorder" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-backorder">
+                    {% render 'backorder', product: product, variant: current_variant %}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'inventory' -%}
+                {%- if current_variant.inventory_management != blank or select_first_variant == false -%}
+                  {% render 'product-inventory', product: product, current_variant: current_variant, block: block %}
+                {%- endif -%}
+
+              {%- when 'buy-buttons' -%}
+                {% assign is_buy_buttons = true %}
+                <div class="product-info__block" {{ block.shopify_attributes }}>
+                  <product-form>
+                    {%- if product != blank -%}
+                      {%- form 'product', product,
+                        class: 'js-product-form js-product-form-main',
+                        id: product_form_id
+                      -%}
+                        {%- liquid
+                          assign gift_card_recipient_feature_active = false
+                          if block.settings.show_gift_card_recipient and product.gift_card?
+                            assign gift_card_recipient_feature_active = true
+                          endif
+
+                          assign enable_dynamic_checkout = false
+                          if block.settings.enable_dynamic_checkout and product.selling_plan_groups == empty and gift_card_recipient_feature_active == false
+                            unless product.template_suffix contains 'preorder'
+                              assign enable_dynamic_checkout = true
+                            endunless
+                          endif
+                        -%}
+
+                        {%- if gift_card_recipient_feature_active -%}
+                          {% render 'gift-card-recipient', section: section %}
+                        {%- endif -%}
+
+                        <div class="alert mb-8 bg-error-bg text-error-text js-form-error text-start" role="alert" hidden></div>
+
+                        <input type="hidden" name="id" value="{% if current_variant %}{{ current_variant.id }}{% endif %}" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-input-id" required>
+                        <div class="product-info__add-to-cart flex{% if enable_dynamic_checkout %} qty-input--secondary-btn{% endif %}">
+                          {%- if block.settings.show_qty_selector -%}
+                            {% render 'quantity-input', layout_style: "combined" %}
+                          {%- else -%}
+                            <input type="hidden" name="quantity" value="1">
+                          {%- endif -%}
+
+                          <div class="product-info__add-button" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-add-to-cart">
+                            {%- capture add_to_cart_text -%}
+                              {%- if product.template_suffix contains 'preorder' -%}
+                                {{- 'products.product.preorder' | t -}}
+                              {%- else -%}
+                                {{- 'products.product.add_to_cart' | t -}}
+                              {%- endif -%}
+                            {%- endcapture -%}
+
+                            <button
+                              type="submit"
+                              class="btn js-add-to-cart {% if enable_dynamic_checkout %}btn--secondary{% else %}btn--primary{% endif %} w-full"
+                              name="add"
+                              data-add-to-cart-text="{{ add_to_cart_text | escape }}"
+                              data-preselection-disabled="true"
+                              data-preselection-text="{{ 'products.variant.not_selected' | t | escape }}"
+                              {%- unless current_variant.available %} disabled{% endunless %}>
+                              {%- if current_variant.available or current_variant == false -%}
+                                {{- add_to_cart_text -}}
+                              {%- else -%}
+                                {{- 'products.variant.no_stock' | t -}}
+                              {%- endif -%}
+                            </button>
+                          </div>
+                        </div>
+
+                        {%- if enable_dynamic_checkout -%}
+                          <div class="product-info__dynamic-checkout-button">
+                            {{ form | payment_button }}
+                          </div>
+                        {%- endif -%}
+                      {%- endform -%}
+                    {%- else -%}
+                      <button class="product-info__add-button btn btn--primary w-full" disabled>
+                        {{ 'products.product.sold_out' | t }}
+                      </button>
+                    {%- endif -%}
+                  </product-form>
+                </div>
+
+              {%- when 'collapsible-content' -%}
+                {%- if block.settings.text != blank or block.settings.page.content != blank or block.settings.custom_liquid != blank -%}
+                  <details-disclosure {{ block.shopify_attributes }}>
+                    <details class="disclosure disclosure--row"{% if block.settings.open %} open{% endif %}>
+                      <summary>
+                        <div class="flex justify-between items-center" data-dynamic-product-content="{{ section.id }}-{{ block.id }}-summary">
+                          <h2 class="disclosure__title h6 flex flex-auto items-center mb-0">
+                            {%- if block.settings.icon != 'none' -%}
+                              {% render 'icon', icon: block.settings.icon, width: 24, height: 24 %}
+                            {%- endif -%}
+                            {{- block.settings.heading | default: block.settings.page.title -}}
+                          </h2>
+                          <span class="disclosure__toggle">
+                            {%- if settings.disclosure_toggle == 'plus' -%}
+                              {% render 'icon-plus' %}
+                            {%- else -%}
+                              {% render 'icon-chevron-down' %}
+                            {%- endif -%}
+                          </span>
+                        </div>
+                      </summary>
+                      <div class="disclosure__panel has-motion">
+                        <div class="disclosure__content rte" {% if block.settings.variant_content %}data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-content"{% else %}data-dynamic-product-content="{{ section.id }}-{{ block.id }}-content"{% endif %}>
+                          {{ block.settings.text }}
+                          {{ block.settings.page.content }}
+                          {{ block.settings.custom_liquid }}
+                        </div>
+                      </div>
+                    </details>
+                  </details-disclosure>
+                {%- endif -%}
+
+              {%- when 'share' -%}
+                <div class="product-info__block" data-dynamic-product-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                  {%- if block.settings.show_twitter or block.settings.show_facebook or block.settings.show_pinterest -%}
+                    <div class="social-share flex items-center">
+                      <p class="social-share__heading mb-0 font-bold">{{ 'general.social.share_heading' | t }}:</p>
+                      {% render 'social-share',
+                        share_twitter: block.settings.show_twitter,
+                        share_facebook: block.settings.show_facebook,
+                        share_pinterest: block.settings.show_pinterest,
+                        share_title: product.title,
+                        share_url: product.url,
+                        share_image: product %}
+                    </div>
+                  {%- endif -%}
+                </div>
+
+              {%- when 'richtext' -%}
+                <div class="product-info__block product-info__block--sm product-info__rich-text rte" data-dynamic-product-content="{{ section.id }}-{{ block.id }}"{% if block.settings.text == blank %} hidden{% endif %} {{ block.shopify_attributes }}>
+                  {{ block.settings.text }}
+                </div>
+
+              {%- when 'image' -%}
+                <div class="product-info__block" data-dynamic-product-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                  {%- if block.settings.title -%}
+                    <p class="h2">{{ block.settings.title }}</p>
+                  {%- endif -%}
+
+                  <div class="flex {{ block.settings.image_align }}">
+                    <div class="media relative" style="width: {{ block.settings.image_width }}px;">
+                      {%- if block.settings.image != blank -%}
+                        {%- if block.settings.url != blank -%}
+                          <a href="{{ block.settings.url }}" class="block focus-outline">
+                        {%- endif -%}
+                          {% render 'image',
+                            image: block.settings.image,
+                            src_width: block.settings.image_width,
+                            srcset_2x: true
+                          %}
+                        {%- if block.settings.url != blank -%}
+                          </a>
+                        {%- endif -%}
+                      {%- else -%}
+                        {{ 'image' | placeholder_svg_tag: 'media__placeholder' }}
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </div>
+
+              {%- when 'link' -%}
+                {%- if block.settings.button_label != blank -%}
+                  <div class="product-info__block" data-dynamic-product-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                    <a class="{{ block.settings.button_style }}" {% if block.settings.button_link != blank %}href="{{ block.settings.button_link }}"{% else %}role="link" aria-disabled="true"{% endif %}{% if block.settings.open_in_new_tab %} target="_blank"{% endif %}>
+                      {{- block.settings.button_label | escape -}}
+                    </a>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'custom-liquid' -%}
+                <div class="product-info__block"{% if block.settings.variant_content %} data-dynamic-variant-content="{{ section.id }}-{{ block.id }}"{% endif %}{% if block.settings.custom_liquid == blank %} hidden{% endif %} {{ block.shopify_attributes }}>
+                  {{ block.settings.custom_liquid }}
+                </div>
+
+              {%- when 'divider' -%}
+                <hr class="{{ block.settings.spacing }}{% unless block.settings.show_line %} invisible{% endunless %}" {{ block.shopify_attributes }}>
+
+              {%- when 'product-labels' -%}
+                {%- liquid
+                  capture variant_labels
+                    render 'product-label', product: product, variant: current_variant, is_product_page: true, limit: 99, show_sale_label: block.settings.show_sale_label
+                  endcapture
+                -%}
+                <div class="product-info__block product-info__block--md product-labels" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}"{% if variant_labels == blank %} hidden{% endif %} {{ block.shopify_attributes }}>
+                  {%- if variant_labels != blank -%}
+                    {{ variant_labels }}
+                  {%- endif -%}
+                </div>
+
+              {% when 'custom-option' %}
+                {%- if block.settings.label != blank -%}
+                  {%- liquid
+                    assign custom_option_input_id = product_form_id | append: '-custom-' | append: forloop.index
+                    assign custom_input_name = block.settings.label | escape | prepend: 'properties[' | append: ']'
+                  -%}
+                  <div class="product-info__block product-info__block--sm custom-option" {{ block.shopify_attributes }}>
+                    <div class="custom-option__inner">
+                      {% case block.settings.type %}
+                        {% when 'text' %}
+                          <div class="{% if block.settings.text_required %} is-required{% endif %}">
+                            <label for="{{ custom_option_input_id }}" class="label">{{ block.settings.label | escape }}</label>
+                            <input class="input w-full" type="text" id="{{ custom_option_input_id }}" form="{{ product_form_id }}" name="{{ custom_input_name }}"{% if block.settings.text_required %} aria-required="true" required{% endif %}>
+                          </div>
+
+                        {% when 'textarea' %}
+                          <div class="{% if block.settings.long_text_required %} is-required{% endif %}">
+                            <label for="{{ custom_option_input_id }}" class="label">{{ block.settings.label | escape }}</label>
+                            <textarea class="input w-full" rows="5" id="{{ custom_option_input_id }}" form="{{ product_form_id }}" name="{{ custom_input_name }}"{% if block.settings.long_text_required %} aria-required="true" required{% endif %}></textarea>
+                          </div>
+
+                        {% when 'checkbox' %}
+                          <div>
+                            <input type="hidden" form="{{ product_form_id }}" name="{{ custom_input_name }}" value="{{ block.settings.checkbox_unchecked_value | escape }}">
+                            <input type="checkbox" class="checkbox checkbox--small" id="{{ product_form_id }}-{{ forloop.index }}" form="{{ product_form_id }}" name="{{ custom_input_name }}" value="{{ block.settings.checkbox_checked_value | escape }}">
+                            <label for="{{ product_form_id }}-{{ forloop.index }}" class="label">
+                              {{ block.settings.label | escape }}
+                            </label>
+                          </div>
+
+                        {% when 'dropdown' %}
+                          {%- assign custom_options = block.settings.dropdown_options | newline_to_br | strip_newlines | split: '<br />' -%}
+                          <div data-selector-type="dropdown">
+                            <script src="{{ 'custom-select.js' | asset_url }}" defer></script>
+                            {% render 'custom-select',
+                              id: custom_option_input_id,
+                              label: block.settings.label,
+                              option_values: custom_options,
+                              selected_value: custom_options.first,
+                              include_native: true,
+                              native_name: custom_input_name,
+                              native_form_id: product_form_id
+                            %}
+                          </div>
+
+                      {% endcase %}
+                    </div>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'tabs' -%}
+                {%- if block.settings.style == 'tabs' -%}
+                  <script src="{{ 'tabs.js' | asset_url }}" defer></script>
+                {%- endif -%}
+
+                {%- liquid
+                  assign tabs = ''
+                  if block.settings.show_description
+                    assign tabs = ',0'
+                  endif
+                  if block.settings.tab_1_title != blank or block.settings.tab_1_page.title != blank
+                    assign tabs = tabs | append: ',1'
+                  endif
+                  if block.settings.tab_2_title != blank or block.settings.tab_2_page.title != blank
+                    assign tabs = tabs | append: ',2'
+                  endif
+                  if block.settings.tab_3_title != blank or block.settings.tab_3_page.title != blank
+                    assign tabs = tabs | append: ',3'
+                  endif
+                  if block.settings.show_reviews
+                    assign tabs = tabs | append: ',4'
+                  endif
+                  assign tab_indices = tabs | remove_first: ',' | split: ','
+                -%}
+
+                {%- if tabs.size > 0 -%}
+                  <div class="product-info__block" {{ block.shopify_attributes }}>
+                    {%- for i in tab_indices -%}
+                      {%- liquid
+                        if i == '0'
+                          assign title = 'products.product.description' | t
+                        elsif i == '4'
+                          assign title = 'products.product.reviews' | t
+                        else
+                          assign title_id = 'tab_' | append: i | append: '_title'
+                          assign text_id = 'tab_' | append: i | append: '_text'
+                          assign page_id = 'tab_' | append: i | append: '_page'
+                          assign title = block.settings[title_id] | default: block.settings[page_id].title
+                        endif
+                      -%}
+
+                      {%- if block.settings.style == 'collapsible' -%}
+                        <details-disclosure>
+                          <details class="disclosure disclosure--row">
+                            <summary>
+                              <div class="flex justify-between items-center" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-{{ forloop.index }}-summary">
+                                <h2 class="disclosure__title h2 mb-0">{{ title }}</h2>
+                                <span class="disclosure__toggle">
+                                  {%- if settings.disclosure_toggle == 'plus' -%}
+                                    {% render 'icon-plus' %}
+                                  {%- else -%}
+                                    {% render 'icon-chevron-down' %}
+                                  {%- endif -%}
+                                </span>
+                              </div>
+                            </summary>
+                            <div class="disclosure__panel has-motion">
+                              <div class="disclosure__content rte custom-case" data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-{{ forloop.index }}-content">
+                                {%- if forloop.first and block.settings.show_description -%}
+                                  {{ product.description }}
+                                {%- elsif forloop.last and block.settings.show_reviews -%}
+                                  <div class="cc-product-reviews" id="shopify-product-reviews" data-id="{{ product.id }}">
+                                    {{ block.settings.custom_reviews }}
+                                  </div>
+                                {%- else -%}
+                                  {{ block.settings[text_id] }}
+                                  {{ block.settings[page_id].content }}
+                                {%- endif -%}
+                              </div>
+                            </div>
+                          </details>
+                        </details-disclosure>
+                      {%- else -%}
+                        {%- capture tab_btns -%}
+                          {{ tab_btns }}
+                          <button type="button" class="tablist__tab font-bold" id="tab-{{ i }}" role="tab" aria-controls="panel-{{ i }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                            <span data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-{{ forloop.index }}-tab">
+                              {{ title }}
+                            </span>
+                          </button>
+                        {%- endcapture -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+
+                    {%- if block.settings.style == 'tabs' -%}
+                      <tabbed-content>
+                        <div class="tablist overflow-hidden mb-4 no-js-hidden">
+                          <div class="tablist__scroller flex" role="tablist">
+                            {{ tab_btns }}
+                          </div>
+                        </div>
+                        {%- for i in tab_indices -%}
+                          {%- liquid
+                            assign text_id = 'tab_' | append: i | append: '_text'
+                            assign page_id = 'tab_' | append: i | append: '_page'
+                          -%}
+                          <div id="panel-{{ i }}" role="tabpanel" tabindex="0" aria-labelledby="tab-{{ i }}"{% unless forloop.first %} hidden{% endunless %}>
+                            <div data-dynamic-variant-content="{{ section.id }}-{{ block.id }}-{{ forloop.index }}-tabpanel">
+                              {%- if forloop.first and block.settings.show_description -%}
+                                {{ product.description }}
+                              {%- elsif forloop.last and block.settings.show_reviews -%}
+                                <div class="cc-product-reviews" id="shopify-product-reviews" data-id="{{ product.id }}">
+
+                                </div>
+                              {%- else -%}
+                                {{ block.settings[text_id] }}
+                                {{ block.settings[page_id].content }}
+                              {%- endif -%}
+                            </div>
+                          </div>
+                        {%- endfor -%}
+                      </tabbed-content>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+
+
+              {%- when 'selling-points' -%}
+                <div class="product-info__block product-usps{% unless block.settings.layout == 'carousel' %} overflow-hidden{% endunless %} leading-8 normal-case" data-dynamic-product-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                  {%- if block.settings.title != blank -%}
+                    <h2 class="h6 text-theme-text-accent">
+                      {{ block.settings.title | escape }}
+                    </h2>
+                  {%- endif -%}
+                  {%- capture usp_html -%}
+                    {%- if block.settings.layout == 'carousel' -%}
+                      <carousel-slider class="carousel block relative" inactive>
+                        <div class="slider-nav slide-nav--inline flex justify-between absolute top-0 h-full max-md:hidden no-js-hidden">
+                          <button type="button" class="slider-nav__btn tap-target tap-target--left btn text-current has-ltr-icon" name="prev" aria-controls="slider-{{ block.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                            {% render 'icon-chevron-left' %}
+                          </button>
+                          <button type="button" class="slider-nav__btn tap-target tap-target--right btn text-current has-ltr-icon" name="next" aria-controls="slider-{{ block.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                            {% render 'icon-chevron-right' %}
+                          </button>
+                        </div>
+
+                        <div class="slider slider--no-container relative slider--no-scrollbar" id="slider-{{ block.id }}">
+                    {%- endif -%}
+
+                    <ul class="{% if block.settings.layout == 'carousel' %}product-usps__grid slider__grid flex gap-theme{% else %}grid gap-theme grid-cols-1{% if block.settings.layout == 'two_column' or  block.settings.layout == 'three_column' %} sm:grid-cols-2{% if block.settings.layout == 'three_column' %} lg:grid-cols-3{% endif %}{% endif %}{% endif %}">
+                      {%- if block.settings.usp_1_text != blank or block.settings.usp_1_image != blank or block.settings.usp_1_icon != 'none' or block.settings.usp_1_image != blank -%}<li{% if block.settings.layout == 'carousel' %} class="slider__item"{% endif %}>{%- render 'product-usp', layout: block.settings.layout, width: block.settings.usp_icon_width, icon: block.settings.usp_1_icon, image: block.settings.usp_1_image, text: block.settings.usp_1_text -%}</li>{%- endif -%}
+                      {%- if block.settings.usp_2_text != blank or block.settings.usp_2_image != blank or block.settings.usp_2_icon != 'none' or block.settings.usp_2_image != blank -%}<li{% if block.settings.layout == 'carousel' %} class="slider__item"{% endif %}>{%- render 'product-usp', layout: block.settings.layout, width: block.settings.usp_icon_width, icon: block.settings.usp_2_icon, image: block.settings.usp_2_image, text: block.settings.usp_2_text -%}</li>{%- endif -%}
+                      {%- if block.settings.usp_3_text != blank or block.settings.usp_3_image != blank or block.settings.usp_3_icon != 'none' or block.settings.usp_3_image != blank -%}<li{% if block.settings.layout == 'carousel' %} class="slider__item"{% endif %}>{%- render 'product-usp', layout: block.settings.layout, width: block.settings.usp_icon_width, icon: block.settings.usp_3_icon, image: block.settings.usp_3_image, text: block.settings.usp_3_text -%}</li>{%- endif -%}
+                      {%- if block.settings.usp_4_text != blank or block.settings.usp_4_image != blank or block.settings.usp_4_icon != 'none' or block.settings.usp_4_image != blank -%}<li{% if block.settings.layout == 'carousel' %} class="slider__item"{% endif %}>{%- render 'product-usp', layout: block.settings.layout, width: block.settings.usp_icon_width, icon: block.settings.usp_4_icon, image: block.settings.usp_4_image, text: block.settings.usp_4_text -%}</li>{%- endif -%}
+                      {%- if block.settings.usp_5_text != blank or block.settings.usp_5_image != blank or block.settings.usp_5_icon != 'none' or block.settings.usp_5_image != blank -%}<li{% if block.settings.layout == 'carousel' %} class="slider__item"{% endif %}>{%- render 'product-usp', layout: block.settings.layout, width: block.settings.usp_icon_width, icon: block.settings.usp_5_icon, image: block.settings.usp_5_image, text: block.settings.usp_5_text -%}</li>{%- endif -%}
+                      {%- if block.settings.usp_6_text != blank or block.settings.usp_6_image != blank or block.settings.usp_6_icon != 'none' or block.settings.usp_6_image != blank -%}<li{% if block.settings.layout == 'carousel' %} class="slider__item"{% endif %}>{%- render 'product-usp', layout: block.settings.layout, width: block.settings.usp_icon_width, icon: block.settings.usp_6_icon, image: block.settings.usp_6_image, text: block.settings.usp_6_text -%}</li>{%- endif -%}
+                    </ul>
+
+                    {%- if block.settings.layout == 'carousel' -%}
+                        </div>
+                      </carousel-slider>
+                    {%- endif -%}
+                  {%- endcapture -%}
+
+                  {%- if usp_html contains '</li>' %}{{ usp_html }}{% endif -%}
+                </div>
+
+              {%- when 'description' -%}
+                {%- if block.settings.show_as_collapsible_content -%}
+                  <details-disclosure {{ block.shopify_attributes }}>
+                    <details class="disclosure disclosure--row"{% if block.settings.open %} open{% endif %}>
+                      <summary>
+                        <div class="flex justify-between items-center" data-dynamic-product-content="{{ section.id }}-{{ block.id }}-summary">
+                          <h2 class="disclosure__title h6 flex flex-auto items-center mb-0">
+                            {%- if block.settings.icon != 'none' -%}
+                              {% render 'icon', icon: block.settings.icon, width: 24, height: 24 %}
+                            {%- endif -%}
+                            {{ 'products.product.description' | t }}
+                          </h2>
+                          <span class="disclosure__toggle custom-case">
+                            {%- if settings.disclosure_toggle == 'plus' -%}
+                              {% render 'icon-plus' %}
+                            {%- else -%}
+                              {% render 'icon-chevron-down' %}
+                            {%- endif -%}
+                          </span>
+                        </div>
+                      </summary>
+                      <div class="disclosure__panel has-motion">
+                        <div class="disclosure__content rte custom-case" data-dynamic-product-content="{{ section.id }}-{{ block.id }}-content">
+                          {{ product.description }}
+                        </div>
+                      </div>
+                    </details>
+                  </details-disclosure>
+                {%- else -%}
+                  <div class="product-info__block product-info__block--sm rte product-description custom-case" data-dynamic-product-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                    {{ product.description }}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'product-link' -%}
+                <div class="{{ block.settings.text_align }}" data-dynamic-product-content="{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+                  <a class="link" {% if product == blank %}role="link" aria-disabled="true"{% else %}href="{{ product.url }}"{% endif %}>
+                    {{- 'products.product.view_details' | t -}}
+                  </a>
+                </div>
+
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- liquid
+  assign show_size_chart = false
+  assign size_chart_block = section.blocks | where: 'type', 'variant-picker' | first
+  if size_chart_block and size_chart_block.settings.enable_size_chart and size_chart_block.settings.size_chart_source == 'page' and size_chart_block.settings.size_chart_page != blank
+    assign show_size_chart = true
+  endif
+-%}
+
+{%- if show_size_chart -%}
+  <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
+
+  <div data-dynamic-product-content="{{ section.id }}-modals">
+    {%- if show_size_chart -%}
+      <modal-dialog class="modal invisible fixed top-0 left-0 w-full h-full flex items-center justify-center" id="size-chart-{{ product.id }}" role="dialog" aria-label="{{ pages[size_chart_block.settings.size_chart_page].title | escape }}" aria-modal="true" tabindex="-1">
+        <div class="modal__window relative bg-theme-bg text-theme-text text-start overflow-hidden has-motion">
+          <button type="button" class="modal__close-btn absolute js-close-modal" aria-label="{{ 'accessibility.close' | t }}">
+            {% render 'icon-close' %}
+          </button>
+          <div class="modal__content flex-auto h-full rte">
+            {{ pages[size_chart_block.settings.size_chart_page].content }}
+          </div>
+        </div>
+      </modal-dialog>
+      <script>
+        document.querySelectorAll('#size-chart .modal__content table').forEach((table) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'scrollable-table';
+          table.parentNode.insertBefore(wrapper, table);
+          wrapper.appendChild(table);
+        });
+      </script>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{%- if first_3d_model -%}
+  <script type="application/json" id="product-json-{{ product.id }}">
+    {{ product.media | where: 'media_type', 'model' | json }}
+  </script>
+{%- endif -%}
+
+{%- unless product == blank -%}
+  {% render 'structured-data-product', product: product, current_variant: current_variant %}
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Featured product",
+  "class": "cc-featured-product cc-main-product product-main",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_cover_image",
+      "label": "Use cover image",
+      "info": "Replaces product media with a single cropped image.",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image }}",
+      "type": "image_picker",
+      "id": "cover_image",
+      "label": "Cover image"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-4"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Card style",
+      "info": "Only apparent when content background is visible.",
+      "options": [
+        {
+          "value": "joined",
+          "label": "Joined"
+        },
+        {
+          "value": "split",
+          "label": "Split card"
+        }
+      ],
+      "default": "split"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "paragraph",
+      "content": "Learn more about [media types](https://help.shopify.com/en/manual/products/product-media)"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "select",
+      "id": "media_layout",
+      "label": "Layout on large screens",
+      "info": "Mobile will always display a slider.",
+      "options": [
+        {
+          "value": "stacked",
+          "label": "Stacked"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "slider"
+    },
+    {
+      "visible_if": "{{ section.settings.media_layout == 'stacked' and section.settings.use_cover_image == false }}",
+      "type": "select",
+      "id": "media_stacked_type",
+      "label": "Stacked layout",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "2-1",
+          "label": "2-1"
+        },
+        {
+          "value": "1-2",
+          "label": "1-2"
+        },
+      ],
+      "default": "2-1"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "select",
+      "id": "media_ratio",
+      "label": "Media aspect ratio",
+      "info": "Natural should only be used when images are the same dimensions.",
+      "options": [
+        {
+          "value": "natural",
+          "label": "Natural"
+        },
+        {
+          "value": "1.33",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "1.77",
+          "label": "Landscape (16:9)"
+        },
+        {
+          "value": "1",
+          "label": "Square"
+        },
+        {
+          "value": "0.75",
+          "label": "Portrait"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "select",
+      "id": "media_crop",
+      "label": "Media crop",
+      "info": "Only applies if the \"Media aspect ratio\" is not \"Natural\".",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "visible_if": "{{ section.settings.media_layout == 'slider' and section.settings.use_cover_image == false }}",
+      "type": "color",
+      "id": "border_color",
+      "label": "Slider thumbnail border",
+      "info": "Set to transparent to remove",
+      "default": "transparent"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "checkbox",
+      "id": "stick_media",
+      "label": "Sticky media column",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "checkbox",
+      "id": "enable_video_looping",
+      "label": "Enable video looping",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.media_layout == 'stacked' and section.settings.use_cover_image == false }}",
+      "type": "header",
+      "content": "Stacked Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.media_layout == 'stacked' and section.settings.use_cover_image == false }}",
+      "type": "checkbox",
+      "id": "underline_active",
+      "label": "Underline active media",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.media_layout == 'stacked' and section.settings.use_cover_image == false }}",
+      "type": "checkbox",
+      "id": "enable_video_autoplay",
+      "info": "Video will play muted.",
+      "label": "Autoplay videos",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.enable_video_autoplay and section.settings.media_layout == 'stacked' and section.settings.use_cover_image == false }}",
+      "type": "checkbox",
+      "id": "enable_video_controls",
+      "label": "Show video controls",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "header",
+      "content": "Slider Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "select",
+      "id": "media_thumbs",
+      "label": "Show thumbnails",
+      "info": "\"Large screens only\" does not apply to Stacked layout.",
+      "options": [
+        {
+          "value": "never",
+          "label": "Never"
+        },
+        {
+          "value": "desktop",
+          "label": "Large screens only"
+        },
+        {
+          "value": "always",
+          "label": "Always"
+        }
+      ],
+      "default": "desktop"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "header",
+      "content": "Zoom"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "checkbox",
+      "id": "enable_zoom",
+      "label": "Enable zoom",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "checkbox",
+      "id": "enable_lightbox_mobile",
+      "label": "Enable lightbox on mobile",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "select",
+      "id": "hover_zoom",
+      "label": "Zoom level",
+      "info": "Does not apply to the lightbox.",
+      "default": "large",
+      "options": [
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        },
+        {
+          "value": "original",
+          "label": "Original image"
+        }
+      ]
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "header",
+      "content": "Multiple variant images"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "checkbox",
+      "id": "enable_media_grouping",
+      "label": "Show media only associated with the selected variant",
+      "info": "Other variants' media will be hidden",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "text",
+      "id": "media_grouping_option",
+      "label": "Variant option label",
+      "info": "The label used to switch between images",
+      "default": "Color,Colour,Couleur,Farbe"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "paragraph",
+      "content": "If your store displays multiple languages, include all translations separated by a comma, e.g. Color,Couleur,Farbe"
+    },
+    {
+      "visible_if": "{{ section.settings.use_cover_image == false }}",
+      "type": "paragraph",
+      "content": "Arrange product media by this option (all \"red\" media together, then all \"blue\" media together, for example). The first media in each group should be assigned to a variant. [Read more](https://cleancanvas.co.uk/support/beautify/settings/grouped-variant-images)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "buy-buttons",
+      "name": "Buy buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_qty_selector",
+          "label": "Show quantity selector",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_dynamic_checkout",
+          "label": "Show accelerated checkout button",
+          "info": "Using the payment methods available on your store, customers see their preferred option, like PayPal or Apple Pay. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gift_card_recipient",
+          "default": false,
+          "label": "Show recipient information form for gift cards",
+          "info": "Allow customers to send gift cards to a recipient along with a personal message. When enabled, the accelerated checkout button will be disabled for gift cards. [Learn more](https://help.shopify.com/manual/online-store/themes/customizing-themes/add-gift-card-recipient-fields)"
+        }
+      ]
+    },
+    {
+      "type": "collapsible-content",
+      "name": "Collapsible content",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This will be automatically hidden if there is no content to show."
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Collapsible content"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "award",
+              "label": "Award"
+            },
+            {
+              "value": "box",
+              "label": "Box"
+            },
+            {
+              "value": "briefcase",
+              "label": "Briefcase"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "chat_bubble",
+              "label": "Chat bubble"
+            },
+            {
+              "value": "check_mark",
+              "label": "Check mark"
+            },
+            {
+              "value": "check_mark_in_circle",
+              "label": "Check mark in circle"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            },
+            {
+              "value": "credit_card",
+              "label": "Credit card"
+            },
+            {
+              "value": "dollar_sign",
+              "label": "Dollar sign"
+            },
+            {
+              "value": "dryer",
+              "label": "Dryer"
+            },
+            {
+              "value": "eye",
+              "label": "Eye"
+            },
+            {
+              "value": "feather",
+              "label": "Feather"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "heart",
+              "label": "Heart"
+            },
+            {
+              "value": "iron",
+              "label": "Iron"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "leather",
+              "label": "Leather"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "map_pin",
+              "label": "Map pin"
+            },
+            {
+              "value": "pants",
+              "label": "Pants"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "plane",
+              "label": "Plane"
+            },
+            {
+              "value": "price_tag",
+              "label": "Price tag"
+            },
+            {
+              "value": "question_mark",
+              "label": "Question mark"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "ruler",
+              "label": "Ruler"
+            },
+            {
+              "value": "scissors",
+              "label": "Scissors"
+            },
+            {
+              "value": "shirt",
+              "label": "Shirt"
+            },
+            {
+              "value": "shoe",
+              "label": "Shoe"
+            },
+            {
+              "value": "silhouette",
+              "label": "Silhouette"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "washing",
+              "label": "Washing"
+            }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Content",
+          "default": "<p>Add your content here</p>"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Content from page"
+        },
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Liquid code"
+        },
+        {
+          "type": "checkbox",
+          "id": "variant_content",
+          "label": "Update when variant changes",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "custom-liquid",
+      "name": "Custom Liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Custom Liquid"
+        },
+        {
+          "type": "checkbox",
+          "id": "variant_content",
+          "label": "Update when variant changes",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "divider",
+      "name": "Divider",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "spacing",
+          "label": "Spacing",
+          "options": [
+            {
+              "value": "mt-8 mb-8",
+              "label": "Default"
+            },
+            {
+              "value": "mt-12 mb-12",
+              "label": "Large"
+            }
+          ],
+          "default": "mt-8 mb-8"
+        }
+      ]
+    },
+    {
+      "type": "link",
+      "name": "Link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "default": "Link text",
+          "label": "Label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_in_new_tab",
+          "label": "Open link in new tab",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "link"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "min": 80,
+          "max": 1000,
+          "step": 10,
+          "unit": "px",
+          "label": "Width",
+          "default": 200
+        },
+        {
+          "type": "select",
+          "id": "image_align",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "justify-start",
+              "label": "Left"
+            },
+            {
+              "value": "justify-center",
+              "label": "Center"
+            },
+            {
+              "value": "justify-end",
+              "label": "Right"
+            }
+          ],
+          "default": "justify-start"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "inventory",
+      "name": "Inventory status",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Visibility"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_indicator_bar",
+          "label": "Show inventory indicator bar",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "inventory_show_notice",
+          "label": "Show inventory notice",
+          "options": [
+            {
+              "label": "Low/very low inventory",
+              "value": "low"
+            },
+            {
+              "label": "Always",
+              "value": "always"
+            }
+          ],
+          "default": "low"
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_no_stock_backordered",
+          "label": "Hide backordered inventory notice",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "inventory_show_count",
+          "label": "Show product count",
+          "options": [
+            {
+              "label": "Never",
+              "value": "never"
+            },
+            {
+              "label": "Low/very low inventory",
+              "value": "low"
+            },
+            {
+              "label": "Always",
+              "value": "always"
+            }
+          ],
+          "default": "low"
+        },
+        {
+          "type": "header",
+          "content": "Urgency messages"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_urgency_message",
+          "label": "Show urgency message",
+          "default": true
+        },
+        {
+          "type": "inline_richtext",
+          "id": "text_very_low",
+          "label": "Text when inventory is very low",
+          "default": "- Almost gone!"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "text_low",
+          "label": "Text when inventory is low",
+          "default": "- Hurry while stocks last!"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "text_normal",
+          "label": "Text when inventory is normal"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "text_no_stock",
+          "label": "Text when out of stock"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "text_no_stock_backordered",
+          "label": "Text when backordered",
+          "default": "Backordered"
+        },
+        {
+          "type": "header",
+          "content": "Thresholds"
+        },
+        {
+          "type": "range",
+          "id": "inventory_threshold_low",
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "label": "Low inventory threshold",
+          "info": "When inventory levels are equal to or below this number, it is considered \"Low\".",
+          "default": 10
+        },
+        {
+          "type": "range",
+          "id": "inventory_threshold_very_low",
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "label": "Very low inventory threshold",
+          "info": "When inventory levels are equal to or below this number, it is considered \"Very low\". This number should be less than the \"Low inventory threshold\".",
+          "default": 2
+        }
+      ]
+    },
+    {
+      "type": "weight",
+      "name": "Weight",
+      "limit": 1
+    },
+    {
+      "type": "barcode",
+      "name": "Barcode (ISBN, UPC, etc)",
+      "limit": 1
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_tax_and_shipping",
+          "label": "Show tax and shipping information",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_percentage_discount",
+          "label": "Show percentage reduction",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "installments",
+      "name": "Payment installments",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "To display payment installments on your store it needs to support Shop Pay Installments. [Learn more](https://help.shopify.com/en/manual/payments/shop-pay-installments)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_in_box",
+          "label": "Show in box",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "rating",
+      "name": "Product rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "To display a rating, add a product rating app. [Learn more](https://apps.shopify.com/search?q=reviews)"
+        }
+      ]
+    },
+    {
+      "type": "richtext",
+      "name": "Rich text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Rich text"
+        }
+      ]
+    },
+    {
+      "type": "share",
+      "name": "Share",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_twitter",
+          "label": "Show X (formerly Twitter)",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_facebook",
+          "label": "Show Facebook",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_pinterest",
+          "label": "Show Pinterest",
+          "default": true
+        }
+      ],
+      "limit": 1
+    },
+    {
+      "type": "title",
+      "name": "Title",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "vendor_title",
+          "label": "Show vendor as part of title"
+        }
+      ]
+    },
+    {
+      "type": "variant-picker",
+      "name": "Variant picker",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "prefix_choose",
+          "label": "Prefix variant label with \"Choose\"",
+          "info": "To edit this text, edit the theme translations.",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_dynamic_availability",
+          "label": "Dynamic availability",
+          "default": true,
+          "info": "When an option is selected, options below it will be updated to show their availability."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_backorder_text",
+          "label": "Show backorder text",
+          "info": "Only shows for products which use Shopify inventory tracking and are available to purchase when out of stock.",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "swatch_dual_selectors",
+          "label": "Show dual swatch selectors",
+          "info": "Shows a dropdown in addition to a traditional swatch selector.",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Size guide"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_size_chart",
+          "label": "Enable size guide",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "size_chart_label",
+          "label": "Link text",
+          "default": "Size guide"
+        },
+        {
+          "type": "text",
+          "id": "size_chart_variant",
+          "label": "Variant option name",
+          "info": "This is usually 'Size'. Separate multiple names with a comma.",
+          "default": "Size"
+        },
+        {
+          "type": "select",
+          "id": "size_chart_source",
+          "label": "Content source",
+          "options": [
+            {
+              "label": "Section",
+              "value": "section"
+            },
+            {
+              "label": "Page",
+              "value": "page"
+            }
+          ],
+          "default": "page"
+        },
+        {
+          "type": "header",
+          "content": "Size guide source: Section"
+        },
+        {
+          "type": "paragraph",
+          "content": "Create helpful size guides with tables, text and images using a dedicated section. Show it as a pop-up or in-page."
+        },
+        {
+          "type": "paragraph",
+          "content": "To do this, add a 'Size guide' companion section below this Featured product section."
+        },
+        {
+          "type": "header",
+          "content": "Size guide source: Page"
+        },
+        {
+          "type": "page",
+          "id": "size_chart_page",
+          "label": "Page containing size guide"
+        }
+      ]
+    },
+    {
+      "type": "vendor-sku",
+      "name": "Vendor / SKU / Barcode",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Show vendor",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "vendor_is_link",
+          "label": "Make the vendor a link",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_sku",
+          "label": "Show SKU",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_barcode",
+          "label": "Show barcode",
+          "info": " ISBN, UPC, etc",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "type",
+      "name": "Product type",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "is_link",
+          "label": "Show as a link",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_as_collapsible_content",
+          "label": "Show as collapsible content",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Open by default",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Collapsible content icon",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "award",
+              "label": "Award"
+            },
+            {
+              "value": "box",
+              "label": "Box"
+            },
+            {
+              "value": "briefcase",
+              "label": "Briefcase"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "chat_bubble",
+              "label": "Chat bubble"
+            },
+            {
+              "value": "check_mark",
+              "label": "Check mark"
+            },
+            {
+              "value": "check_mark_in_circle",
+              "label": "Check mark in circle"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            },
+            {
+              "value": "credit_card",
+              "label": "Credit card"
+            },
+            {
+              "value": "dollar_sign",
+              "label": "Dollar sign"
+            },
+            {
+              "value": "dryer",
+              "label": "Dryer"
+            },
+            {
+              "value": "eye",
+              "label": "Eye"
+            },
+            {
+              "value": "feather",
+              "label": "Feather"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "heart",
+              "label": "Heart"
+            },
+            {
+              "value": "iron",
+              "label": "Iron"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "leather",
+              "label": "Leather"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "map_pin",
+              "label": "Map pin"
+            },
+            {
+              "value": "pants",
+              "label": "Pants"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "plane",
+              "label": "Plane"
+            },
+            {
+              "value": "price_tag",
+              "label": "Price tag"
+            },
+            {
+              "value": "question_mark",
+              "label": "Question mark"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "ruler",
+              "label": "Ruler"
+            },
+            {
+              "value": "scissors",
+              "label": "Scissors"
+            },
+            {
+              "value": "shirt",
+              "label": "Shirt"
+            },
+            {
+              "value": "shoe",
+              "label": "Shoe"
+            },
+            {
+              "value": "silhouette",
+              "label": "Silhouette"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "washing",
+              "label": "Washing"
+            }
+          ],
+          "default": "none"
+        }
+      ]
+    },
+    {
+      "type": "product-labels",
+      "name": "Product labels",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "See settings in \"Theme Settings > Product labels\"."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_sale_label",
+          "label": "Show sale label",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "product-subtitle",
+      "name": "Product subtitle"
+    },
+    {
+      "type": "custom-option",
+      "name": "Custom option",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "info": "Required. Must be different to the label of any other \"Custom option\" blocks.",
+          "default": "Custom option"
+        },
+        {
+          "type": "select",
+          "id": "type",
+          "label": "Type",
+          "default": "text",
+          "options": [
+            {
+              "label": "Text",
+              "value": "text"
+            },
+            {
+              "label": "Long text",
+              "value": "textarea"
+            },
+            {
+              "label": "Checkbox",
+              "value": "checkbox"
+            },
+            {
+              "label": "Dropdown",
+              "value": "dropdown"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "checkbox",
+          "id": "text_required",
+          "label": "Require text",
+          "info": "Only works with \"Add to cart\" button",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Long text"
+        },
+        {
+          "type": "checkbox",
+          "id": "long_text_required",
+          "label": "Require long text",
+          "info": "Only works with \"Add to cart\" button",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Checkbox"
+        },
+        {
+          "type": "text",
+          "id": "checkbox_checked_value",
+          "label": "Checked value",
+          "default": "Yes"
+        },
+        {
+          "type": "text",
+          "id": "checkbox_unchecked_value",
+          "label": "Unchecked value",
+          "default": "No"
+        },
+        {
+          "type": "header",
+          "content": "Dropdown options"
+        },
+        {
+          "type": "textarea",
+          "id": "dropdown_options",
+          "label": "Options",
+          "default": "Option 1\nOption 2\nOption 3",
+          "info": "One option on each line"
+        }
+      ]
+    },
+    {
+      "type": "product-link",
+      "name": "View details link",
+      "settings": [
+        {
+          "type": "select",
+          "id": "text_align",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        }
+      ]
+    },
+    {
+      "type": "selling-points",
+      "name": "Selling points",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Selling points"
+        },
+        {
+          "type": "select",
+          "id": "layout",
+          "label": "Layout",
+          "default": "carousel",
+          "options": [
+            {
+              "label": "Carousel",
+              "value": "carousel"
+            },
+            {
+              "label": "One column",
+              "value": "one_column"
+            },
+            {
+              "label": "Two column",
+              "value": "two_column"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "usp_icon_width",
+          "min": 20,
+          "max": 140,
+          "step": 2,
+          "unit": "px",
+          "label": "Icon width",
+          "default": 80
+        },
+        {
+          "type": "header",
+          "content": "Selling point 1"
+        },
+        {
+          "type": "select",
+          "id": "usp_1_icon",
+          "label": "Icon",
+          "default": "body-positivity",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "usp_1_image",
+          "info": "Replaces the icon when set.",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "usp_1_text",
+          "label": "Text",
+          "default": "Body positivity"
+        },
+        {
+          "type": "header",
+          "content": "Selling point 2"
+        },
+        {
+          "type": "select",
+          "id": "usp_2_icon",
+          "label": "Icon",
+          "default": "zero-waste",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "usp_2_image",
+          "info": "Replaces the icon when set.",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "usp_2_text",
+          "label": "Text",
+          "default": "Zero waste"
+        },
+        {
+          "type": "header",
+          "content": "Selling point 3"
+        },
+        {
+          "type": "select",
+          "id": "usp_3_icon",
+          "label": "Icon",
+          "default": "eco-friendly",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "usp_3_image",
+          "info": "Replaces the icon when set.",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "usp_3_text",
+          "label": "Text",
+          "default": "Eco-friendly"
+        },
+        {
+          "type": "header",
+          "content": "Selling point 4"
+        },
+        {
+          "type": "select",
+          "id": "usp_4_icon",
+          "label": "Icon",
+          "default": "none",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "usp_4_image",
+          "info": "Replaces the icon when set.",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "usp_4_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Selling point 5"
+        },
+        {
+          "type": "select",
+          "id": "usp_5_icon",
+          "label": "Icon",
+          "default": "none",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "usp_5_image",
+          "info": "Replaces the icon when set.",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "usp_5_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Selling point 6"
+        },
+        {
+          "type": "select",
+          "id": "usp_6_icon",
+          "label": "Icon",
+          "default": "none",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "usp_6_image",
+          "info": "Replaces the icon when set.",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "usp_6_text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured product",
+      "category": "Products",
+      "blocks": [
+        {
+          "type": "vendor-sku"
+        },
+        {
+          "type": "title"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "installments"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "variant-picker"
+        },
+        {
+          "type": "buy-buttons"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "product-link"
+        }
+      ]
+    }
+  ],
+  "templates": [
+    "article",
+    "blog",
+    "collection",
+    "index",
+    "list-collections",
+    "page",
+    "product",
+    "search"
+  ]
+}
+{% endschema %}

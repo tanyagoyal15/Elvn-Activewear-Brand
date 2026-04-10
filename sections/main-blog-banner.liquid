@@ -1,0 +1,478 @@
+{{ 'blog-banner.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  # constants
+  assign gutter_lg = 56
+  assign breakpoint_sm = 480
+  assign breakpoint_xxl = 1536
+  assign breakpoint_page = settings.max_page_width | default: 1320 | plus: gutter_lg | plus: gutter_lg
+
+  assign banner_style = section.settings.style
+
+  if section.index == 1
+    assign lazy_load_images = false
+    assign fetchpriority = 'high'
+  else
+    assign lazy_load_images = true
+    assign fetchpriority = 'low'
+  endif
+-%}
+
+{%- style -%}
+  #{{ section.id }} .blog-title {
+    --heading-text-transform: {{ section.settings.heading_case }};
+    margin-inline-start: {% if section.settings.text_align != 'text-start' %}auto{% else %}0px{% endif %};
+    margin-inline-end: {% if section.settings.text_align != 'text-end' %}auto{% else %}0px{% endif %};
+  }
+
+  #{{ section.id }} .blog-description {
+    margin-inline-start: {% if section.settings.text_align != 'text-start' %}auto{% else %}0px{% endif %};
+    margin-inline-end: {% if section.settings.text_align != 'text-end' %}auto{% else %}0px{% endif %};
+  }
+
+  {%- if section.settings.style == 'scrolling-text' -%}
+    {%- liquid
+      assign duration_per_char = 30 | minus: section.settings.heading_marquee_speed | times: 5 | plus: 100
+      assign title_char_count = blog.title | split: '' | size
+    -%}
+    #{{ section.id }}.blog-banner--scrolling-text .marquee {
+      --marquee-duration: {{ duration_per_char | times: title_char_count | divided_by: 100 }}s;
+    }
+  {%- endif -%}
+
+  {%- if section.settings.style contains 'image' -%}
+    #{{ section.id }}.blog-banner--text-over-image,
+    #{{ section.id }}.blog-banner--text-below-image .media {
+      min-height: {{ section.settings.fixed_height_mobile }}px;
+    }
+
+    @media (min-width: {{ breakpoint_sm }}px) {
+      #{{ section.id }}.blog-banner--text-over-image,
+      #{{ section.id }}.blog-banner--text-below-image .media {
+        min-height: calc({{ section.settings.fixed_height_mobile }}px + ({{ section.settings.fixed_height_desktop }} - {{ section.settings.fixed_height_mobile }}) * ((100vw - {{ breakpoint_sm }}px) / {{ breakpoint_xxl | minus: breakpoint_sm }}));
+      }
+    }
+
+    @media (min-width: {{ breakpoint_page }}px) {
+      #{{ section.id }}.blog-banner--text-over-image,
+      #{{ section.id }}.blog-banner--text-below-image .media {
+        min-height: {{ section.settings.fixed_height_desktop }}px;
+      }
+    }
+
+    {%- if section.settings.tint_opacity > 0 -%}
+      #{{ section.id }}.blog-banner .media--has-overlay::after {
+        background-color: rgba({{ section.settings.tint_color.rgb }} / {{ section.settings.tint_opacity | divided_by: 100.0 }});
+      }
+    {%- endif -%}
+  {%- endif -%}
+{%- endstyle -%}
+
+{% liquid
+  assign banner_image = false
+
+  if section.settings.image != blank
+    assign banner_image = section.settings.image
+  endif
+
+  assign justify_content = ''
+
+  if section.settings.text_align == 'text-start'
+    assign justify_content = 'justify-start'
+  elsif section.settings.text_align == "text-center"
+    assign justify_content = 'justify-center'
+  elsif section.settings.text_align == "text-end"
+    assign justify_content = 'justify-end'
+  endif
+%}
+
+{% comment %} article socials {% endcomment %}
+{% capture article_social_snippet %}
+  <div class="social-share flex {{ justify_content }} mt-6 md:mt-8 max-md:text-sm">
+    <p class="social-share__heading mb-0 font-bold">{{ 'general.social.share_heading' | t }}:</p>
+    {% render 'social-share',
+        share_twitter: section.settings.show_twitter,
+        share_facebook: section.settings.show_facebook,
+        share_pinterest: section.settings.show_pinterest,
+        share_title: blog.title,
+        share_url: blog.url,
+        share_image: banner_image %}
+  </div>
+{% endcapture %}
+
+<div class="blog-banner section color-scheme color-scheme--{{ section.settings.color_scheme }}" id="{{ section.id }}">
+  {%- case banner_style -%}
+  {% comment %} scrolling-text {% endcomment %}
+  {%- when 'scrolling-text' -%}
+    <div class="blog-banner--scrolling-text{% if settings.show_breadcrumbs_blog %} pb-6 md:pb-12{% else %} py-6 md:py-8{% endif %} overflow-hidden" id="{{ section.id }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      <div class="container mb-6 md:mb-12">
+        {%- if settings.show_breadcrumbs_blog -%}
+          {%- render 'breadcrumbs', class: 'max-md:my-4 custom-case', show_rss_link: settings.show_breadcrumbs_blog_rss, divider: '&nbsp;/&nbsp;' -%}
+        {%- endif -%}
+      </div>
+
+      {%- assign content_class = section.settings.heading_size | append: ' leading-[1.2] font-normal mb-0' -%}
+      {%- render 'marquee',
+          class: 'blog-title mb-0',
+          content_element: 'h1',
+          content_class: content_class,
+          content: blog.title -%}
+
+        <div class="container mt-2 md:mt-4 {{ section.settings.text_align }}">
+          {%- if section.settings.show_blog_description and section.settings.blog_description != blank -%}
+            <div class="blog-description rte text-sm custom-case" {%- render 'animation-attrs', attrs: 'data-cc-animate="slide-in-up"' %}>
+              {{- section.settings.blog_description -}}
+            </div>
+          {%- endif -%}
+          {%- if section.settings.show_share_buttons -%}
+            {{ article_social_snippet }}
+          {%- endif -%}
+        </div>
+    </div>
+
+  {% comment %} text {% endcomment %}
+  {%- when 'text' -%}
+    <div class="blog-banner--text{% if settings.show_breadcrumbs_blog %} pb-6 md:pb-8{% else %} my-6 pd:py-8{% endif %} overflow-hidden" id="{{ section.id }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      <div class="container mb-6 md:mb-12">
+        {%- if settings.show_breadcrumbs_blog -%}
+          {%- render 'breadcrumbs', class: 'max-md:my-4 custom-case', show_rss_link: settings.show_breadcrumbs_blog_rss, divider: '&nbsp;/&nbsp;' -%}
+        {%- endif -%}
+      </div>
+
+      <div class="container {{ section.settings.text_align }}">
+        <h1 class="blog-title mb-0 {{ section.settings.heading_size }} leading-[1.2] font-normal">
+          {{- blog.title | escape -}}
+        </h1>
+
+        {%- if section.settings.show_blog_description and section.settings.blog_description != blank -%}
+          <div class="blog-description mt-2 md:mt-4 rte text-sm custom-case">
+            {{- section.settings.blog_description -}}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.show_share_buttons -%}
+          {{ article_social_snippet }}
+        {%- endif -%}
+      </div>
+    </div>
+
+  {% comment %} text-below-image {% endcomment %}
+  {%- when 'text-below-image' -%}
+    <div class="blog-banner--text-below-image pb-6 md:pb-8 relative" id="{{ section.id }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      {%- if settings.show_breadcrumbs_blog -%}
+        <div class="w-full absolute top-0 z-1">
+          <div class="container mb-6 md:mb-12">
+            {%- if settings.show_breadcrumbs_blog -%}
+              {%- render 'breadcrumbs', class: 'max-md:my-4 custom-case', show_rss_link: settings.show_breadcrumbs_blog_rss, divider: '&nbsp;/&nbsp;' -%}
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="media media--has-overlay relative">
+        {%- if banner_image -%}
+          {%- capture sizes %}{% render 'sizes-attribute', grid: false, min: '100vw', sm: false, xl: false %}{% endcapture -%}
+          {%- render 'image',
+            image: banner_image,
+            widths: '320, 640, 960, 1280, 1600, 1920, 2240, 2560',
+            src_width: 1280,
+            sizes: sizes,
+            class: 'img-fit',
+            lazy_load: lazy_load_images,
+            fetchpriority: fetchpriority
+          -%}
+        {%- else -%}
+          {{- 'lifestyle-1' | placeholder_svg_tag: 'media__placeholder img-fit' -}}
+        {%- endif -%}
+      </div>
+
+      <div class="container mt-4 md:mt-6 lg:mt-14 {{ section.settings.text_align }}">
+        <h1 class="blog-title mb-0 {{ section.settings.heading_size }} font-normal">
+          {{- blog.title | escape -}}
+        </h1>
+
+        {%- if section.settings.show_blog_description and section.settings.blog_description != blank -%}
+          <div class="blog-description mt-2 rte text-sm custom-case">
+            {{- section.settings.blog_description -}}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.show_share_buttons -%}
+          {{ article_social_snippet }}
+        {%- endif -%}
+      </div>
+    </div>
+
+  {% comment %} text-over-image {% endcomment %}
+  {%- when 'text-over-image' -%}
+    <div class="blog-banner--text-over-image relative flex flex-col justify-center" id="{{ section.id }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      {%- if settings.show_breadcrumbs_blog -%}
+        <div class="w-full absolute top-0 z-1">
+          <div class="container mb-6 md:mb-12">
+            {%- if settings.show_breadcrumbs_blog -%}
+              {%- render 'breadcrumbs', class: 'max-md:my-4 custom-case', show_rss_link: settings.show_breadcrumbs_blog_rss, divider: '&nbsp;/&nbsp;' -%}
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="media media--has-overlay absolute top-0 left-0 w-full h-full">
+        {%- if banner_image -%}
+          {%- capture sizes %}{% render 'sizes-attribute', grid: false, min: '100vw', sm: false, xl: false %}{% endcapture -%}
+          {%- render 'image',
+            image: banner_image,
+            widths: '320, 640, 960, 1280, 1600, 1920, 2240, 2560',
+            src_width: 1280,
+            sizes: sizes,
+            class: 'img-fit',
+            lazy_load: lazy_load_images,
+            fetchpriority: fetchpriority
+          -%}
+        {%- else -%}
+          {{- 'lifestyle-1' | placeholder_svg_tag: 'media__placeholder img-fit' -}}
+        {%- endif -%}
+      </div>
+
+      <div class="container relative z-1 {{ section.settings.text_align }}">
+        <h1 class="blog-title mb-0 {{ section.settings.heading_size }} font-normal">
+          {{- blog.title | escape -}}
+        </h1>
+
+        {%- if section.settings.show_blog_description and section.settings.blog_description != blank -%}
+          <div class="blog-description mt-2 md:mt-4 rte max-md:text-sm custom-case">
+            {{- section.settings.blog_description -}}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.show_share_buttons -%}
+          {{ article_social_snippet }}
+        {%- endif -%}
+      </div>
+
+    </div>
+  {%- endcase -%}
+</div>
+
+{% schema %}
+{
+  "name": "Blog banner",
+  "class": "cc-blog-banner",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Learn more about Shopify blogs](https://help.shopify.com/en/manual/online-store/blogs/adding-a-blog)"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        {
+          "value": "scrolling-text",
+          "label": "Scrolling text"
+        },
+        {
+          "value": "text",
+          "label": "Text"
+        },
+        {
+          "value": "text-below-image",
+          "label": "Text below image"
+        },
+        {
+          "value": "text-over-image",
+          "label": "Text over image"
+        }
+      ],
+      "default": "text-over-image"
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'scrolling-text' }}",
+      "type": "range",
+      "id": "heading_marquee_speed",
+      "min": 1,
+      "max": 40,
+      "step": 1,
+      "label": "Scrolling speed",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        },
+        {
+          "value": "xxx-large-heading",
+          "label": "Super large"
+        }
+      ],
+      "default": "x-large-heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_case",
+      "label": "Headings capitalization",
+      "info": "Replaces [Headings capitalization](/editor?context=theme&category=typography) setting.",
+      "options": [
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "none",
+          "label": "None (leave as entered)"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-3"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_blog_description",
+      "label": "Add blog description",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_blog_description }}",
+      "type": "richtext",
+      "id": "blog_description",
+      "label": "Description",
+      "default": "<p>Use this space to share updates, stories, product tips, or behind-the-scenes looks at your brand. Whether you're launching a new collection, offering seasonal advice, or connecting with your community, this section helps bring your brand voice to life.</p>",
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "range",
+      "id": "fixed_height_desktop",
+      "min": 320,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "label": "Fixed height (desktop)",
+      "default": 400
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "range",
+      "id": "fixed_height_mobile",
+      "min": 160,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Fixed height (mobile)",
+      "default": 240
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "color",
+      "id": "tint_color",
+      "label": "Tint color",
+      "default": "#4c4339"
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "range",
+      "id": "tint_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Tint opacity",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Details"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share_buttons",
+      "label": "Show social share links",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_share_buttons }}",
+      "type": "checkbox",
+      "id": "show_twitter",
+      "label": "Show X (formerly Twitter)",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_share_buttons }}",
+      "type": "checkbox",
+      "id": "show_facebook",
+      "label": "Show Facebook",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_share_buttons }}",
+      "type": "checkbox",
+      "id": "show_pinterest",
+      "label": "Show Pinterest",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

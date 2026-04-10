@@ -1,0 +1,620 @@
+{%- if section.blocks.size > 0 -%}
+  <link rel="stylesheet" href="{{ 'video-carousel.css' | asset_url }}">
+  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+
+  <script src="{{ 'video-carousel.js' | asset_url }}" defer></script>
+  <script src="{{ 'video-carousel-player.js' | asset_url }}" defer></script>
+  <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer></script>
+
+  {%- liquid
+    assign color_scheme = section.settings.color_scheme
+  %}
+
+  {%- style -%}
+    {%- if section.settings.background_mode == 'color' -%}
+      #{{ section.id }} { background: {{ section.settings.background_color }}; }
+    {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+      #{{ section.id }} {
+        background: {% render 'custom-gradient',
+                        type: section.settings.background_gradient_curve,
+                        start_color: section.settings.background_gradient_stop_1,
+                        end_color: section.settings.background_gradient_stop_2
+                    %};
+      }
+    {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+      #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+    {%- endif -%}
+  {%- endstyle -%}
+
+  <div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+    
+    {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+      <div class="absolute inset-0">
+        {%- render 'image',
+          image: section.settings.background_image,
+          src_width: 1400,
+          widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+          class: 'img-fit cover',
+          sizes: '100vw'
+        -%}
+      </div>
+    {%- endif -%}
+
+    <div class="section md:py-20 pt-16 pb-10 z-3 color-scheme color-scheme--{{ color_scheme }}{% if section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+      
+      <carousel-slider class="carousel block" inactive>
+        
+        <div class="container max-w-none">
+          {%- if settings.slider_show_arrows != 'never' and section.settings.heading != blank -%}
+            <div class="carousel__header flex{% if section.settings.heading_align == 'text-end' %} flex-row-reverse{% endif %} items-center justify-between mb-8">
+              <h2 class="flex-auto mb-0 {{ section.settings.heading_size }} {{ section.settings.heading_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}">{{ section.settings.heading | escape }}</h2>
+
+              {%- if section.settings.heading_align != 'text-center' -%}
+                <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:flex gap-x-2 items-center no-js-hidden">
+                  <button type="button" class="slider-nav__btn btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                    {% render 'icon-chevron-left' %}
+                  </button>
+                  <button type="button" class="slider-nav__btn btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                    {% render 'icon-chevron-right' %}
+                  </button>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+        <video-carousel data-hover-play="false" data-autoplay="false">
+
+          <div class="slider slider--no-scrollbar" id="slider-{{ section.id }}">
+            <ul class="slider__grid grid" style="--num-slides: {{ section.blocks.size }};" role="list">
+              {%- for block in section.blocks -%}
+                {% liquid 
+                  assign product = block.settings.product
+
+                  assign has_radius = true
+                  if block.type == 'instagram_video' and block.settings.enable_custom_styles == false
+                    assign has_radius = false
+                  endif
+                %}
+                <li class="slider__item flex flex-col h-fit items-top justify-center{% if forloop.first %} slider__item-first{% endif %}{% if forloop.last %} slider__item-last{% endif %}" {{ block.shopify_attributes }}>
+                  <div class="video-carousel__wrapper{% if has_radius %} video-carousel__wrapper--radius{% endif %} w-full h-full relative flex items-start">
+                    {% if block.settings.url != blank or block.type == 'shopify_video' %}
+                      {% case block.type %}
+                        {% when 'shopify_video' %}
+                          <video-carousel-player
+                            class="video-carousel__player flex items-center"
+                            data-id="{{ block.id }}"
+                            data-muted="false"
+                            style="padding-top: 177.78%; {% if block.settings.video_frame_enabled %}--video-frame: {{ block.settings.video_frame_color }};{% endif %}">
+
+
+                            <div class="video-carousel__header{% if block.settings.media %} video-carousel__header--bg{% endif %} absolute top-0 px-3 pt-3 z-10 flex w-full gap-6">
+                              
+                              {% unless block.settings.tag == blank %}
+                                {% if block.settings.tag_url == blank %}
+                                  <div class="video-carousel__tag z-1 flex items-center">
+                                {% else %}
+                                  <a href="{{ block.settings.tag_url }}" class="video-carousel__tag z-1 flex items-center link">
+                                {% endif %}
+                                    <span class="break-all">{{ block.settings.tag }}</span>
+                                {% if block.settings.tag_url == blank %}
+                                  </div>
+                                {% else %}
+                                  </a>
+                                {% endif %}
+                              {% endunless %}
+
+                              <div class="video-carousel__buttons z-1 flex gap-2 ml-auto" style="--text-color: 255, 255, 255;">
+
+                                <button type="button" class="pause-btn btn--circle-icon btn--media-icon-sm" data-vc-play-toggle>
+                                  <span class="pause-btn__pause-icon" data-vc-play>
+                                    {% render 'icon-media-pause' %}
+                                    <span class="visually-hidden">{{ 'accessibility.media.pause' | t }}</span>
+                                  </span>
+
+                                  <span class="pause-btn__play-icon" data-vc-pause>
+                                    {% render 'icon-media-play' %}
+                                    <span class="visually-hidden">{{ 'accessibility.media.play' | t }}</span>
+                                  </span>
+                                </button>
+
+                                <button type="button" class="mute-btn btn--circle-icon btn--media-icon-sm" data-vc-mute-toggle>
+                                  <span class="mute-btn__mute-icon" data-vc-mute>
+                                    {% render 'icon-media-mute' %}
+                                    <span class="visually-hidden">{{ 'accessibility.media.mute' | t }}</span>
+                                  </span>
+                                  <span class="mute-btn__unmute-icon" data-vc-unmute hidden>
+                                    {% render 'icon-media-unmute' %}
+                                    <span class="visually-hidden">{{ 'accessibility.media.unmute' | t }}</span>
+                                  </span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {% if block.settings.media %}
+                              {{ block.settings.media | video_tag:
+                                class: 'video-carousel__media block absolute top-0 left-0 w-full h-full',
+                                preload: 'none',
+                                playsinline: true,
+                                loop: false,
+                                muted: false,
+                                autoplay: false,
+                                controls: false,
+                                image_size: '650x'
+                              }}
+                            {% else %}
+                              {{ 'image' | placeholder_svg_tag: 'video-carousel__media media__placeholder img-fit' }}
+                            {% endif %}
+                          </video-carousel-player>
+
+                        {% when 'instagram_video' %}
+                          {% if block.settings.url != blank %}
+                            {% assign clean_url = block.settings.url | split: '?' | first %}
+                            <blockquote 
+                              class="instagram-media{% if has_radius %} instagram-media--styled{% endif %}"
+                              data-instgrm-captioned
+                              data-instgrm-permalink="{{ clean_url | escape }}" 
+                              data-instgrm-version="14"
+                            >
+                              <div class="relative w-full" style="padding-top: 177.78%;">
+                                <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                                  {{ 'image' | placeholder_svg_tag: 'video-carousel__media media__placeholder img-fit' }}
+                                </div>
+                              </div>
+                            </blockquote>
+                            <script async src="//www.instagram.com/embed.js"></script>
+                          {% endif %}
+
+                        {% when 'youtube_video' %}
+                          {% if block.settings.url != blank %}
+                            {%- assign clean_url = block.settings.url | split: '?' | first -%}
+                            {%- assign youtube_id = clean_url | split: '/' | last -%}
+                            <div class="youtube-embed w-full relative overflow-hidden" style="padding-top: 177.78%;">
+                              <iframe
+                                class="absolute top-0 left-0 w-full h-full"
+                                src="https://www.youtube.com/embed/{{ youtube_id }}?modestbranding=1&rel=0&playsinline=1"
+                                title="YouTube video player"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                              ></iframe>
+                            </div>
+                          {% endif %}
+
+                        {% when 'tiktok_video' %}
+                          {% assign tiktok_id = block.settings.url | split: '/' | last %}
+                          <div class="relative w-full h-full">
+                            <blockquote 
+                              class="tiktok-embed absolute top-0 left-0 w-full h-full" 
+                              cite="https://www.tiktok.com/@user/video/{{ tiktok_id }}" 
+                              data-video-id="{{ tiktok_id }}"
+                              style="margin-top: 0; margin-bottom: 0; overflow: hidden;"
+                            >
+                              <section></section>
+                            </blockquote>
+                            <script async src="https://www.tiktok.com/embed.js"></script>
+                          </div>
+                      {% endcase %}
+                    {% else %}
+                      <div class="relative w-full" style="padding-top: 177.78%;">
+                        <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                          {{ 'image' | placeholder_svg_tag: 'video-carousel__media media__placeholder img-fit' }}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                  </div>
+
+                  {% if block.settings.product_card_enabled %}
+                    <div class="video-carousel__product video-carousel__product--social mt-3">
+                        {% if product != empty %}
+                          {% render 'product-card', product: product, card_type: 'related', show_image: true, disable_labels: true %}
+                        {% else %}
+                          <product-card class="card product-card color-scheme color-scheme--{{ settings.product_card_color_scheme.id }} card--related card--row relative flex custom-case">
+                            <div class="card__media has-hover-image relative">
+                              <div class="media relative">
+                                {{ 'product-1' | placeholder_svg_tag: 'media__placeholder dark' }}
+                              </div>
+                            </div>
+                            <div class="card__info">
+                              <div class="card__content">
+                                <p class="card__title card__title--product">
+                                  <a href="#" class="card-link text-current text-sm">
+                                    {{ 'onboarding.product.title' | t }}
+                                  </a>
+                                </p>
+                                <div class="card__price text-sm">
+                                  <div class="price price--on-sale">
+                                    <div class="price__default">
+                                      {%- if settings.show_product_currency_code -%}
+                                        {{- 1234 | money_with_currency -}}
+                                      {%- else -%}
+                                        {{- 1234 | money -}}
+                                      {%- endif -%}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </product-card>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        </video-carousel>
+
+        {%- if settings.slider_show_arrows != 'never' -%}
+          {%- if section.settings.heading_align == 'text-center' or section.settings.heading == blank -%}
+            <div class="container">
+              <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:flex mt-8 gap-x-2 items-center justify-center no-js-hidden">
+                <button type="button" class="slider-nav__btn btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                  {% render 'icon-chevron-left' %}
+                </button>
+                <button type="button" class="slider-nav__btn btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                  {% render 'icon-chevron-right' %}
+                </button>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+
+      </carousel-slider>
+
+    </div>
+
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Social video carousel",
+  "tag": "section",
+  "class": "cc-video-carousel cc-social-video-carousel non-join",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "The Social video carousel supports TikTok, Instagram, and YouTube embeds but offers fewer controls and may impact site speed."
+    },
+    {
+      "type": "paragraph",
+      "content": "Where possible, we recommend using the Video carousel section for the best experience and optimal performance."
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Size",
+      "options": [
+        {
+          "value": "h3",
+          "label": "Small"
+        },
+        {
+          "value": "h2",
+          "label": "Medium"
+        },
+        {
+          "value": "h1",
+          "label": "Large"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    }
+  ],
+  "max_blocks": 12,
+  "blocks": [
+    {
+      "type": "shopify_video",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Suitable for portrait-oriented videos with a 9:16 aspect ratio (the same as TikTok or Instagram Reels)"
+        },
+        {
+          "type": "video",
+          "id": "media",
+          "label": "Video"
+        },
+        {
+          "type": "checkbox",
+          "id": "video_frame_enabled",
+          "label": "Enable Video Frame",
+          "info": "Visible when videos don't respect the 9:16 aspect ratio recommendation",
+          "default": false
+        },
+        {
+          "visible_if": "{{ block.settings.video_frame_enabled }}",
+          "type": "color",
+          "id": "video_frame_color",
+          "label": "Video Frame Color",
+          "default": "#000000"
+        },
+        {
+          "type": "header",
+          "content": "Product"
+        },
+        {
+          "type": "checkbox",
+          "id": "product_card_enabled",
+          "label": "Enable product card",
+          "default": false
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "header",
+          "content": "Social account"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Social handle",
+          "default": "@social_handle"
+        },
+        {
+          "type": "url",
+          "id": "tag_url",
+          "label": "Social profile link"
+        }
+      ]
+    },
+    {
+      "type": "instagram_video",
+      "name": "Instagram Reel",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Instagram reels must use \"Original Audio\" to be embeddable. Avoid copyrighted music."
+        },
+        {
+          "type": "text",
+          "id": "url",
+          "label": "Instagram Reel URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_custom_styles",
+          "label": "Remove default border",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Product"
+        },
+        {
+          "type": "checkbox",
+          "id": "product_card_enabled",
+          "label": "Enable product card",
+          "default": false
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    },
+    {
+      "type": "tiktok_video",
+      "name": "Tiktok",
+      "settings": [
+        {
+          "type": "text",
+          "id": "url",
+          "label": "Tiktok URL"
+        },
+        {
+          "type": "header",
+          "content": "Product"
+        },
+        {
+          "type": "checkbox",
+          "id": "product_card_enabled",
+          "label": "Enable product card",
+          "default": false
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    },
+    {
+      "type": "youtube_video",
+      "name": "Youtube Short",
+      "settings": [
+        {
+          "type": "text",
+          "id": "url",
+          "label": "Youtube Shorts URL"
+        },
+        {
+          "type": "header",
+          "content": "Product"
+        },
+        {
+          "type": "checkbox",
+          "id": "product_card_enabled",
+          "label": "Enable product card",
+          "default": false
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Social video carousel",
+      "category": "Video",
+      "blocks": [
+        {
+          "type": "youtube_video",
+          "settings": {}
+        },
+        {
+          "type": "youtube_video",
+          "settings": {}
+        },
+        {
+          "type": "youtube_video",
+          "settings": {}
+        },
+        {
+          "type": "youtube_video",
+          "settings": {}
+        },
+        {
+          "type": "youtube_video",
+          "settings": {}
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

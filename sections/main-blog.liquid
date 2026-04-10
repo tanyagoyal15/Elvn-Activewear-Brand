@@ -1,0 +1,239 @@
+{{ 'blog.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+
+  if section.settings.image_ratio == 'shortest'
+    assign image_ratio = 0
+    for article in blog.articles
+      if article.image.aspect_ratio > image_ratio
+        assign image_ratio = article.image.aspect_ratio
+      endif
+    endfor
+  elsif section.settings.image_ratio == 'tallest'
+    assign image_ratio = 99
+    for article in blog.articles
+      if article.image.aspect_ratio < image_ratio
+        assign image_ratio = article.image.aspect_ratio
+      endif
+    endfor
+  else
+    assign image_ratio = section.settings.image_ratio
+  endif
+-%}
+
+<div class="section section--padded{% unless color_scheme == 'none' or color_scheme == 'default' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}" id="{{ section.id }}">
+  <div class="container">
+    {%- if section.settings.show_tag_filter and blog.all_tags.size > 0 -%}
+      <blog-filter>
+        <div class="block mb-12 mt-6">
+          <ul class="list-none flex justify-center gap-x-4 gap-y-3 flex-wrap" id="blog-filter-links">
+            <li>
+              <a href="{{ blog.url }}"
+                class="article-tag block text-xs text-theme-text px-3 py-1{% unless current_tags %} article-tag--active{% endunless %}" data-tag="-">
+                {{- 'blogs.filtering.all' | t -}}
+              </a>
+            </li>
+            {% for tag in blog.all_tags %}
+              <li>
+                <a href="{{ tag | link_to_tag: tag | split: 'href="' | last | split: '"' | first }}" data-tag="{{ tag | escape }}"
+                  class="article-tag block text-xs text-theme-text px-3 py-1{% if current_tags contains tag %} article-tag--active{% endif %}">
+                  {{- tag -}}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+      </blog-filter>
+    {%- endif -%}
+
+    {%- if section.settings.show_featured_post -%}
+      {%- for article in blog.articles -%}
+          {% render 'article-card',
+            article: article,
+            featured: true,
+            color_scheme: color_scheme,
+            show_image: true,
+            image_ratio: image_ratio,
+            show_author: section.settings.show_author,
+            show_date: section.settings.show_date,
+            show_reading_time: section.settings.show_reading_time,
+            show_tags: section.settings.show_tags,
+            show_excerpt: section.settings.show_excerpt,
+            show_button: section.settings.show_button,
+            button_style: section.settings.button_featured
+          %}
+        {%- break -%}
+      {%- endfor -%}
+    {%- endif -%}
+
+    {%- paginate blog.articles by 6 -%}
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-theme gap-y-10{% if paginate.pages > 1 %} mb-12{% endif %}" role="list">
+        {%- for article in blog.articles -%}
+          {%- unless section.settings.show_featured_post and forloop.first -%}
+            <li>
+              {% render 'article-card',
+                article: article,
+                color_scheme: color_scheme,
+                image_ratio: image_ratio,
+                show_author: section.settings.show_author,
+                show_date: section.settings.show_date,
+                show_reading_time: section.settings.show_reading_time,
+                show_tags: section.settings.show_tags,
+                show_excerpt: section.settings.show_excerpt,
+                show_button: section.settings.show_button,
+                button_style: section.settings.button_article
+              %}
+            </li>
+          {%- endunless -%}
+        {%- endfor -%}
+        </ul>
+
+      {%- if paginate.pages > 1 -%}
+        {% render 'pagination', paginate: paginate %}
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "class": "cc-main-blog section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_tag_filter",
+      "label": "Show tag filter",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        {
+          "value": "shortest",
+          "label": "Adapt (shortest image)"
+        },
+        {
+          "value": "tallest",
+          "label": "Adapt (tallest image)"
+        },
+        {
+          "value": "1.33",
+          "label": "Landscape"
+        },
+        {
+          "value": "1",
+          "label": "Square"
+        },
+        {
+          "value": "0.75",
+          "label": "Portrait"
+        }
+      ],
+      "default": "shortest"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Show excerpt",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Show published date",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show author",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reading_time",
+      "label": "Show reading time",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show tags",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Show button",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_button }}",
+      "type": "select",
+      "id": "button_article",
+      "label": "Button style",
+      "options": [
+        {
+          "value": "link block",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "link block"
+    },
+    {
+      "type": "header",
+      "content": "Featured card"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_featured_post",
+      "label": "Feature latest post",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_button }}",
+      "type": "select",
+      "id": "button_featured",
+      "label": "Button style",
+      "options": [
+        {
+          "value": "link block",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--primary"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-2"
+    }
+  ]
+}
+{% endschema %}

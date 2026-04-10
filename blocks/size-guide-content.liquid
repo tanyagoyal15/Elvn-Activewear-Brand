@@ -1,0 +1,86 @@
+<div class="tab-content my-8" {{ block.shopify_attributes }}>
+  {% if block.settings.page != blank and pages[block.settings.page].content != blank %}
+    <div class="rte">
+      {{- pages[block.settings.page].content -}}
+    </div>
+  {%- endif -%}
+
+  {% if block.settings.content != blank and block.settings.image != blank %}
+    <div class="flex max-md:flex-col gap-x-10 gap-y-6">
+  {% endif %}
+
+  {% if block.settings.image != blank %}
+    <div class="
+        mx-auto
+        {%- if block.settings.content != blank %}
+          md:w-[--md-width]
+          {%- if block.settings.image_position == 'right' %} md:order-1{% endif %}
+        {%- endif %}" style="--md-width: {{ block.settings.image_size }}%">
+      {{- block.settings.image | image_url: width: block.settings.image.width | image_tag: loading: 'lazy', sizes: 'auto, (min-width: 768px) 50vw, 100vw' -}}
+    </div>
+  {% endif %}
+
+  {% if block.settings.content != blank %}
+    <div class="rte{% if block.settings.image != blank %} flex-1{% endif %}">{{ block.settings.content }}</div>
+  {% endif %}
+
+  {% if block.settings.content != blank and block.settings.image != blank %}
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Content",
+  "settings": [
+    {
+      "id": "page",
+      "type": "page",
+      "label": "Page",
+      "info": "Optional: Pull content from a page."
+    },
+    {
+      "id": "content",
+      "type": "richtext",
+      "label": "Content",
+      "default": "<p>Content for this tab.</p>"
+    },
+    {
+      "id": "image",
+      "type": "image_picker",
+      "label": "Image"
+    },
+    {
+      "visible_if": "{{ block.settings.image != blank and block.settings.content != blank }}",
+      "id": "image_position",
+      "type": "select",
+      "label": "Image position",
+      "default": "right",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "visible_if": "{{ block.settings.image != blank and block.settings.content != blank }}",
+      "id": "image_size",
+      "type": "range",
+      "label": "Image size",
+      "min": 35,
+      "max": 65,
+      "step": 5,
+      "unit": "%",
+      "default": 50
+    }
+  ],
+  "presets": [
+    { "name": "Content" }
+  ]
+}
+{% endschema %}

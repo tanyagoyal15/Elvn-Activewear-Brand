@@ -1,0 +1,178 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "collection-banner": {
+      "type": "main-collection-banner",
+      "settings": {
+        "style": "text-over-image",
+        "heading_marquee_speed": 15,
+        "heading_size": "h2",
+        "heading_case": "none",
+        "text_align": "text-center",
+        "color_scheme": "scheme-1",
+        "color_scheme_overlay": "scheme-3",
+        "show_collection_description": false,
+        "image": "{{ collection.image }}",
+        "fixed_height_desktop": 480,
+        "fixed_height_mobile": 320,
+        "tint_color": "#4c4339",
+        "tint_opacity": 25
+      }
+    },
+    "collection-products": {
+      "type": "main-collection-products",
+      "settings": {
+        "products_per_page": 48,
+        "products_per_row": "2",
+        "products_per_row_desktop": "4",
+        "show_product_count": true,
+        "show_layout_toggle": true,
+        "card_cutout": false,
+        "enable_filtering": true,
+        "hide_tag_filter": false,
+        "show_active_filter_counts": true,
+        "show_filter_counts": true,
+        "filter_two_columns": true,
+        "button_grid_filter_name": "Size,Taille,Größe",
+        "expand_filters": false,
+        "max_filter_options": 4,
+        "enable_sorting": true,
+        "sort_show_featured": true,
+        "sort_show_best": true,
+        "sort_show_alpha": true,
+        "sort_show_price": true,
+        "sort_show_date": true,
+        "related_collections": [],
+        "related_collections_style": "images",
+        "related_collections_align": "justify-center",
+        "related_collections_carousel_mobile": true,
+        "related_collections_text_color": "#a2605a",
+        "related_collections_bg_color": "#f7f3ee",
+        "related_collections_image_source": "featured",
+        "related_collection_image_ratio": "1",
+        "related_collections_image_fit": "cover",
+        "related_collections_image_align": "object-center"
+      }
+    },
+    "collection_list_PMRU8k": {
+      "type": "collection-list",
+      "blocks": {
+        "collection_88mVEV": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_rwKEY4": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_JDKYkU": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_m7brqE": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_88mVEV",
+        "collection_rwKEY4",
+        "collection_JDKYkU",
+        "collection_m7brqE"
+      ],
+      "disabled": true,
+      "name": "Collection list",
+      "settings": {
+        "title": "More Collections",
+        "heading_h1": false,
+        "heading_size": "h2",
+        "heading_align": "text-center",
+        "heading_after_blocks": false,
+        "card_size": "medium",
+        "card_style": "text-over",
+        "card_show_count": true,
+        "card_compact": true,
+        "grid_offset": true,
+        "color_scheme": "scheme-1",
+        "remove_top_padding": false,
+        "replace_color_scheme_bg": true,
+        "bg_color": "rgba(0,0,0,0)",
+        "bg_gradient": "linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 244, 240, 1) 100%)",
+        "card_inherit_color_scheme": true,
+        "card_color_scheme": ""
+      }
+    },
+    "icons_with_text_FNAyGY": {
+      "type": "icons-with-text",
+      "blocks": {
+        "item_GVdzVP": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "usp_icon": "none",
+            "heading": "Free shipping",
+            "text": "<p>Free shipping on all orders</p>"
+          }
+        },
+        "item_AbLe3c": {
+          "type": "item",
+          "settings": {
+            "icon": "return",
+            "usp_icon": "none",
+            "heading": "Easy returns",
+            "text": "<p>Hassle free returns policy</p>"
+          }
+        },
+        "item_xQhdDm": {
+          "type": "item",
+          "settings": {
+            "icon": "check_mark",
+            "usp_icon": "none",
+            "heading": "Performance First",
+            "text": "<p>Built to move, made to last</p>"
+          }
+        }
+      },
+      "block_order": [
+        "item_GVdzVP",
+        "item_AbLe3c",
+        "item_xQhdDm"
+      ],
+      "name": "Icons with text",
+      "settings": {
+        "heading": "",
+        "heading_size": "x-large-heading",
+        "icon_size": 48,
+        "icon_position": "above",
+        "height": "py-6",
+        "color_scheme": ""
+      }
+    }
+  },
+  "order": [
+    "collection-banner",
+    "collection-products",
+    "collection_list_PMRU8k",
+    "icons_with_text_FNAyGY"
+  ]
+}

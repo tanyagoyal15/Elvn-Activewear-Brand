@@ -1,0 +1,485 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "background_video_EjnfpG": {
+      "type": "background-video",
+      "blocks": {
+        "subheading_U9xaeX": {
+          "type": "subheading",
+          "settings": {
+            "text": "Movement Beyond Ten"
+          }
+        },
+        "heading_mmfgtc": {
+          "type": "heading",
+          "settings": {
+            "heading": "ELVN. Feels like you.",
+            "heading_size_desktop": "h1",
+            "heading_size_mobile": "h1",
+            "heading_h1": true
+          }
+        },
+        "button_CAc3kp": {
+          "type": "button",
+          "settings": {
+            "button_1_label": "Shop Now",
+            "button_1_link": "shopify://collections/just-dropped",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary"
+          }
+        }
+      },
+      "block_order": [
+        "subheading_U9xaeX",
+        "heading_mmfgtc",
+        "button_CAc3kp"
+      ],
+      "name": "Background video",
+      "settings": {
+        "video_shopify": "shopify://files/videos/banner final.mp4",
+        "video_description": "",
+        "poster_image": "shopify://shop_images/DRU0091_3ec1ee25-66cd-4ca2-a6a6-d54f5a54a31b.jpg",
+        "video_height": "lg",
+        "tint_color": "#ffffff",
+        "tint_opacity": 0,
+        "overlay_position": "justify-start items-end",
+        "overlay_text_align": "text-start",
+        "overlay_width_override": true,
+        "overlay_max_width": 560,
+        "mob_center_text": true,
+        "color_scheme": "",
+        "full_width": true,
+        "background_mode": "default",
+        "background_color": "#f7f4f0",
+        "background_gradient_stop_1": "#dec4a5",
+        "background_gradient_stop_2": "#f9f7f8",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "section_join_mode": "default",
+        "lazyload": true,
+        "prevent_animation": false
+      }
+    },
+    "slideshow_ThVGPN": {
+      "type": "slideshow",
+      "blocks": {
+        "slide_CdYnnD": {
+          "type": "slide",
+          "disabled": true,
+          "settings": {
+            "image_desktop": "shopify://shop_images/DRU0177_JPG.jpg",
+            "tint_override": true,
+            "tint_color": "#000000",
+            "tint_opacity": 15,
+            "url": "",
+            "overlay_position": "justify-start items-center",
+            "overlay_text_align": "text-start",
+            "overlay_width_override": false,
+            "overlay_max_width": 640,
+            "mob_center_text": true,
+            "subheading": "ELVN. Feels like you.",
+            "heading": "Movement Beyond Ten",
+            "heading_size_override": true,
+            "heading_size_desktop": "h1",
+            "heading_size_mobile": "h4",
+            "text": "",
+            "enlarge_text": false,
+            "button_1_label": "Shop Now",
+            "button_1_link": "shopify://collections/all",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "end_date": "",
+            "end_time": "",
+            "end_text": "",
+            "hide_on_end": false,
+            "number_size": 40,
+            "number_font": "base",
+            "show_timer_labels": true
+          }
+        }
+      },
+      "block_order": [
+        "slide_CdYnnD"
+      ],
+      "disabled": true,
+      "name": "Slideshow",
+      "settings": {
+        "height_mode": "fixed",
+        "fixed_height_desktop": 880,
+        "fixed_height_mobile": 560,
+        "mobile_stacked": false,
+        "transition": "slide-fade",
+        "nav_style": "slideshow_nav_lines",
+        "pagination_color": "#fbfaf2",
+        "autoplay": true,
+        "slider_pause": false,
+        "autoplay_speed": 5,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "color_scheme": "",
+        "heading_size_desktop": "h1",
+        "heading_size_mobile": "h1",
+        "full_width": true,
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#cccccc",
+        "background_gradient_stop_2": "#ffffff",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "accessibility_info": "",
+        "prevent_animation": true,
+        "section_join_mode": "default"
+      }
+    },
+    "rich_text_MC7wKK": {
+      "type": "featured-collection",
+      "blocks": {
+        "heading_Y8TcLN": {
+          "type": "heading",
+          "settings": {
+            "heading": "Just Dropped",
+            "heading_size": "h3",
+            "heading_h1": true
+          }
+        }
+      },
+      "block_order": [
+        "heading_Y8TcLN"
+      ],
+      "name": "Featured collection",
+      "settings": {
+        "collection": "just-dropped",
+        "layout": "carousel",
+        "carousel_effect": "slide",
+        "products_per_row": "2",
+        "products_per_row_desktop": "4",
+        "products_to_show": 12,
+        "card_cutout": false,
+        "show_view_all": true,
+        "view_all_text": "View all",
+        "view_all_style": "link",
+        "text_align": "text-start",
+        "text_width_override": true,
+        "text_max_width": 900,
+        "text_column_to_edge": true,
+        "mob_center_text": true,
+        "full_width": true,
+        "color_scheme": "scheme-1",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#f9f4ea",
+        "background_gradient_stop_2": "#f9f4ea",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "remove_top_padding": false,
+        "section_height": "small",
+        "section_join_mode": "tight"
+      }
+    },
+    "collection_list_irDAQm": {
+      "type": "collection-list",
+      "blocks": {
+        "collection_YBaLag": {
+          "type": "collection",
+          "settings": {
+            "collection": "sports-bra",
+            "title": ""
+          }
+        },
+        "collection_wGmz3i": {
+          "type": "collection",
+          "settings": {
+            "collection": "tshirts-tops",
+            "title": ""
+          }
+        },
+        "collection_dNiApb": {
+          "type": "collection",
+          "settings": {
+            "collection": "leggings",
+            "title": ""
+          }
+        },
+        "collection_d8XDhk": {
+          "type": "collection",
+          "settings": {
+            "collection": "flayed-pants",
+            "title": ""
+          }
+        },
+        "collection_rMCweY": {
+          "type": "collection",
+          "settings": {
+            "collection": "shorts",
+            "title": ""
+          }
+        },
+        "collection_3jbUkR": {
+          "type": "collection",
+          "settings": {
+            "collection": "skirts",
+            "title": ""
+          }
+        },
+        "collection_L8HeHp": {
+          "type": "collection",
+          "settings": {
+            "collection": "sweat-pants",
+            "title": ""
+          }
+        },
+        "collection_AwTAhn": {
+          "type": "collection",
+          "settings": {
+            "collection": "wrap-around-top",
+            "title": ""
+          }
+        },
+        "collection_mMwtkg": {
+          "type": "collection",
+          "settings": {
+            "collection": "jumpsuit",
+            "title": ""
+          }
+        },
+        "collection_ptfmBP": {
+          "type": "collection",
+          "settings": {
+            "collection": "dress",
+            "title": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_YBaLag",
+        "collection_wGmz3i",
+        "collection_dNiApb",
+        "collection_d8XDhk",
+        "collection_rMCweY",
+        "collection_3jbUkR",
+        "collection_L8HeHp",
+        "collection_AwTAhn",
+        "collection_mMwtkg",
+        "collection_ptfmBP"
+      ],
+      "name": "Collection list",
+      "settings": {
+        "title": "Shop the Essentials",
+        "heading_h1": false,
+        "heading_size": "h3",
+        "heading_align": "text-start",
+        "heading_after_blocks": false,
+        "card_size": "small",
+        "card_style": "text-below",
+        "card_show_count": false,
+        "card_compact": true,
+        "grid_offset": false,
+        "color_scheme": "",
+        "remove_top_padding": true,
+        "replace_color_scheme_bg": false,
+        "bg_color": "",
+        "bg_gradient": "",
+        "card_inherit_color_scheme": true,
+        "card_color_scheme": ""
+      }
+    },
+    "product_list_AYJEk9": {
+      "type": "product-list",
+      "blocks": {
+        "heading_UnkcTx": {
+          "type": "heading",
+          "settings": {
+            "heading": "Performance First",
+            "heading_size": "h3",
+            "heading_h1": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_UnkcTx"
+      ],
+      "name": "Product list",
+      "settings": {
+        "product_list": [
+          "contrastsculpt-sports-bra",
+          "power-curve-top-contrast-blue",
+          "bodysculpt-top-premium-black",
+          "contrastsculpt-shorts-haze-blue",
+          "contrastsculpt-leggings-jufeng-purple-1",
+          "flowstudio-pants-sandy-premium-black",
+          "flowstudio-top-premium-black",
+          "power-curve-leggings-contrast-blue",
+          "power-curve-shorts-contrast-coffee-1",
+          "trueperformance-flared-pants-midnight-blue",
+          "trueperformance-shorts-coffee",
+          "trueperformance-sports-bra-coffee",
+          "trueperformance-top-coffee"
+        ],
+        "layout": "grid",
+        "carousel_effect": "slide",
+        "products_per_row": "2",
+        "products_per_row_desktop": "4",
+        "products_to_show": 12,
+        "card_cutout": false,
+        "show_view_all": false,
+        "view_all_text": "View all",
+        "view_all_url": "",
+        "view_all_style": "btn btn--secondary",
+        "text_align": "text-start",
+        "text_width_override": true,
+        "text_max_width": 900,
+        "text_column_to_edge": true,
+        "mob_center_text": true,
+        "full_width": true,
+        "color_scheme": "",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#cccccc",
+        "background_gradient_stop_2": "#ffffff",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "remove_top_padding": true,
+        "section_height": "small",
+        "section_join_mode": "default"
+      }
+    },
+    "collection_list_zCg9tm": {
+      "type": "collection-list",
+      "blocks": {
+        "collection_BGXMBx": {
+          "type": "collection",
+          "settings": {
+            "collection": "lifestyle",
+            "title": ""
+          }
+        },
+        "collection_H9nVWG": {
+          "type": "collection",
+          "settings": {
+            "collection": "gym",
+            "title": ""
+          }
+        },
+        "collection_k6YDDA": {
+          "type": "collection",
+          "settings": {
+            "collection": "yoga-pilates",
+            "title": ""
+          }
+        },
+        "collection_3YMeEn": {
+          "type": "collection",
+          "settings": {
+            "collection": "court",
+            "title": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_BGXMBx",
+        "collection_H9nVWG",
+        "collection_k6YDDA",
+        "collection_3YMeEn"
+      ],
+      "name": "Collection list",
+      "settings": {
+        "title": "Move with ELVN",
+        "heading_h1": false,
+        "heading_size": "h3",
+        "heading_align": "text-start",
+        "heading_after_blocks": false,
+        "card_size": "small",
+        "card_style": "text-below",
+        "card_show_count": true,
+        "card_compact": true,
+        "grid_offset": false,
+        "color_scheme": "scheme-1",
+        "remove_top_padding": true,
+        "replace_color_scheme_bg": false,
+        "bg_color": "",
+        "bg_gradient": "",
+        "card_inherit_color_scheme": true,
+        "card_color_scheme": "scheme-1"
+      }
+    },
+    "icons_with_text_eVFhkf": {
+      "type": "icons-with-text",
+      "blocks": {
+        "item_GPNLat": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "usp_icon": "none",
+            "heading": "Free Shipping",
+            "text": "<p>On all orders*</p>"
+          }
+        },
+        "item_DQfKrY": {
+          "type": "item",
+          "disabled": true,
+          "settings": {
+            "icon": "price_tag",
+            "usp_icon": "none",
+            "heading": "Special offers",
+            "text": "<p>Regular sales and discounts</p>"
+          }
+        },
+        "item_wahXwF": {
+          "type": "item",
+          "settings": {
+            "icon": "return",
+            "usp_icon": "none",
+            "heading": "Easy exchanges",
+            "text": "<p>Because Fit Matters</p>"
+          }
+        },
+        "item_LYkrQJ": {
+          "type": "item",
+          "settings": {
+            "icon": "check_mark",
+            "usp_icon": "none",
+            "heading": "Performance first",
+            "text": "<p>Built to move, made to last</p>"
+          }
+        }
+      },
+      "block_order": [
+        "item_GPNLat",
+        "item_DQfKrY",
+        "item_wahXwF",
+        "item_LYkrQJ"
+      ],
+      "name": "Icons with text",
+      "settings": {
+        "heading": "",
+        "heading_size": "x-large-heading",
+        "icon_size": 48,
+        "icon_position": "above",
+        "height": "py-6",
+        "color_scheme": ""
+      }
+    }
+  },
+  "order": [
+    "background_video_EjnfpG",
+    "slideshow_ThVGPN",
+    "rich_text_MC7wKK",
+    "collection_list_irDAQm",
+    "product_list_AYJEk9",
+    "collection_list_zCg9tm",
+    "icons_with_text_eVFhkf"
+  ]
+}

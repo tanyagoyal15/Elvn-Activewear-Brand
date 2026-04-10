@@ -1,0 +1,79 @@
+{%- unless request.page_type == 'cart' or settings.cart_type == 'page' -%}
+  {%- comment %}theme-check-disable NestedSnippet{% endcomment -%}
+  {%- render 'cart-drawer' -%}
+  {%- comment %}theme-check-enable NestedSnippet{% endcomment -%}
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "class": "cc-cart-drawer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Cart items"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_backorder_text",
+      "label": "Show backorder text",
+      "default": true,
+      "info": "Only shows for products which use Shopify inventory tracking and can be purchased when out of stock."
+    },
+    {
+      "type": "header",
+      "content": "Suggested products"
+    },
+    {
+      "type": "paragraph",
+      "content": "These products show when cart is empty."
+    },
+    {
+      "type": "text",
+      "id": "suggested_products_heading",
+      "label": "Heading",
+      "default": "Suggested products"
+    },
+    {
+      "type": "product_list",
+      "id": "suggested_products",
+      "label": "Suggested products"
+    },
+    {
+      "type": "header",
+      "content": "Cart summary"
+    },
+    {
+      "type": "checkbox",
+      "id": "stick_footer",
+      "label": "Stick cart summary on scroll",
+      "info": "To show more cart items, consider turning this off.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_order_note",
+      "label": "Show order note",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tax_and_shipping",
+      "label": "Show tax status and shipping policy link",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_checkout_button",
+      "label": "Show checkout button",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "cart_terms_page",
+      "label": "Terms and conditions link",
+      "info": "Shows a box which must be checked before going to checkout."
+    }
+  ]
+}
+{% endschema %}

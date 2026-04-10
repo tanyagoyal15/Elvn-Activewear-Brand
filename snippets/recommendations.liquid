@@ -1,0 +1,202 @@
+{%- comment -%}
+  Parameters:
+  - is_cart {Boolean} - Recommendations are for the cart contents.
+  - intent {String} - Recommendations intent - 'related' or 'complementary' (optional, default is 'related').
+  - products_to_show {Number} - Maximum number of products to show.
+  - heading {String} - Heading for the recommendations (optional).
+  - layout {String} - Layout for the cards - 'carousel' or 'grid' (optional, default is 'carousel').
+  - related_cards {Boolean} - Card style should be 'related' (optional, default is false).
+  - grid_classes {String} - Classes for the grid
+  - heading_classes {String} - Classes for the heading element
+  - hide_promo {Boolean} - Forcibly hides the promo (aptional, default is false)
+  - color_scheme {String} - Color scheme for the section (optional, disabled if related_cards is true).
+  - disable_color_scheme_bg {Boolean} - Disable the color scheme background (optional, default is false).
+  - disable_one_click_add {Boolean} - Disable quick add button, always use quick buy (optional, default is false).
+
+  Usage:
+  {% render 'recommendations',
+    intent: 'complementary',
+    products_to_show: section.settings.products_to_show,
+    heading: section.settings.heading,
+    related_cards: true,
+    grid_classes: 'grid grid-cols-1 gap-y-4'
+  %}
+{%- endcomment -%}
+{%- assign enable_quick_add = true -%}
+
+{%- if enable_quick_add -%}
+  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- liquid
+  unless hide_promo
+    assign hide_promo = false
+  endunless
+
+  unless intent
+    assign intent = 'related'
+  endunless
+
+  if layout == 'carousel' or layout == nil
+    assign carousel = true
+  else
+    assign carousel = false
+  endif
+
+  if related_cards
+    assign card_type = 'related'
+  endif
+
+  if is_cart
+    # Fetch 4 extra in case a recommended product is already in the cart, and therefore not shown.
+    assign limit = products_to_show | plus: 4
+    assign product_id = cart.items.first.product_id
+  else
+    assign limit = products_to_show
+    assign product_id = product.id
+  endif
+
+  assign disable_labels = false
+  if related_cards
+    assign disable_labels = true
+  endif
+
+  assign color_scheme = color_scheme | default: false, allow_false: true
+  assign disable_color_scheme_bg = disable_color_scheme_bg | default: false, allow_false: true
+  if related_cards
+    assign color_scheme = false
+  endif
+-%}
+
+<product-recommendations class="{% if related_cards %}mt-4{% else %}section section--padded z-3{% if color_scheme %} color-scheme color-scheme--{{ color_scheme }}{% if disable_color_scheme_bg %} color-scheme--no-bg{% endif %}{% endif %}{% endif %} block"{% if is_cart %} id="cart-recommendations"{% endif %} data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&limit={{ limit }}&intent={{ intent }}" data-product-id="{{ product_id }}">
+  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    {%- if carousel -%}
+      <carousel-slider class="carousel {% if related_cards %}xl:overflow-hidden{% else %}carousel--cards{% endif %} block" inactive>
+    {%- endif -%}
+
+    {%- unless related_cards -%}
+      <div class="container">
+    {%- endunless -%}
+
+      {%- if carousel and heading != blank -%}
+        <div class="{% unless related_cards %}carousel__header {% if heading_align == 'text-end' %}flex-row-reverse {% endif %}mb-8 {% endunless %}flex items-center justify-between">
+          {%- if heading != blank -%}
+            <h2 class="flex-auto mb-0{% if related_cards %} text-start regular-text font-bold{% endif %}{% if heading_classes %} {{ heading_classes | escape }}{% endif %}">
+              {{- heading | escape -}}
+            </h2>
+          {%- endif -%}
+
+          {% if settings.slider_show_arrows != 'never' %}
+            {%- if related_cards or heading_align != 'text-center' -%}
+              <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}{% if related_cards %}flex{% else %}hidden md:flex{% endif %} gap-x-2 items-center justify-center no-js-hidden">
+                <button type="button" class="slider-nav__btn{% if related_cards %} slider-nav__btn--sm{% endif %} btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}-recommendations" aria-label="{{ 'general.slider.previous' | t }}">
+                  {% render 'icon-chevron-left' %}
+                </button>
+                <button type="button" class="slider-nav__btn{% if related_cards %} slider-nav__btn--sm{% endif %} btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}-recommendations" aria-label="{{ 'general.slider.next' | t }}">
+                  {% render 'icon-chevron-right' %}
+                </button>
+              </div>
+            {%- endif -%}
+          {% endif %}
+        </div>
+      {%- elsif heading != blank -%}
+        <h2 class="{% if related_cards %}mb-4 text-start regular-text font-bold{% else %}mb-8{% endif %}{% if heading_classes %} {{ heading_classes | escape }}{% endif %}">
+          {{- heading | escape -}}
+        </h2>
+      {%- endif -%}
+
+      {%- if carousel -%}
+        <div class="slider slider--no-scrollbar {% if related_cards %}slider--no-container{% endif %}" id="slider-{{ section.id }}-recommendations">
+          {%- unless related_cards -%}
+            <div class="container">
+          {%- endunless -%}
+      {%- endif -%}
+
+      <ul class="{% if carousel %}slider__grid {% endif %}{{ grid_classes }}" role="list">
+        {%- if is_cart and hide_promo == false and settings.recommendations_promo_image != blank or settings.recommendations_promo_content != blank -%}
+          <li{% if carousel %} class="slider__item"{% endif %}>
+            <div class="cart-recommendations__promo card card--related card--row relative flex color-scheme color-scheme--{{ settings.recommendations_promo_color_scheme.id }}">
+              {%- if settings.recommendations_promo_image != blank -%}
+                <div class="card__media relative">
+                  <div class="media relative custom-aspect-ratio" style="--ratio: {{ settings.recommendations_promo_image.aspect_ratio }};">
+                    {% render 'image', image: settings.recommendations_promo_image, src_width: 78, srcset_2x: true, class: 'img-fit' %}
+                  </div>
+                </div>
+              {%- endif -%}
+
+              {%- if settings.recommendations_promo_content != blank -%}
+                <div class="card__info card__info--compact">
+                  <div class="card__content text-sm rte">
+                    {{ settings.recommendations_promo_content }}
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
+          </li>
+        {%- endif -%}
+
+        {%- assign prod_count = 0 -%}
+        {%- for recommendation in recommendations.products -%}
+          {%- liquid
+            if settings.show_gift_wrapping and recommendation.id == settings.gift_wrap_product.id
+              continue
+            endif
+
+            if is_cart
+              if prod_count == products_to_show
+                break
+              endif
+
+              assign cart_matches = cart.items | where: 'product_id', recommendation.id
+              if cart_matches.size == 0
+                assign prod_count = prod_count | plus: 1
+              else
+                continue
+              endif
+            endif
+          -%}
+          {%- capture cc_animate_attr -%}data-cc-animate="fade-in-up" data-cc-animate-delay="{{ forloop.index | times: 0.09 }}s"{%- endcapture -%}
+          <li{% if carousel %} class="slider__item"{% endif %}{% if settings.animate_cards %}{%- render 'animation-attrs', attrs: cc_animate_attr %}{% endif %}>
+            {% render 'product-card', product: recommendation, card_type: card_type, disable_labels: disable_labels, disable_one_click_add: disable_one_click_add %}
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      {%- if carousel -%}
+          {%- unless related_cards -%}
+            </div>
+          {%- endunless -%}
+        </div> {% # slider %}
+
+        {%- unless related_cards -%}
+          {%- liquid
+            assign slider_nav_footer = false
+            if heading == blank or heading_align == 'text-center'
+              assign slider_nav_footer = true
+            endif
+          -%}
+          {%- if settings.slider_show_arrows != 'never' and slider_nav_footer -%}
+            <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:flex mt-8 gap-x-2 items-center justify-center no-js-hidden">
+              <button type="button" class="slider-nav__btn btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}-recommendations" aria-label="{{ 'general.slider.previous' | t }}">
+                {% render 'icon-chevron-left' %}
+              </button>
+              <button type="button" class="slider-nav__btn btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}-recommendations" aria-label="{{ 'general.slider.next' | t }}">
+                {% render 'icon-chevron-right' %}
+              </button>
+            </div>
+          {%- endif -%}
+        {%- endunless -%}
+      {%- endif -%}
+
+    {%- unless related_cards -%}
+      </div> {% # container %}
+    {%- endunless -%}
+
+    {%- if carousel -%}
+      </carousel-slider>
+    {%- endif -%}
+  {%- endif -%}
+</product-recommendations>

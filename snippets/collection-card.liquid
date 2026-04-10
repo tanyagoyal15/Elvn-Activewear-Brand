@@ -1,0 +1,111 @@
+{%- comment -%}
+  Parameters:
+  - collection {Object} - Collection object.
+  - image {Object} - Image object (optional).
+  - image_ratio {Number} - Aspect ratio for the image (optional).
+  - image_fit {String} - Image fit setting (optional).
+  - image_align {String} - Image alignment (optional).
+  - custom_title {String} - Custom title text to replace collection title (optional).
+  - style {String} - Style should be either 'text-below', 'text-over' or empty (optional, default is 'text-below').
+  - show_count {Boolean} - Show the number of products (optional, default is true).
+  - compact {Boolean} - Reduce the content padding and font size (optional, default is false).
+  - highlighted {Boolean} - Apply styles for highlighted cards (optional, default is false).
+  - disable_animate {Boolean} - Disables the animation on the card.
+  - color_scheme {String} - Color scheme for the card (optional).
+
+  Usage:
+  {% render 'collection-card', collection: collection %}
+{%- endcomment -%}
+
+{%- liquid
+  unless collection == blank
+    if image == blank and collection.featured_image
+      assign image = collection.featured_image
+    endif
+  endunless
+
+  if image_ratio == blank
+    if settings.coll_card_image_ratio == 'shortest' or settings.coll_card_image_ratio == 'tallest'
+      assign image_ratio = 1
+    else
+      assign image_ratio = settings.coll_card_image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+  assign image_fit = image_fit | default: settings.coll_card_image_fit
+  assign image_align = image_align | default: settings.coll_image_align
+  assign disable_focal_point = disable_focal_point | default: false, allow_false: true
+
+  assign style = style | default: 'text-below'
+  assign compact = compact | default: false, allow_false: true
+  assign highlighted = highlighted | default: false, allow_false: true
+-%}
+
+<div class="collection-card card{% if highlighted %} card--highlight{% endif %} relative flex flex-col{% if color_scheme %} color-scheme color-scheme--{{ color_scheme }} color-scheme--no-bg{% endif %}"{% if settings.animate_cards and disable_animate != true %} data-cc-animate="fade-in-up"{% if animate_delay != blank %} data-cc-animate-delay="{{ animate_delay }}s"{% endif %}{% endif %}>
+  <div class="card__media relative">
+    {%- if collection != blank and image != blank -%}
+      <a href="{{ collection.url }}" class="media block relative custom-aspect-ratio" tabindex="-1" style="--ratio: {{ image_ratio }};">
+        {%- liquid
+          capture sizes
+            if highlighted
+              assign gutter_sm = 20
+              assign gutter_md = 48
+              assign size_sm = 'calc(100vw - ' | append: gutter_sm | append: 'px)'
+              assign size_md = 'calc(100vw - (' | append: gutter_md | append: 'px * 2))'
+              assign size_lg = 'calc(var(--page-width) / 12 * 8)'
+              render 'sizes-attribute', min: size_sm, sm: size_sm, md: size_md, lg: size_lg, xl: false, max: false
+            else
+              render 'sizes-attribute', grid: true, min: 1, sm: 2, md: 3, max: 3
+            endif
+          endcapture
+
+          assign class = 'img-fit'
+          if image_fit == 'contain'
+            assign class = 'img-fit img-fit--contain'
+          else
+            assign class = 'img-fit ' | append: image_align
+          endif
+        -%}
+        {% render 'image',
+          image: image,
+          widths: '320, 460, 600, 700, 800, 900, 1200, 1500, 1800',
+          src_width: 460,
+          sizes: sizes,
+          class: class,
+          disable_focal_point: disable_focal_point
+        %}
+      </a>
+    {%- else -%}
+      <div class="media relative custom-aspect-ratio" style="--ratio: {{ image_ratio }};">
+        {%- capture placeholder_name -%}collection-{{ 'now' | date: '%N' | modulo: 6 | plus: 1 }}{%- endcapture -%}
+        {{ placeholder_name | placeholder_svg_tag: 'media__placeholder img-fit' }}
+      </div>
+    {%- endif -%}
+  </div>
+  <div class="card__info{% if settings.coll_card_button == 'inline' %} card__info--inline{% endif %}{% if style == 'text-over' %} card__info--overlay{% endif %}{% if compact %} card__info--compact{% endif %}">
+    <div class="{% if settings.coll_card_button == 'inline' %}grow self-center{% else %}w-full{% endif %}">
+      {%- if collection != blank -%}
+        <p class="card__title card__title--collection {% if compact %}text-xs sm:text-sm{% else %}max-md:text-sm{% endif %}">
+          <a href="{{ collection.url }}" class="card-link text-current">
+            {{- custom_title | default: collection.title | escape -}}
+          </a>
+        </p>
+        {%- if show_count -%}
+          <p class="card__text {% if compact %}text-xxs sm:text-xs{% else %}text-sm max-md:text-xs{% endif %}">
+            {{ 'sections.header.cart_count' | t: count: collection.all_products_count }}
+          </p>
+        {%- endif -%}
+      {%- else -%}
+        <p class="card__title card__title--collection {% if compact %}text-xs sm:text-sm{% else %}max-md:text-sm{% endif %}">
+          {{- 'onboarding.collection.title' | t -}}
+        </p>
+      {%- endif -%}
+    </div>
+    {%- if settings.coll_card_button != 'hidden' -%}
+      <span class="card__btn{% unless compact %} card__btn--lg{% endunless %} shrink-0{% if settings.coll_card_button == 'inline' %} ms-4{% elsif settings.coll_card_button == 'below' %} ms-auto{% endif %}">
+        {%- render 'icon-arrow-card' -%}
+      </span>
+    {%- endif -%}
+  </div>
+</div>

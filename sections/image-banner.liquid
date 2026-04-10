@@ -1,0 +1,1020 @@
+{%- liquid
+  # shared variables
+  assign color_scheme = section.settings.color_scheme
+  assign bg_color = section.settings.color_scheme.settings.background
+
+  if bg_color.alpha == 0
+    assign bg_color = false
+  endif
+
+  assign gutter_lg = 56
+  assign breakpoint_sm_down = 480 | minus: 0.02
+  assign breakpoint_sm = 480
+  assign breakpoint_xxl = 1536
+  assign breakpoint_page = settings.max_page_width | default: 1320 | plus: gutter_lg | plus: gutter_lg
+
+  assign full_width = section.settings.full_width
+
+  assign bg_image_enabled = false
+  if section.settings.background_mode == 'image'
+    assign bg_image_enabled = true
+  endif
+
+  assign bg_image_exists = false
+  if section.settings.background_image != blank
+    assign bg_image_exists = true
+  endif
+
+  # unique variables
+  assign img = section.settings.image_desktop
+  assign m_img = section.settings.image_mobile
+
+  if section.index == 1
+    assign lazy_load_images = false
+  else
+    assign lazy_load_images = true
+  endif
+
+  assign overlay_position = section.settings.overlay_position | split: ' '
+-%}
+
+{%- style -%}
+  {%- comment -%} Section variables {%- endcomment -%}
+  #{{ section.id }} {
+    --image-top-fade-depth: {{ section.settings.top_fade_depth }}px;
+    --image-top-fade-bg: {% render 'custom-gradient', type: 'ease-up-out', start_color: section.settings.top_fade_color.rgb, start_opacity: 1 %};
+    --image-bottom-fade-depth: {{ section.settings.bottom_fade_depth }}px;
+    --image-bottom-fade-bg: {% render 'custom-gradient', type: 'ease-down-out', start_color: section.settings.bottom_fade_color.rgb, start_opacity: 1 %};
+  }
+
+  {%- comment -%} Section background {%- endcomment -%}
+  {%- if section.settings.full_width == false -%}
+    {%- if section.settings.background_mode == 'color' -%}
+      #{{ section.id }} { background: {{ section.settings.background_color }}; }
+    {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+      #{{ section.id }} {
+        background: {% render 'custom-gradient',
+                        type: section.settings.background_gradient_curve,
+                        start_color: section.settings.background_gradient_stop_1,
+                        end_color: section.settings.background_gradient_stop_2
+                    %};
+      }
+    {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+      #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- comment -%} Overlay background - color {%- endcomment -%}
+  {%- unless bg_color == false -%}
+    #{{ section.id }} .text-overlay { background: {{ bg_color }}; }
+  {%- endunless-%}
+
+  {%- comment -%} Image tint {%- endcomment -%}
+  {%- if section.settings.tint_opacity > 0 -%}
+    #{{ section.id }} .media::after {
+      background-color: rgba({{ section.settings.tint_color.rgb }} / {{ section.settings.tint_opacity | divided_by: 100.0 }});
+    }
+  {%- endif -%}
+
+  {%- comment -%} Height - fixed {%- endcomment -%}
+  {%- if section.settings.height_mode == 'fixed' -%}
+    #{{ section.id }} .image-banner {
+      min-height: calc({{ section.settings.fixed_height_mobile }}px + ({{ section.settings.fixed_height_desktop }} - {{ section.settings.fixed_height_mobile }}) * ((100vw - {{ breakpoint_sm }}px) / {{ breakpoint_xxl | minus: breakpoint_sm }}));
+    }
+    
+    {%- if section.settings.mobile_stacked -%}
+      @media (max-width: {{ breakpoint_sm_down }}px) {
+        #{{ section.id }} .image-banner__image { height: {{ section.settings.fixed_height_mobile }}px; }
+        #{{ section.id }}.mobile-stacked--spaced .text-overlay { color: inherit; }
+      }
+    {%- else -%}
+      @media (max-width: {{ breakpoint_sm_down }}px) {
+        #{{ section.id }} .image-banner { min-height: {{ section.settings.fixed_height_mobile }}px; }
+      }
+    {%- endif -%}
+
+
+    @media (min-width: {{ breakpoint_page }}px) {
+      #{{ section.id }} .image-banner { min-height: {{ section.settings.fixed_height_desktop }}px; }
+    }
+  {%- endif -%}
+
+  {%- comment -%} Height - auto {%- endcomment -%}
+  {%- if section.settings.height_mode == 'auto' -%}
+    {%- liquid
+      if img != blank
+        assign img_ratio = img.aspect_ratio
+      else
+        assign img_ratio = 1.77
+      endif
+      if m_img != blank
+        assign m_img_ratio = m_img.aspect_ratio
+      else
+        assign m_img_ratio = img_ratio
+      endif
+    -%}
+    #{{ section.id }} .image-banner {
+      aspect-ratio: {{ img_ratio }};
+    }
+
+    {%- if m_img != blank -%}
+      {%- unless section.settings.mobile_stacked -%}
+        @media (max-width: {{ breakpoint_sm }}px) {
+          #{{ section.id }} .image-banner,
+          #{{ section.id }} .media {
+            aspect-ratio: {{ m_img_ratio }};
+          }
+        }
+      {%- endunless -%}
+    {%- endif -%}
+
+    {%- if section.settings.mobile_stacked -%}
+      @media (max-width: {{ breakpoint_sm }}px) {
+        #{{ section.id }} .image-banner {
+          aspect-ratio: auto;
+        }
+        #{{ section.id }} .image-banner__image {
+          aspect-ratio: {{ m_img_ratio }};
+        }
+        #{{ section.id }} .image-banner::after {
+          display: none;
+        }
+      }
+    {%- endif -%}
+  {%- endif -%}
+{%- endstyle -%}
+
+{%- if section.settings.scrollanim_image != "" or section.settings.scrollanim_text != "" -%}
+  <parallax-container>
+{%- endif -%}
+<div id="{{ section.id }}" class="section-background{% if full_width == false and bg_image_enabled %} relative{% endif %}">
+
+  {% if full_width == false %}
+  {%- if bg_image_enabled and bg_image_exists -%}
+  <div class="absolute inset-0">
+    {%- render 'image',
+      image: section.settings.background_image,
+      src_width: 1400,
+      widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+      class: 'img-fit cover',
+      sizes: '100vw'
+    -%}
+  </div>
+  {%- endif -%}
+
+  <div class="flex wide-container w-full">
+  {% endif %}
+
+  <div class="section color-scheme color-scheme--no-bg color-scheme--{{ color_scheme }}
+                {%- unless bg_color == false %} color-scheme--section{%- endunless %}
+                {%- if full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                {%- if full_width %}section--full-width{% else %}section--inset-banner section--border-radius overflow-hidden{% endif %}
+                {%- if section.settings.mobile_stacked and section.settings.height_mode != 'screen' %}
+                  mobile-stacked
+                  {%- if full_width and bg_color == false or bg_color == settings.default_color_scheme.settings.background %} mobile-stacked--spaced{% endif %}
+                {%- endif %}"
+          data-section-index="{{ section.index }}">
+
+    <div class="image-banner relative flex {{ overlay_position | last }} {{ section.settings.height_mode }}-height{% if section.settings.height_mode == 'fixed' %} screen-height--fixed{% endif %}
+                {%- if full_width and section.settings.enable_top_fade %} image-banner--top-fade{% endif %}
+                {%- if full_width and section.settings.enable_bottom_fade %} image-banner--bottom-fade{% endif %}">
+
+      {%- if section.settings.url != blank -%}<a href="{{ section.settings.url }}" class="block {% if section.settings.mobile_stacked %}sm:absolute{% else %}absolute{% endif %} top-0 left-0 w-full h-full">{%- endif -%}
+
+        <div class="image-banner__image media media--has-overlay absolute top-0 left-0 w-full h-full {{ section.settings.scrollanim_image }}">
+          {%- if img != blank -%}
+            {%- liquid
+                if section.settings.height_mode == 'screen'
+                  assign sizes = '(max-aspect-ratio: 1/2) 50vh, 100vw'
+                else
+                  capture sizes
+                  render 'sizes-attribute'
+                  endcapture
+                endif
+            -%}
+
+            {%- render 'image-desktop-and-mobile',
+              class: 'img-fit',
+              desktop_image: img,
+              mobile_image: m_img,
+              src_width_mobile: 980,
+              widths_mobile: '480, 980, 1200, 1400',
+              src_width_desktop: 1400,
+              widths_desktop: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+              lazy_load: lazy_load_images,
+              sizes: sizes
+            -%}
+          {%- else -%}
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder dark img-fit' }}
+          {%- endif -%}
+        </div>
+      {%- if section.settings.url != blank -%}</a>{%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="image-banner__text container container--full container--padded-xl flex {{ overlay_position | first }}{% if section.settings.mob_center_text %} md-down:center md-down:justify-center{% endif %}{% unless bg_color %}{% if section.settings.mobile_stacked %} md-down:p-xl h-full md:h-auto{% endif %}{% endunless %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+
+          {% liquid
+            assign max_overlay_override = ""
+
+            if section.settings.overlay_width_override
+              assign max_overlay_override = '--overlay-max-width: ' | append: section.settings.overlay_max_width | append: 'px'
+            endif
+
+            assign text_overlay_classes = ""
+            # - Padding when background color isn't transparent
+            if bg_color
+              assign text_overlay_classes = text_overlay_classes | append: " text-overlay--bg"
+            endif
+            # - Text Alignment
+            assign text_overlay_classes = text_overlay_classes | append: " " | append: section.settings.overlay_text_align
+            # - Text Alignment (Mobile Override)
+            if section.settings.mob_center_text
+              assign text_overlay_classes = text_overlay_classes | append: " md-down:text-center"
+            endif
+            # - Animation
+            assign text_overlay_classes = text_overlay_classes | append: " has-motion"
+          %}
+
+          <div class="text-overlay text-overlay--image-banner {{ text_overlay_classes }} {{ section.settings.scrollanim_text | split: ' ' | first }}"
+            style="{%- if section.settings.scrollanim_text contains 'parallax' %}--parallax-speed: {{ section.settings.scrollanim_text | split: ' ' | last }};{% endif %}
+                   {{- max_overlay_override }}">
+
+          {%- for block in section.blocks -%}
+              {%- case block.type -%}
+
+                {%- when 'subheading' -%}
+                  {%- if block.settings.text != blank -%}
+                    <p class="text-overlay__subheading text-overlay__block subheading" {{ block.shopify_attributes }}>
+                      {{- block.settings.text | escape -}}
+                    </p>
+                  {%- endif -%}
+
+                {%- when 'heading' -%}
+                  {%- if block.settings.heading != blank -%}
+                    {%- if block.settings.heading_h1 -%}
+                      <h1 class="text-overlay__heading text-overlay__block md:{{ block.settings.heading_size_desktop }} {{ block.settings.heading_size_mobile }}" {{ block.shopify_attributes }}>
+                        {{- block.settings.heading | newline_to_br -}}
+                      </h1>
+                    {%- else -%}
+                      <h2 class="text-overlay__heading text-overlay__block md:{{ block.settings.heading_size_desktop }} {{ block.settings.heading_size_mobile }}" {{ block.shopify_attributes }}>
+                        {{- block.settings.heading | newline_to_br -}}
+                      </h2>
+                    {%- endif -%}
+                  {%- endif -%}
+
+                {%- when 'text' -%}
+                  {%- if block.settings.text != blank -%}
+                    <div class="text-overlay__text text-overlay__block rte{% if block.settings.enlarge_text %} text-lg{% endif %}" {{ block.shopify_attributes }}>
+                      {{ block.settings.text }}
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'countdown' -%}
+                  {%- style -%}
+                    #{{ section.id }} .countdown__grid {
+                      font-size: calc(({{ block.settings.number_size }} / 1.25) * var(--fluid-1-25));
+                    }
+                  {%- endstyle -%}
+                  <script src="{{ 'countdown-timer.js' | asset_url }}" defer></script>
+                  <div class="text-overlay__countdown text-overlay__block text-overlay__block--spaced countdown-font-{{ block.settings.number_font }} no-js-hidden" {{ block.shopify_attributes }}>
+                    {% render 'countdown-timer',
+                      end_date: block.settings.end_date,
+                      end_time: block.settings.end_time,
+                      end_text: block.settings.end_text,
+                      end_midnight: true,
+                      hide_on_end: block.settings.hide_on_end,
+                      show_labels: block.settings.show_timer_labels
+                    %}
+                  </div>
+
+                {%- when 'button' -%}
+                  {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+                    <div class="text-overlay__buttons text-overlay__block flex flex-wrap md:gap-6 gap-4 items-start {% if section.settings.overlay_text_align == 'text-start' %} justify-start{% elsif section.settings.overlay_text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mob_center_text %} md-down:justify-center md-down:center{% endif %}">
+                      {%- if block.settings.button_1_label != blank -%}
+                        <a class="{{ block.settings.button_1_style }} md:px-12" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
+                          {{- block.settings.button_1_label | escape -}}
+                        </a>
+                      {%- endif -%}
+
+                      {%- if block.settings.button_2_label != blank -%}
+                        <a class="{{ block.settings.button_2_style }} md:px-12" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
+                          {{- block.settings.button_2_label | escape -}}
+                        </a>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+
+              {%- endcase -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+  {% if full_width == false %}</div>{% endif %}
+</div>
+{%- if section.settings.scrollanim_image != "" or section.settings.scrollanim_text != "" -%}
+  </parallax-container>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Image banner",
+  "tag": "section",
+  "class": "cc-image-banner banner-candidate",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image_desktop",
+      "label": "Image",
+      "info": "For best results, use a landscape shaped image with a width of 3200px."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image (optional)",
+      "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+    },
+    {
+      "type": "url",
+      "id": "url",
+      "label": "Image link (optional)"
+    },
+    {
+      "type": "header",
+      "content": "Image layout"
+    },
+    {
+      "type": "select",
+      "id": "height_mode",
+      "label": "Image height",
+      "info": "Restricted to 1080px maximum.",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Original image height"
+        },
+        {
+          "value": "fixed",
+          "label": "Fixed height (set below)"
+        },
+        {
+          "value": "screen",
+          "label": "Full screen height"
+        }
+      ],
+      "default": "fixed"
+    },
+    {
+      "visible_if": "{{ section.settings.height_mode == 'fixed' }}",
+      "type": "range",
+      "id": "fixed_height_desktop",
+      "min": 400,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "label": "Fixed height (desktop)",
+      "default": 600
+    },
+    {
+      "visible_if": "{{ section.settings.height_mode == 'fixed' }}",
+      "type": "range",
+      "id": "fixed_height_mobile",
+      "min": 250,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "label": "Fixed height (mobile)",
+      "default": 350
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_stacked",
+      "label": "Show text below image on mobile",
+      "info": "Doesn't apply to \"Full screen height\".",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Image styles"
+    },
+    {
+      "type": "color",
+      "id": "tint_color",
+      "label": "Image tint color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "tint_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Image tint opacity",
+      "default": 0,
+      "info": "Does not apply if fade is used below"
+    },
+    {
+      "type": "header",
+      "content": "Text overlay"
+    },
+    {
+      "type": "select",
+      "id": "overlay_position",
+      "label": "Overlay position",
+      "options": [
+        {
+          "value": "justify-start items-start",
+          "label": "Top left"
+        },
+        {
+          "value": "justify-center items-start",
+          "label": "Top center"
+        },
+        {
+          "value": "justify-end items-start",
+          "label": "Top right"
+        },
+        {
+          "value": "justify-start items-center",
+          "label": "Middle left"
+        },
+        {
+          "value": "justify-center items-center",
+          "label": "Middle center"
+        },
+        {
+          "value": "justify-end items-center",
+          "label": "Middle right"
+        },
+        {
+          "value": "justify-start items-end",
+          "label": "Bottom left"
+        },
+        {
+          "value": "justify-center items-end",
+          "label": "Bottom center"
+        },
+        {
+          "value": "justify-end items-end",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "justify-start items-center"
+    },
+    {
+      "type": "select",
+      "id": "overlay_text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "checkbox",
+      "id": "overlay_width_override",
+      "label": "Custom overlay width",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.overlay_width_override }}",
+      "type": "range",
+      "id": "overlay_max_width",
+      "min": 400,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "label": "Maximum overlay width",
+      "default": 640
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-3"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.full_width }}",
+      "type": "checkbox",
+      "id": "enable_top_fade",
+      "label": "Enable top fade",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.full_width and section.settings.enable_top_fade }}",
+      "type": "range",
+      "id": "top_fade_depth",
+      "min": 10,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Top fade depth",
+      "default": 100
+    },
+    {
+      "visible_if": "{{ section.settings.full_width and section.settings.enable_top_fade }}",
+      "type": "color",
+      "id": "top_fade_color",
+      "label": "Top fade color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width }}",
+      "type": "checkbox",
+      "id": "enable_bottom_fade",
+      "label": "Enable bottom fade",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.full_width and section.settings.enable_bottom_fade }}",
+      "type": "range",
+      "id": "bottom_fade_depth",
+      "min": 10,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Bottom fade depth",
+      "default": 100
+    },
+    {
+      "visible_if": "{{ section.settings.full_width and section.settings.enable_bottom_fade }}",
+      "type": "color",
+      "id": "bottom_fade_color",
+      "label": "Bottom fade color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false and section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false and section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false and section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false and section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false and section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false and section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "header",
+      "content": "Scroll animations"
+    },
+    {
+      "type": "select",
+      "id": "scrollanim_image",
+      "label": "Image",
+      "options": [
+        {
+          "value": "",
+          "label": "None"
+        },
+        {
+          "value": "parallax-scale-out",
+          "label": "Zoom out"
+        }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "scrollanim_text",
+      "label": "Text",
+      "options": [
+        {
+          "value": "",
+          "label": "None"
+        },
+        {
+          "value": "parallax 0.12",
+          "label": "Slide up"
+        },
+        {
+          "value": "parallax -0.3",
+          "label": "Slide down"
+        },
+        {
+          "value": "parallax-fade-in",
+          "label": "Fade in"
+        }
+      ],
+      "default": ""
+    }
+  ],
+  "blocks": [
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subheading",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Talk about your brand"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_desktop",
+          "label": "Heading size (desktop)",
+          "options": [
+            {
+              "value": "h4",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            },
+            {
+              "value": "x-large-heading",
+              "label": "Large"
+            },
+            {
+              "value": "xx-large-heading",
+              "label": "Extra large"
+            }
+          ],
+          "default": "h1"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_mobile",
+          "label": "Heading size (mobile)",
+          "options": [
+            {
+              "value": "h4",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            },
+            {
+              "value": "x-large-heading",
+              "label": "Large"
+            },
+            {
+              "value": "xx-large-heading",
+              "label": "Extra large"
+            }
+          ],
+          "default": "h1"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_h1",
+          "label": "Set as page heading (uses h1 tag)",
+          "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_text",
+          "label": "Enlarge text",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "Button 1 label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button 1 link"
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button 1 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Button 2 label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Button 2 link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Button 2 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        }
+      ]
+    },
+    {
+      "type": "countdown",
+      "name": "Countdown timer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "end_date",
+          "label": "End date",
+          "info": "Required. Format: YYYY-MM-DD."
+        },
+        {
+          "type": "text",
+          "id": "end_time",
+          "label": "End time (optional)",
+          "info": "Format: 17:00 (24 hour clock). Uses the store's timezone."
+        },
+        {
+          "type": "richtext",
+          "id": "end_text",
+          "label": "End text",
+          "info": "This shows when the date and time elapses."
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_end",
+          "label": "Hide the timer when the date and time elapses",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "number_size",
+          "min": 20,
+          "max": 60,
+          "step": 2,
+          "unit": "px",
+          "label": "Number size",
+          "default": 40
+        },
+        {
+          "type": "select",
+          "id": "number_font",
+          "label": "Number font",
+          "options": [
+            {
+              "label": "Text font",
+              "value": "base"
+            },
+            {
+              "label": "Heading font",
+              "value": "heading"
+            }
+          ],
+          "default": "base"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_timer_labels",
+          "label": "Show labels",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image banner",
+      "category": "Banners",
+      "blocks": [
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "Image banner and countdown",
+      "category": "Banners",
+      "blocks": [
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "countdown"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

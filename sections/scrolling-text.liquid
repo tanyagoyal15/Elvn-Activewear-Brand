@@ -1,0 +1,682 @@
+{%- liquid
+  # constants
+  assign breakpoint_sm = 480
+  assign breakpoint_md = 768
+
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+{%- style -%}
+  #{{ section.id }} {
+    --duration: {{ section.settings.speed }}s;
+    --direction: {{ section.settings.direction }};
+  }
+
+  #{{ section.id }} .scrolling-banner__item { padding-inline-end: {{ section.settings.spacing }}px; }
+  @media (max-width: {{ breakpoint_md }}px) {
+    #{{ section.id }} .scrolling-banner__item { padding-inline-end: {{ section.settings.spacing | times: 0.66 }}px; }
+  }
+  @media (max-width: {{ breakpoint_sm }}px) {
+    #{{ section.id }} .scrolling-banner__item { padding-inline-end: {{ section.settings.spacing | times: 0.5 }}px; }
+  }
+{%- endstyle -%}
+
+{%- capture scrolling_content -%}
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when 'text' -%}
+        {%- if block.settings.link != blank -%}
+          <a class="scrolling-banner__item scrolling-banner__text md:{{ block.settings.heading_size_desktop }} {{ block.settings.heading_size_mobile }}{% if block.settings.font == 'body' %} font-body{% endif %}" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>{{ block.settings.text }}</a>
+        {%- else -%}
+          <span class="scrolling-banner__item scrolling-banner__text md:{{ block.settings.heading_size_desktop }} {{ block.settings.heading_size_mobile }}{% if block.settings.font == 'body' %} font-body{% endif %}" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</span>
+        {%- endif -%}
+
+      {%- when 'icon' -%}
+        {% style %}
+          #{{ block.id }} {
+            color: {{ block.settings.icon_color }};
+          }
+        {% endstyle %}
+        <span class="scrolling-banner__item flex" id="{{ block.id }}" {{ block.shopify_attributes }}>
+          {%- if block.settings.usp_icon != 'none' -%}
+            {% render 'icon-usp',
+              icon: block.settings.usp_icon,
+              width: block.settings.icon_size,
+              height: block.settings.icon_size
+            %}
+          {%- else -%}
+            {% render 'icon',
+              icon: block.settings.icon,
+              width: block.settings.icon_size,
+              height: block.settings.icon_size
+            %}
+          {%- endif -%}
+        </span>
+
+      {%- when 'image' -%}
+        {%- liquid
+          if block.settings.image != blank
+            assign image_width = block.settings.image_height | times: block.settings.image.aspect_ratio | ceil
+          else
+            assign image_width = block.settings.image_height
+          endif
+        -%}
+        <span class="scrolling-banner__item" {{ block.shopify_attributes }}>
+          {%- if block.settings.link != blank -%}
+            <a href="{{ block.settings.link }}" class="hover:grow-media">
+          {%- endif -%}
+
+          <span class="media block relative" style="width: {{ image_width }}px; height: {{ block.settings.image_height }}px;">
+            {%- if block.settings.image != blank -%}
+              {% render 'image', image: block.settings.image, src_width: image_width, srcset_2x: true, lazy_load: false %}
+            {%- else -%}
+              {{ 'logo' | placeholder_svg_tag: 'media__placeholder img-cover' }}
+            {%- endif -%}
+          </span>
+
+          {%- if block.settings.link != blank -%}
+            </a>
+          {%- endif -%}
+        </span>
+
+      {%- when 'button' -%}
+        {%- if block.settings.button_label != blank -%}
+          <span class="scrolling-banner__item flex" {{ block.shopify_attributes }}>
+            <a class="{{ block.settings.button_style }}" {% if block.settings.button_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_link }}"{% endif %}>
+              {{- block.settings.button_label | escape -}}
+            </a>
+          </span>
+        {%- endif -%}
+
+    {%- endcase -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- if section.settings.animate_on_scroll -%}<parallax-container style="--parallax-speed: {{ section.settings.speed | times: 0.05 }}">{%- endif -%}
+<div class="scrolling-banner{% if section.settings.pausable %} scrolling-banner--pausable{% endif %} section section--full-width {{ section.settings.height }} relative overflow-hidden color-scheme color-scheme--{{ color_scheme }}" id="{{ section.id }}" role="marquee" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+  <div class="scrolling-banner__items-container flex{% if section.settings.animate_on_scroll %} parallax-marquee{% endif %}">
+    {%- for i in (1..20) -%}
+      {%- if forloop.first -%}
+        <div class="{% unless section.settings.animate_on_scroll %}scrolling-banner__items has-motion {% endunless %}flex items-center">
+          {{ scrolling_content }}
+        </div>
+      {%- else -%}
+        <div class="{% unless section.settings.animate_on_scroll %}scrolling-banner__items has-motion {% endunless %}flex items-center" aria-hidden="true">
+          {{ scrolling_content | replace: '<a ', '<a tabindex="-1" ' }}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+{%- if section.settings.animate_on_scroll -%}</parallax-container>{%- endif -%}
+
+{% schema %}
+{
+  "name": "Scrolling text",
+  "tag": "section",
+  "class": "cc-scrolling-text",
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Scrolling"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "label": "Speed",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Direction",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Right to left"
+        },
+        {
+          "value": "reverse",
+          "label": "Left to right"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "checkbox",
+      "id": "pausable",
+      "label": "Pause on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "animate_on_scroll",
+      "label": "Animate on scroll only",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "min": 32,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Maximum space between blocks",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height",
+      "options": [
+        {
+          "value": "py-2",
+          "label": "Short"
+        },
+        {
+          "value": "py-6",
+          "label": "Medium"
+        },
+        {
+          "value": "py-12",
+          "label": "Tall"
+        }
+      ],
+      "default": "py-6"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Tell customers about a promotion or make an announcement"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "font",
+          "label": "Font",
+          "options": [
+            {
+              "label": "Heading font",
+              "value": "heading"
+            },
+            {
+              "label": "Body font",
+              "value": "body"
+            }
+          ],
+          "default": "heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_desktop",
+          "label": "Heading size (desktop)",
+          "options": [
+            {
+              "value": "h4",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            },
+            {
+              "value": "x-large-heading",
+              "label": "Large"
+            },
+            {
+              "value": "xx-large-heading",
+              "label": "Extra large"
+            }
+          ],
+          "default": "h2"
+        },
+        {
+          "type": "select",
+          "id": "heading_size_mobile",
+          "label": "Heading size (mobile)",
+          "options": [
+            {
+              "value": "h4",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            },
+            {
+              "value": "x-large-heading",
+              "label": "Large"
+            },
+            {
+              "value": "xx-large-heading",
+              "label": "Extra large"
+            }
+          ],
+          "default": "h2"
+        }
+      ]
+    },
+    {
+      "type": "icon",
+      "name": "Icon",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Basic icon",
+          "options": [
+            {
+              "value": "award",
+              "label": "Award"
+            },
+            {
+              "value": "box",
+              "label": "Box"
+            },
+            {
+              "value": "briefcase",
+              "label": "Briefcase"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "chat_bubble",
+              "label": "Chat bubble"
+            },
+            {
+              "value": "check_mark",
+              "label": "Check mark"
+            },
+            {
+              "value": "check_mark_in_circle",
+              "label": "Check mark in circle"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            },
+            {
+              "value": "credit_card",
+              "label": "Credit card"
+            },
+            {
+              "value": "dollar_sign",
+              "label": "Dollar sign"
+            },
+            {
+              "value": "dryer",
+              "label": "Dryer"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "eye",
+              "label": "Eye"
+            },
+            {
+              "value": "feather",
+              "label": "Feather"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "heart",
+              "label": "Heart"
+            },
+            {
+              "value": "iron",
+              "label": "Iron"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "leather",
+              "label": "Leather"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "map_pin",
+              "label": "Map pin"
+            },
+            {
+              "value": "pants",
+              "label": "Pants"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "plane",
+              "label": "Plane"
+            },
+            {
+              "value": "price_tag",
+              "label": "Price tag"
+            },
+            {
+              "value": "question_mark",
+              "label": "Question mark"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "ruler",
+              "label": "Ruler"
+            },
+            {
+              "value": "scissors",
+              "label": "Scissors"
+            },
+            {
+              "value": "shirt",
+              "label": "Shirt"
+            },
+            {
+              "value": "shoe",
+              "label": "Shoe"
+            },
+            {
+              "value": "silhouette",
+              "label": "Silhouette"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "washing",
+              "label": "Washing"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "usp_icon",
+          "label": "Cosmetics Icon",
+          "info": "Replaces basic icon if added.",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "min": 20,
+          "max": 120,
+          "step": 4,
+          "label": "Icon height",
+          "unit": "px",
+          "default": 56
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Color",
+          "default": "#555555"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "image_height",
+          "min": 20,
+          "max": 120,
+          "step": 4,
+          "unit": "px",
+          "label": "Image height",
+          "default": 48
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scrolling text",
+      "category": "Banners",
+      "blocks": [
+        {
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "aside"
+    ]
+  }
+}
+{% endschema %}

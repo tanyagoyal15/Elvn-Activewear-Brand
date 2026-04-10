@@ -1,0 +1,72 @@
+{%- comment -%}
+  Parameters:
+  - promo_settings {Object} - Settings collection.
+  - settings_suffix {String} - String to append to standard setting keys.
+  - element {String} - Element type to use. (Optional, default is 'li')
+  - column_index {Number} - Column index, used for staggering transitions
+
+  Usage:
+  {% render 'nav-promo',
+    promo_settings: block.settings,
+    settings_suffix: '_1'
+  %}
+{%- endcomment -%}
+{%- liquid
+  # Uses classes: text-start text-center text-end
+  assign image_key = 'image' | append: settings_suffix
+-%}
+{%- if promo_settings[image_key] != blank -%}
+  {%- liquid
+    assign link_key = 'link' | append: settings_suffix
+    assign overline_key = 'overline' | append: settings_suffix
+    assign heading_key = 'heading' | append: settings_suffix
+    assign heading_size_key = 'heading_size' | append: settings_suffix
+    assign button_label_key = 'button_label' | append: settings_suffix
+    assign button_style_key = 'button_style' | append: settings_suffix
+    assign tint_color_key = 'tint_color' | append: settings_suffix
+    assign tint_opacity_key = 'tint_opacity' | append: settings_suffix
+    assign color_scheme_key = 'color_scheme' | append: settings_suffix
+    assign text_position_key = 'text_position' | append: settings_suffix
+    assign text_alignment_key = 'text_alignment' | append: settings_suffix
+  -%}
+  <{{ element | default: 'li' }} class="main-nav__promo relative color-scheme color-scheme--{{ promo_settings[color_scheme_key] }} color-scheme--no-bg" style="--column-index: {{ column_index }}">
+    {%- if promo_settings[link_key] != blank and promo_settings[button_label_key] == blank -%}
+      <a href="{{ promo_settings[link_key] }}">
+    {%- endif -%}
+    <div class="relative{% if promo_settings[tint_opacity_key] > 0 %} main-nav__promo-img-tinted{% endif %}"
+         style="padding-top:{{ 100.0 | divided_by: promo_settings.promo_image_ratio }}%;
+                {%- if promo_settings[tint_opacity_key] > 0 -%}
+                  --tint-opacity: {{ promo_settings[tint_opacity_key] | divided_by: 100.0 }};
+                  --tint-color: {{ promo_settings[tint_color_key].rgb }}
+                {%- endif %}">
+      {%- render 'image',
+        image: promo_settings[image_key],
+        src_width: 400,
+        srcset_2x: true,
+        class: 'main-nav__promo-img img-fit'
+      -%}
+    </div>
+    {%- if promo_settings[overline_key] != blank or promo_settings[heading_key] != blank or promo_settings[button_label_key] != blank -%}
+      <div class="absolute inset-0 px-6 py-8 m-0 flex {{ promo_settings[text_position_key] }} {{ promo_settings[text_alignment_key] }}">
+        <div class="text-overlay-compact">
+          {%- if promo_settings[overline_key] != blank -%}
+            <div class="text-overlay-compact__block subheading">{{ promo_settings[overline_key] }}</div>
+          {%- endif -%}
+          {%- if promo_settings[heading_key] != blank -%}
+            <div class="text-overlay-compact__block text-overlay-compact__heading hx-no-scaling {{ promo_settings[heading_size_key] }}">{{ promo_settings[heading_key] }}</div>
+          {%- endif -%}
+          {%- if promo_settings[button_label_key] != blank -%}
+            <div class="text-overlay-compact__block text-overlay-compact__button">
+              <a class="{{ promo_settings[button_style_key] }}" href="{{ promo_settings[link_key] }}">
+                {{- promo_settings[button_label_key] | escape -}}
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+    {%- if promo_settings[link_key] != blank and promo_settings[button_label_key] == blank -%}
+      </a>
+    {%- endif -%}
+  </{{ element | default: 'li' }}>
+{%- endif -%}

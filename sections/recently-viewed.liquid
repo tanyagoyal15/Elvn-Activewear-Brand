@@ -1,0 +1,462 @@
+{%- assign enable_quick_add = true -%}
+{%- if enable_quick_add -%}
+  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+  <script src="{{ 'variant-picker.js' | asset_url }}" defer></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+
+  assign grid_classes = 'grid gap-x-5 gap-y-6 md:gap-6'
+  if section.settings.layout == 'carousel'
+    assign carousel = true
+
+    if section.settings.products_per_row == '1'
+      assign grid_classes = grid_classes | append: ' grid-flow-col auto-cols-1 sm:auto-cols-2'
+    elsif section.settings.products_per_row == '2'
+      assign grid_classes = grid_classes | append: ' grid-flow-col auto-cols-2'
+    endif
+    if section.settings.products_per_row_desktop == '3'
+      assign grid_classes = grid_classes | append: ' md:auto-cols-3'
+    elsif section.settings.products_per_row_desktop == '4'
+      assign grid_classes = grid_classes | append: ' md:auto-cols-3 lg:auto-cols-4'
+    elsif section.settings.products_per_row_desktop == '5'
+      assign grid_classes = grid_classes | append: ' md:auto-cols-4 lg:auto-cols-5'
+    endif
+  else
+    assign carousel = false
+
+    if section.settings.products_per_row == '1'
+      assign grid_classes = grid_classes | append: ' grid-cols-1 sm:grid-cols-2'
+    elsif section.settings.products_per_row == '2'
+      assign grid_classes = grid_classes | append: ' grid-cols-2'
+    endif
+    if section.settings.products_per_row_desktop == '3'
+      assign grid_classes = grid_classes | append: ' md:grid-cols-3'
+    elsif section.settings.products_per_row_desktop == '4'
+      assign grid_classes = grid_classes | append: ' md:grid-cols-3 lg:grid-cols-4'
+    elsif section.settings.products_per_row_desktop == '5'
+      assign grid_classes = grid_classes | append: ' md:grid-cols-4 lg:grid-cols-5'
+    endif
+  endif
+  assign grid_classes = grid_classes | append: ' stretch-cards'
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+{%- endstyle -%}
+
+<div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  <recently-viewed data-url="{{ routes.search_url }}?section_id={{ section.id }}&type=product" data-limit="{{ section.settings.limit }}"{% if request.page_type == 'product' %} data-exclude="{{ product.id }}"{% endif %} {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+    {%- if request.page_type == 'search' and search.performed and search.results_count > 0 -%}
+    <div class="section section--padded z-3 color-scheme color-scheme--{{ color_scheme }}{% if section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}">
+      {%- if carousel -%}
+        <carousel-slider class="carousel carousel--cards block" inactive>
+      {%- endif -%}
+
+      <div class="container">
+        {%- if carousel and section.settings.heading != blank -%}
+          <div class="carousel__header flex{% if section.settings.heading_align == 'text-end' %} flex-row-reverse{% endif %} items-center justify-between mb-8">
+            <h2 class="flex-auto mb-0 {{ section.settings.heading_size }} {{ section.settings.heading_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}">{{ section.settings.heading | escape }}</h2>
+
+            {%- if settings.slider_show_arrows != 'never' and section.settings.heading_align != 'text-center' -%}
+              <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:flex gap-x-2 items-center no-js-hidden">
+                <button type="button" class="slider-nav__btn btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                  {% render 'icon-chevron-left' %}
+                </button>
+                <button type="button" class="slider-nav__btn btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                  {% render 'icon-chevron-right' %}
+                </button>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- elsif section.settings.heading != blank -%}
+          <h2 class="mb-8 {{ section.settings.heading_size }} {{ section.settings.heading_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+
+        {%- if carousel -%}
+          <div class="slider slider--no-scrollbar" id="slider-{{ section.id }}">
+            <div class="container">
+        {%- endif -%}
+
+        <ul class="{% if carousel %}slider__grid {% endif %}{{ grid_classes }}" role="list">
+          {%- for product in search.results -%}
+            {%- capture cc_animate_attr -%}data-cc-animate="fade-in-up" data-cc-animate-delay="{{ forloop.index | times: 0.09 }}s"{%- endcapture -%}
+            <li{% if carousel %} class="slider__item"{% endif %}{% if settings.animate_cards %}{%- render 'animation-attrs', attrs: cc_animate_attr %}{% endif %}>
+              {% render 'product-card', product: product %}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {%- if carousel -%}
+            </div>
+          </div> {% # slider %}
+
+          {%- liquid
+            assign slider_nav_footer = false
+            if section.settings.heading == blank or section.settings.heading_align == 'text-center'
+              assign slider_nav_footer = true
+            endif
+          -%}
+          {%- if settings.slider_show_arrows != 'never' and slider_nav_footer -%}
+            <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:flex mt-8 gap-x-2 items-center justify-center no-js-hidden">
+              <button type="button" class="slider-nav__btn btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                {% render 'icon-chevron-left' %}
+              </button>
+              <button type="button" class="slider-nav__btn btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                {% render 'icon-chevron-right' %}
+              </button>
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+
+      {%- if carousel -%}
+        </carousel-slider>
+      {%- endif -%}
+    </div>
+    {%- endif -%}
+  </recently-viewed>
+</div>
+
+<script>
+  window.themeCreateRecentlyViewed = () => {
+    if (!customElements.get('recently-viewed')) {
+      class RecentlyViewed extends HTMLElement {
+        constructor() {
+          super();
+          this.fetchAttempts = 0;
+          window.initLazyScript(this, this.init.bind(this), 500);
+        }
+
+        async init() {
+          try {
+            const response = await fetch(`${this.dataset.url}&q=${this.getSearchQuery()}`);
+            if (!response.ok) throw new Error(response.status);
+
+            const tmpl = document.createElement('template');
+            tmpl.innerHTML = await response.text();
+
+            const el = tmpl.content.querySelector('recently-viewed');
+            if (el && el.hasChildNodes()) {
+              this.innerHTML = el.innerHTML;
+            }
+          } catch (error) {
+            this.fetchAttempts += 1;
+
+            if (this.fetchAttempts === 3) {
+              console.log(error);
+            } else {
+              this.init();
+            }
+          }
+        }
+
+        getSearchQuery() {
+          const items = JSON.parse(localStorage.getItem('cc-recently-viewed') || '[]');
+
+          if (this.dataset.exclude && items.includes(Number(this.dataset.exclude))) {
+            items.splice(items.indexOf(Number(this.dataset.exclude)), 1);
+          }
+
+          return items.map((item) => `id:${item}`).slice(0, this.dataset.limit).join(' OR ');
+        }
+      }
+
+      customElements.define('recently-viewed', RecentlyViewed);
+    }
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.themeCreateRecentlyViewed);
+  } else {
+    window.themeCreateRecentlyViewed();
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Recently viewed products",
+  "tag": "section",
+  "class": "cc-recently-viewed non-join",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "If no products have been viewed, the section will not be shown."
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Recently viewed"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Maximum products to show",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "select",
+      "id": "products_per_row",
+      "label": "Products per row on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "products_per_row_desktop",
+      "label": "Products per row on desktop",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
+        }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "radio",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        },
+        {
+          "value": "grid",
+          "label": "Grid"
+        }
+      ],
+      "default": "carousel"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Recently viewed products",
+      "category": "Products"
+    }
+  ],
+  "templates": [
+    "article",
+    "blog",
+    "cart",
+    "collection",
+    "index",
+    "list-collections",
+    "page",
+    "product",
+    "search"
+  ]
+}
+{% endschema %}

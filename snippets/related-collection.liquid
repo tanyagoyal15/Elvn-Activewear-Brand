@@ -1,0 +1,66 @@
+{%- comment -%}
+  Parameters:
+  - collection {Object} - Collection object.
+  - style {String} - Style should be either 'images', 'pills' or empty (optional, default is 'pills').
+  - image_source {String} - Image source (optional, default is 'featured').
+  - image_ratio {Number} - Aspect ratio for the image (optional, default is '1').
+  - image_fit {String} - Image fit (optional, default is 'contain').
+  - image_align {String} - Image alignment (optional, default is 'object-center').
+  Usage:
+  {% render 'related-collection', collection: collection %}
+{%- endcomment -%}
+
+{%- if collection -%}
+  {%- liquid
+    assign style = style | default: 'pills'
+    assign image_source = image_source | default: 'featured-image'
+    assign image_ratio = image_ratio | default: 1
+    assign image_fit = image_fit | default: 'contain'
+    assign image_align = image_align | default: 'object-center'
+  -%}
+  {%- case style -%}
+    {%- when 'images' -%}
+      {%- liquid
+        if image_source == 'featured'
+          assign image = collection.featured_image
+        elsif image_source == 'metafield'
+          assign image = collection.metafields.theme.icon
+        endif
+        assign image_ratio_int = image_ratio | plus: 0
+        assign image_ratio_h = 10
+        assign image_ratio_w = image_ratio_int | times: image_ratio_h | round
+        assign image_width = 88
+        if image_ratio_int > 1
+          assign related_collection_class = 'related-collections__image--landscape'
+          assign image_width = 176
+        elsif image_ratio_int < 1
+          assign related_collection_class = 'related-collections__image--portrait'
+        else
+          assign related_collection_class = 'related-collections__image--square'
+        endif
+        if section.settings.related_collections_image_fit == 'contain'
+          assign image_class = 'img-fit img-fit--contain'
+        else
+          assign image_class = 'img-fit ' | append: section.settings.related_collections_image_align
+          assign image_width = image_width | times: 1.25
+        endif
+      -%}
+      <a class="related-collections__image {{ related_collection_class }}" href="{{ collection.url }}" style="--media-ratio: {{ image_ratio_w }} / {{ image_ratio_h }};">
+        <div class="media relative">
+          {%- if image != blank -%}
+            {% render 'image', image: image, src_width: image_width, srcset_2x: true, class: image_class %}
+          {%- else -%}
+            {%- assign image_class = image_class | prepend: 'media__placeholder ' -%}
+            {{- 'image' | placeholder_svg_tag: image_class -}}
+          {%- endif -%}
+        </div>
+        <span class="block w-full mt-1 max-md:text-sm font-bold text-center">
+          {{- collection.title | escape -}}
+        </span>
+      </a>
+    {%- when 'pills' -%}
+      <a class="pill-link pill-link--sm max-md:text-sm font-bold" href="{{ collection.url }}">
+        {{- collection.title | escape -}}
+      </a>
+  {%- endcase -%}
+{%- endif %}

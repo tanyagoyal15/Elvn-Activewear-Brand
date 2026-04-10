@@ -1,0 +1,387 @@
+{%- assign color_scheme = section.settings.color_scheme -%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  {%- if section.settings.text_width_override -%}
+    #{{ section.id }} {
+      --reading-width: {{ section.settings.text_max_width }}px;
+    }
+  {%- endif -%}
+
+  {%- if section.settings.text_column_to_edge and section.settings.text_align != 'text-center' -%}
+    {%- if section.settings.mob_center_text -%}
+      @media (min-width: 768px) {
+    {%- endif -%}
+
+    #{{ section.id }} .reading-width--fixed {
+      {%- if section.settings.text_align == 'text-start' -%}
+        margin-inline-start: 0;
+      {%- elsif section.settings.text_align == 'text-end' -%}
+        margin-inline-end: 0;
+      {%- endif -%}
+    }
+
+    {%- if section.settings.mob_center_text -%}
+      }
+    {%- endif -%}
+  {%- endif -%}
+{%- endstyle -%}
+
+<div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  <div class="flex {% if section.settings.full_width == false %} container{% endif %}">
+    <div class="section
+                {%- if section.settings.full_width %}
+                  section--padded-more section--full-width
+                {%- else %}
+                  section--standard
+                {%- endif %}
+                {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                z-3
+                {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                color-scheme
+                {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                color-scheme--{{ color_scheme }}">
+  <div class="container container--text">
+    <div class="reading-width">
+      {%- if section.settings.heading != blank -%}
+        <{% if section.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__heading {{ section.settings.heading_size }} {{ section.settings.text_align }}">{{ section.settings.heading | escape }}</{% if section.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+      {%- endif -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'category' -%}
+          <h3 class="h4{% unless forloop.first %} mt-16{% endunless %} mb-4 faq-category" {{ block.shopify_attributes }}>{{ block.settings.text }}</h3>
+        {%- else -%}
+          <details-disclosure {{ block.shopify_attributes }}>
+            <details class="disclosure disclosure--row">
+              <summary>
+                <div class="flex justify-between items-center">
+                  <h4 class="disclosure__title regular-text font-body pt-6 pb-6 faq-question">{{ block.settings.heading }}</h4>
+                  <span class="disclosure__toggle">
+                    {%- if settings.disclosure_toggle == 'plus' -%}
+                      {% render 'icon-plus' %}
+                    {%- else -%}
+                      {% render 'icon-chevron-down' %}
+                    {%- endif -%}
+                  </span>
+                </div>
+              </summary>
+              <div class="disclosure__panel has-motion pt-6 pb-6">
+                <div class="disclosure__content rte faq-answer">
+                  {{ block.settings.text }}
+                </div>
+              </div>
+            </details>
+          </details-disclosure>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FAQ",
+  "tag": "section",
+  "class": "cc-faq non-join",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_h1",
+      "label": "Set as page heading (uses h1 tag)",
+      "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Question",
+          "default": "Frequently asked question"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Answer",
+          "default": "<p>Provide an answer to the question here, with as much detail as possible to help your customers.</p>"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "name": "Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Category",
+          "default": "Some category"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "category",
+          "settings": {
+            "text": "Shipping"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "heading": "What countries do you ship to?",
+            "text": "<p>We currently ship to the United States, Canada, Australia and the UK. To enquire about shipping to a different destination, please contact us.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "heading": "How long will it take to receive my order?",
+            "text": "<p>Standard shipping normally takes 3-5 days. Next day shipping is available on all domestic orders (for an additional charge). International shipping times depend on the products and destination (estimated at checkout).</p>"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "text": "Returns and Refunds"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "heading": "How do I return a product?",
+            "text": "<p>Items must be returned within 30 days after receiving your order. Items must be returned in the same condition in which they were received, be unworn/unused, have any tags still attached, and include all the original packaging.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "heading": "How long will it take to receive my refund?",
+            "text": "<p>Refunds are processed within 7 days from when we receive the item(s).</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

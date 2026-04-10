@@ -1,0 +1,68 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "main-blog-post-banner",
+      "settings": {
+        "style": "text-over-image",
+        "heading_marquee_speed": 15,
+        "heading_size": "h1",
+        "heading_case": "none",
+        "text_align": "text-center",
+        "color_scheme": "scheme-3",
+        "show_blog_description": false,
+        "blog_description": "<p>Use this space to share updates, stories, product tips, or behind-the-scenes looks at your brand. Whether you're launching a new collection, offering seasonal advice, or connecting with your community, this section helps bring your brand voice to life.</p>",
+        "enlarge_text": false,
+        "image_override": false,
+        "fixed_height_desktop": 560,
+        "fixed_height_mobile": 380,
+        "tint_color": "#574e42",
+        "tint_opacity": 40,
+        "show_date": true,
+        "show_author": true,
+        "show_reading_time": false
+      }
+    },
+    "main": {
+      "type": "main-blog-post",
+      "settings": {
+        "border_radius": true,
+        "show_share_buttons": true,
+        "show_twitter": true,
+        "show_facebook": true,
+        "show_pinterest": true
+      }
+    },
+    "comments": {
+      "type": "main-blog-post-comments",
+      "settings": {
+        "comments_per_page": 8,
+        "heading_size": "h3",
+        "heading_align": "text-center",
+        "text_align": "text-center",
+        "button_style": "btn btn--primary",
+        "full_width": true,
+        "color_scheme": "scheme-1",
+        "background_mode": "simple-gradient",
+        "background_color": "#f7f4f0",
+        "background_gradient_stop_1": "#ffffff",
+        "background_gradient_stop_2": "#f7f4f0",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "main",
+    "comments"
+  ]
+}

@@ -1,0 +1,195 @@
+.facets.drawer {
+  width: 100%;
+  max-width: 480px;
+}
+.facets.drawer .drawer__content {
+  flex: 1 1 auto;
+}
+.facets.drawer .drawer__footer {
+  transition: transform 0s 0.4s, opacity 0.7s;
+  opacity: 0;
+}
+.facets.drawer[open] > .drawer__footer {
+  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) 0.2s, opacity 0.7s;
+  opacity: 1;
+}
+.facets.drawer .disclosure {
+  border-bottom: 1px solid rgba(var(--drawer-text-color)/0.1);
+}
+.facets.drawer .disclosure__toggle {
+  margin-inline-start: auto;
+}
+.facets.drawer .disclosure__toggle > .icon {
+  width: 24px;
+  height: 24px;
+}
+.facets.drawer .disclosure__content {
+  padding: calc(2 * var(--space-unit)) 0 calc(8 * var(--space-unit));
+}
+.facets.drawer .filter__toggle {
+  padding: calc(4 * var(--space-unit)) 0;
+}
+.facets.drawer .filter__heading {
+  font-size: 1.8rem;
+}
+.facets.drawer .link {
+  color: rgb(var(--drawer-text-color));
+}
+.facets.drawer .link:hover {
+  text-decoration: none;
+}
+
+.facets__active-filters {
+  padding-top: calc(4 * var(--space-unit));
+  padding-bottom: calc(8 * var(--space-unit));
+  border-bottom: 1px solid rgba(var(--drawer-text-color)/0.1);
+}
+
+.facets__filters > details-disclosure:last-of-type .disclosure {
+  border: 0;
+}
+.facets__filters > details-disclosure:last-of-type .disclosure__content {
+  padding-bottom: calc(4 * var(--space-unit));
+}
+
+.filter li:not(:last-child) {
+  margin-bottom: calc(4 * var(--space-unit));
+}
+
+.filter__label:has(.filter__swatch) {
+  cursor: pointer;
+}
+
+.disclosure__show-more:has(.filter__more),
+.disclosure__show-more:has(.filter__clear:not([hidden])) {
+  margin-top: calc(6 * var(--space-unit));
+}
+
+.filter__more + .filter__clear {
+  margin-inline-start: calc(4 * var(--space-unit));
+  padding-inline-start: calc(4 * var(--space-unit));
+  border-inline-start: 1px solid rgba(var(--drawer-text-color)/0.1);
+}
+
+input:checked + .filter__text {
+  font-weight: 700;
+}
+
+input[disabled] + .filter__label {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.filter__swatch {
+  flex-shrink: 0;
+  margin-top: 0.125em;
+  margin-inline-end: 0.5em;
+}
+
+.filter__count {
+  margin-inline-start: calc(3 * var(--space-unit));
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: calc(2 * var(--space-unit) * -1);
+}
+
+.active-filter {
+  margin-bottom: calc(2 * var(--space-unit));
+  margin-inline-end: calc(4 * var(--space-unit));
+  padding: 2px 0;
+  color: currentColor;
+  white-space: nowrap;
+}
+
+.active-filter__icon {
+  width: 24px;
+  height: 24px;
+  margin-inline-end: 6px;
+  padding: 2px;
+  pointer-events: none;
+}
+.active-filter__icon > .icon {
+  width: 100%;
+  height: auto;
+  padding: 4px;
+  border-radius: var(--btn-border-radius, 0);
+  stroke-width: 2px;
+  stroke: var(--bg-color);
+  background-color: rgb(var(--text-color));
+}
+
+.main-products-grid__results > .grid {
+  transition: opacity 0.4s ease;
+}
+
+.main-products-grid__results.is-loading > .grid {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.main-products-grid__results.is-loading::after {
+  top: calc(50% - 24px);
+  right: calc(50% - 24px);
+  width: 48px;
+  height: 48px;
+  border-width: 3px;
+}
+
+.filter__content .checkbox:checked + label {
+  font-weight: 700;
+}
+
+.filter__list {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: calc(4 * var(--space-unit));
+}
+.filter .filter__list li {
+  margin-bottom: 0;
+}
+
+.filter__list--columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.filter__list--columns .filter__count {
+  margin-inline-start: 0.5em;
+}
+
+.filter__list--inline {
+  display: flex;
+  flex-wrap: wrap;
+}
+.filter__list--inline .filter__label {
+  padding: var(--space-unit) calc(3 * var(--space-unit));
+  border: 0.5px solid rgb(var(--text-color));
+  border-radius: 4px;
+  background-color: rgba(var(--input-bg-color, 0.8));
+  font-size: 1.4rem;
+}
+.filter__list--inline .filter__label::after {
+  display: none;
+}
+.filter__list--inline .filter__count {
+  margin-inline-start: 0.25em;
+}
+.filter__list--inline .checkbox + label::before {
+  display: none;
+}
+.filter__list--inline .checkbox:checked + .filter__label {
+  border-color: rgb(var(--bg-accent-color));
+  background-color: rgb(var(--bg-accent-color));
+  font-weight: 400;
+}
+
+@media (min-width: 480px) {
+  .facets.drawer .filter__heading {
+    font-size: 2rem;
+  }
+  .filter__list--inline .filter__label {
+    padding: var(--space-unit) calc(4 * var(--space-unit));
+  }
+}

@@ -1,0 +1,508 @@
+{%- comment %}theme-check-disable LiquidTag{% endcomment -%}
+
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - card_type {String} - Card type should be either 'standard', 'related' or empty (optional, default is 'standard').
+  - image_ratio {Number} - Aspect ratio for the image(s).
+  - disable_image_blending {Boolean} - Disable image blending effect (optional, default is false).
+  - disable_animate {Boolean} - Disables the animation on the card.
+  - disable_labels {Boolean} - Removes the product labels from the card (optional, default is false).
+  - disable_quick_shop {Boolean} - Hides quick buy button (optional, default is false).
+  - disable_one_click_add {Boolean} - Disables quick add button, uses quick buy instead (optional, default is false).
+  - card_shoppable_image {Boolean} - Adds color scheme classes to the card_type_class if true (optional, default is false).
+
+  Usage:
+  {% render 'product-card', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign product_url = product.url
+  if collection and settings.card_url_within_coll and product.collections contains collection
+    assign product_url = product.url | within: collection
+  endif
+
+  assign card_type = card_type | default: 'standard'
+  case card_type
+    when 'standard'
+      assign card_type_class = 'card--standard'
+    when 'related'
+      assign card_type_class = 'card--related card--row'
+  endcase
+
+  if card_shoppable_image
+    assign color_classes = ' color-scheme color-scheme--' | append: settings.product_card_color_scheme.id
+    assign card_type_class = card_type_class | append: color_classes
+  endif
+
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_images = product.media | where: 'media_type', 'image'
+  assign featured_media = product.media | find: 'id', product.featured_media.id
+
+  if settings.card_show_hover_image and product_images.size > 1
+    assign show_hover_image = true
+
+    if product_images.size > featured_media.position
+      assign hover_image = product_images[featured_media.position]
+    else
+      assign hover_image = product_images[0]
+    endif
+  else
+    assign show_hover_image = false
+  endif
+
+  if image_ratio == nil
+    if settings.prod_card_image_ratio == 'shortest' or settings.prod_card_image_ratio == 'tallest'
+      assign image_ratio = 1
+    else
+      assign image_ratio = settings.prod_card_image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+
+  assign swatch_limit = 9
+
+  if featured_media
+    assign image_quality = settings.image_quality
+
+    capture sizes
+      if card_type == 'standard' and section.settings.show_layout_toggle
+        # assume lowest number of columns to avoid serving low-res images
+        assign image_quality = image_quality | plus: 0.25
+        assign grid_columns_mobile = 1
+        assign grid_columns_sm = 2
+        assign grid_columns_md = false
+        assign grid_columns_lg = false
+      else
+        # calculate numbers of columns from settings
+        assign grid_columns_mobile = section.settings.products_per_row | plus: 0
+        assign grid_columns_sm = 2
+        if section.settings.products_per_row_desktop == '2'
+          assign grid_columns_md = 2
+        else
+          assign grid_columns_md = 3
+        endif
+        assign grid_columns_lg = section.settings.products_per_row_desktop | plus: 0
+      endif
+      render 'sizes-attribute', grid: true, min: grid_columns_mobile, sm: grid_columns_sm, md: grid_columns_md, lg: grid_columns_lg, xl: false, max: false
+    endcapture
+
+    if settings.prod_card_image_fit == 'contain'
+      assign image_class = 'img-fit img-fit--contain card__main-image has-motion'
+    else
+      assign image_class = 'img-fit card__main-image has-motion ' | append: settings.prod_card_image_align
+    endif
+  endif
+
+  if settings.enable_sibling_products and settings.show_siblings_in_product_cards
+    assign metaref = settings.sibling_products_metafield | split: '.'
+    if product.metafields[metaref.first][metaref.last]
+      assign sibling_products = product.metafields[metaref.first][metaref.last].value
+      unless sibling_products.size or settings.sibling_products_metaobject_product_field == blank
+        assign sibling_products_metaobject = settings.sibling_products_metaobject_product_field | split: '.' | last
+        assign sibling_products = sibling_products[sibling_products_metaobject].value
+      endunless
+    endif
+  endif
+
+  assign truncate_title = settings.card_truncate_title | default: false, allow_false: true
+  assign truncate_subtitle = settings.card_truncate_subtitle | default: false, allow_false: true
+  assign display_price_inline = settings.card_display_inline_price | default: false, allow_false: true
+
+  if show_image == nil
+    assign show_image = true
+  endif
+
+  assign disable_image_blending = disable_image_blending | default: false, allow_false: true
+  assign disable_labels = disable_labels | default: false, allow_false: true
+
+  if card_type == 'related'
+    assign disable_animate = true
+  endif
+
+  assign show_quick_shop = settings.enable_quick_shop
+  if product.template_suffix == 'gift-wrap'
+    assign show_quick_shop = false
+  endif
+  if disable_quick_shop
+    assign show_quick_shop = false
+  endif
+-%}
+
+{%- if product and product != empty -%}
+  <product-card class="card product-card color-scheme color-scheme--{{ settings.product_card_color_scheme }} {{ card_type_class }} relative flex custom-case"
+      {%- if sibling_products %} data-product-id="{{ product.id }}" data-sibling-swatches-enabled{% endif %}{% if settings.animate_cards and disable_animate != true %} data-cc-animate="fade-in-up"{% endif %}>
+    {%- liquid
+      if disable_labels == false
+        if card_type == 'related'
+          assign limit = 1
+        else
+          assign limit = 2
+        endif
+
+        render 'product-label', product: product, limit: limit
+      endif
+    -%}
+
+    {%- if show_image -%}
+      {%- # Media -%}
+      <div class="card__media{% if show_hover_image %} has-hover-image{% endif %} has-motion relative">
+        {%- if card_type == 'related' -%}
+          <div class="media relative{% if settings.blend_product_images and disable_image_blending == false %} image-blend{% endif %} custom-aspect-ratio" style="--ratio: {{ featured_media.aspect_ratio | default: 1.77 }};">
+            {% render 'image', image: featured_media, src_width: 78, srcset_2x: true, class: 'img-fit' %}
+          </div>
+        {%- else -%}
+          <a href="{{ product_url }}" class="media block relative{% if settings.blend_product_images and disable_image_blending == false %} image-blend{% endif %} custom-aspect-ratio js-prod-link" style="--ratio: {{ image_ratio }};" tabindex="-1" aria-label="{{ product.title | escape }}">
+            {%- if featured_media -%}
+              {%- capture attributes %}data-media-id="{{ featured_media.id }}"{% endcapture -%}
+              {%- render 'image',
+                  image: featured_media.preview_image,
+                  widths: '320, 460, 600, 700, 800, 900, 1200',
+                  src_width: 460,
+                  quality: image_quality,
+                  sizes: sizes,
+                  class: image_class,
+                  attributes: attributes
+              -%}
+
+              {%- if card_type != 'related' and settings.swatch_source == 'native' -%}
+                {%- for media in product_images -%}
+                  {%- unless media == featured_media -%}
+                    {%- capture attributes %}data-media-id="{{ media.id }}" hidden{% endcapture -%}
+                    {%- render 'image',
+                        image: media,
+                        widths: '320, 460, 600, 700, 800, 900, 1200',
+                        src_width: 460,
+                        quality: image_quality,
+                        sizes: sizes,
+                        class: image_class,
+                        attributes: attributes,
+                        disable_focal_point: true
+                    -%}
+                  {%- endunless -%}
+                {%- endfor -%}
+              {%- endif -%}
+
+              {%- if show_hover_image -%}
+                {%- liquid
+                  if settings.prod_card_hover_image_fit == 'contain'
+                    assign hover_image_class = 'img-fit img-fit--contain card__hover-image is-inactive has-motion'
+                  else
+                    assign hover_image_class = 'img-fit card__hover-image is-inactive has-motion ' | append: settings.prod_card_hover_image_align
+                  endif
+                -%}
+                {%- render 'image',
+                    image: hover_image,
+                    widths: '320, 460, 600, 700, 800, 900, 1200',
+                    src_width: 460,
+                    quality: image_quality,
+                    sizes: sizes,
+                    class: hover_image_class,
+                    disable_focal_point: true
+                -%}
+              {%- endif -%}
+            {%- else -%}
+              {{- 'image' | placeholder_svg_tag: 'media__placeholder img-fit' -}}
+            {%- endif -%}
+          </a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="card__info{% if card_type == 'related' %} card__info--compact{% endif %}">
+      {%- # Sibling swatches -%}
+      {%- if sibling_products and card_type != 'related' -%}
+        <div class="card__swatches has-motion" data-total="{{ sibling_products.size }}" data-sibling-card-swatches>
+          {%- capture option_id %}{{ section.id }}-{{ product.id }}-sibling{% endcapture -%}
+          <div class="card__swatches__options has-motion">
+            {%- for sibling_product in sibling_products limit: swatch_limit -%}
+              {%- liquid
+                # Determine if the first option is a swatch with a single value
+                assign swatch_image = nil
+                assign swatch_color = nil
+
+                for option in sibling_product.options_with_values
+                  assign swatch_options = option.values | where: 'swatch'
+                  assign swatch = swatch_options | first
+                  assign num_swatches = swatch_options | size
+
+                  if num_swatches == 1
+                    assign swatch_color = swatch.swatch.color
+                    if swatch.swatch.image
+                      assign swatch_image = swatch.swatch.image
+                    endif
+                    break
+                  endif
+                endfor
+              -%}
+              <label class="opt-label opt-label--swatch relative" data-swatch="{{ sibling_product.title | split: ' / ' | last | escape }}">
+                <input type="radio"
+                  class="opt-btn visually-hidden js-option{% if sibling_product.available == false %} is-unavailable{% endif %}"
+                  name="{{ option_id }}-option"
+                  value="{{ sibling_product.id }}"
+                  data-variant-id="{{ sibling_product.variants.first.id }}"
+                  data-sibling-url="{% if collection %}{{ sibling_product.url | within: collection }}{% else %}{{ sibling_product.url }}{% endif %}"
+                  {%- if sibling_product.id == product.id %} checked{% endif %}>
+                <span class="opt-swatch"
+                  data-swatch="{{ sibling_product.title | split: ' / ' | last | escape }}"
+                  {% if swatch_color %}style="--swatch-color: rgb({{ swatch_color.rgb }})"{%- endif %}>
+                  {%- if swatch_image != nil or swatch_color == nil -%}
+                    {%- assign sibling_image = swatch_image | default: sibling_product.featured_image -%}
+                    {%- render 'image', image: sibling_image, src_width: 36, srcset_2x: true, sizes: '36px', class: 'img-fit' -%}
+                  {%- endif -%}
+                </span>
+                <span class="visually-hidden">{{ sibling_product.title | escape }}</span>
+              </label>
+            {%- endfor -%}
+          </div>
+
+          <a href="{{ product_url }}" class="card__swatches__more-btn has-motion{% if show_quick_shop %} js-quick-add{% endif %}" aria-label="{{ 'products.product.quick_buy' | t }}"{% if show_quick_shop %} role="button"{% endif %}>
+            {%- render 'icon-plus' -%}
+          </a>
+        </div>
+      {%- endif -%}
+
+      {%- # Swatches -%}
+      {%- if sibling_products == blank and card_type != 'related' and settings.swatch_source == 'native' -%}
+        {%- for option in product.options_with_values -%}
+          {%- assign native_swatch_options = option.values | where: 'swatch' -%}
+          {%- if native_swatch_options.size > 0 -%}
+            <div class="card__swatches has-motion" data-total="{{ option.values.size | escape }}">
+              {%- capture option_id %}{{ section.id }}-{{ product.id }}-{{ option.name | handle }}{% endcapture -%}
+              <div class="card__swatches__options has-motion">
+                {%- for value in option.values limit: swatch_limit -%}
+                  {%- liquid
+                    assign variant_value = value.variant
+                    assign swatch_available = value.available
+                    assign is_interactive = false
+                    if variant_value.featured_media and product_images contains variant_value.featured_media
+                      assign is_interactive = true
+                    endif
+                    if value.product_url != blank
+                      assign is_interactive = true
+                    endif
+                  -%}
+                  <label class="opt-label opt-label--swatch{% unless is_interactive %} opt-label--static{% endunless %} relative"
+                         data-swatch="{{ value | replace: '"', '' | downcase }}">
+                    <input type="radio"
+                      class="opt-btn visually-hidden js-option{% if swatch_available == false %} is-unavailable{% endif %}"
+                      name="{{ option_id }}-option"
+                      value="{{ value | escape }}"
+                      data-variant-id="{{ variant_value.id }}"
+                      {%- if value.product_url != blank %}
+                        data-sibling-url="{% if collection %}{{ value.product_url | within: collection }}{% else %}{{ value.product_url }}{% endif %}"
+                      {%- endif %}
+                      {%- if is_interactive %} data-media-id="{{ variant_value.featured_media.id }}"{% endif %}
+                      {%- if value.selected %} checked{% endif %}
+                      {%- unless is_interactive %} disabled{% endunless %}>
+                    <span class="opt-swatch"
+                      data-swatch="{{ value | replace: '"', '' | downcase }}"
+                      {% if value.swatch.color %}style="--swatch-color: rgb({{ value.swatch.color.rgb }})"{%- endif %}>
+                      {%- if value.swatch.image -%}
+                        {%- render 'image', image: value.swatch.image, src_width: 24, srcset_2x: true, class: 'img-fit' -%}
+                      {%- endif -%}
+                    </span>
+                    <span class="visually-hidden">{{ value }}</span>
+                  </label>
+                {%- endfor -%}
+              </div>
+              <a href="{{ product_url }}" class="card__swatches__more-btn has-motion{% if show_quick_shop %} js-quick-add{% endif %}" aria-label="{{ 'products.product.quick_buy' | t }}"{% if show_quick_shop %} role="button"{% endif %}>
+                {%- render 'icon-plus' -%}
+              </a>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- # Rating -%}
+      {%- if card_type != 'related' and settings.card_show_rating != empty -%}
+        {%- liquid
+          assign show_empty = false
+          if settings.card_show_rating == 'always'
+            assign show_empty = true
+          endif
+        -%}
+        {%- if settings.card_show_rating == 'always' or settings.card_show_rating == 'reviewed' and product.metafields.reviews.rating.value != blank -%}
+          <div class="card__rating flex items-end">
+            {%- render 'rating',
+              rating_value: product.metafields.reviews.rating.value,
+              rating_count: product.metafields.reviews.rating_count,
+              show_empty: show_empty
+            -%}
+          </div>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- # Vendor -%}
+      {%- if card_type != 'related' and settings.card_show_vendor == 'vendor_overline' -%}
+        <div class="card__vendor text-xs">
+          {{- product.vendor -}}
+        </div>
+      {%- endif -%}
+
+      <div class="card__content{% if display_price_inline %} card__content--inline{% endif %}">
+        {%- liquid
+          assign product_title = product.title
+          if settings.enable_sibling_products
+            assign split_product_title = product.title | split: ' / '
+            assign product_title = split_product_title | first
+          endif
+        -%}
+
+        {%- # Title -%}
+        <div class="card__title card__title--product">
+          <a href="{{ product_url }}" class="card-link text-current js-prod-link{% if card_type == 'related' %} text-sm{% endif %}">
+            <span class="{% if truncate_title == "1" %}line-clamp-1{% elsif truncate_title == "2" %}line-clamp-2{% endif %}">
+              {%- if settings.card_show_vendor == 'vendor_title' -%}
+                {{- product.vendor }}
+              {%- endif -%}
+              {{- product_title | escape -}}
+            </span>
+            {% comment %} {% if product.metafields.custom.custom_color != blank %}
+              <p class="product-card__color" style="color: A9A9A9; font-weight:400;">
+                {{ product.metafields.custom.custom_color }}
+              </p>
+            {% endif %} {% endcomment %}
+          </a>
+        </div>
+
+        {%- # Split title -%}
+        {%- if settings.enable_sibling_products and split_product_title.size == 2 -%}
+          <div class="card__split-title{% if card_type == 'related' %} text-sm{% endif %}">
+            {{- split_product_title | last | escape -}}
+          </div>
+        {%- endif -%}
+
+        {%- # Subtitle -%}
+        {%- if card_type != 'related' and settings.card_show_subtitle and product.metafields.descriptors.subtitle != blank -%}
+          <div class="card__subtitle">
+            <span class="{% if truncate_subtitle == "1" %}line-clamp-1{% elsif truncate_subtitle == "2" %}line-clamp-2{% endif %}">
+              {{- product.metafields.descriptors.subtitle -}}
+            </span>
+          </div>
+        {%- endif -%}
+
+        {%- # Price -%}
+        <div class="card__price{% if card_type == 'related' %} text-sm{% endif %}">
+          {%- render 'price', product: product -%}
+        </div>
+      </div>
+
+      {%- # Quick Add -%}
+      {%- if show_quick_shop -%}
+        <div class="card-reveal has-motion relative">
+          <div class="has-motion">
+            <div class="card__quick-add">
+              {%- liquid
+                assign show_one_click_add = false
+                if settings.enable_quick_shop_single_click and sibling_products == blank and disable_one_click_add != true
+                  if product.has_only_default_variant or product.variants.size == 1
+                    assign show_one_click_add = true
+                  endif
+                endif
+              -%}
+              {%- if show_one_click_add -%}
+                {%- liquid
+                  capture button_text
+                    if product.available
+                      if product.template_suffix contains 'preorder'
+                        echo 'products.product.preorder' | t
+                      else
+                        echo 'products.product.add_to_cart' | t
+                      endif
+                    else
+                      echo 'products.product.sold_out' | t
+                    endif
+                  endcapture
+                -%}
+                <product-form>
+                  <div class="tooltip absolute bottom-full start-0 end-0 z-5 js-form-error" role="alert" hidden></div>
+                  {%- assign product_form_id = 'quick-add-' | append: section_id | append: product.id -%}
+                  {%- form 'product', product,
+                    class: 'js-product-form',
+                    id: product_form_id,
+                    novalidate: 'novalidate'
+                  -%}
+                    <input type="hidden" name="id" value="{{ current_variant.id }}">
+
+                    {%- if card_type != 'related' -%}
+                      <div class="flex items-stretch gap-4">
+                        {%- assign id_suffix = '-' | append: current_variant.id -%}
+                        {%- render 'quantity-input', layout_style: 'combined', id_suffix: id_suffix -%}
+                    {%- else -%}
+                      <input type="hidden" name="quantity" value="1">
+                    {%- endif -%}
+
+                    <button class="btn quick-add-btn{% if card_type != 'related' %} btn--secondary{% endif %}"
+                            name="add"
+                            aria-haspopup="dialog"
+                            {%- if current_variant.available == false %}disabled{% endif %}>
+                      <span class="quick-add-btn-text pointer-events-none">
+                        {{- button_text -}}
+                      </span>
+                      <span class="quick-add-btn-icon pointer-events-none">
+                        {% render 'icon-chevron-right' %}
+                      </span>
+                    </button>
+
+                    {%- if card_type != 'related' -%}
+                      </div>
+                    {%- endif -%}
+                  {%- endform -%}
+                </product-form>
+              {%- else -%}
+                {%- liquid
+                  capture button_text
+                    if product.available
+                      if product.template_suffix contains 'preorder'
+                        echo 'products.product.preorder' | t
+                      else
+                        echo 'products.product.quick_buy' | t
+                      endif
+                    else
+                      echo 'products.product.sold_out' | t
+                    endif
+                  endcapture
+                -%}
+                <div class="no-js-hidden">
+                  <button type="button"
+                          class="btn quick-add-btn{% if card_type != 'related' %} btn--secondary{% endif %} js-quick-add"
+                          aria-haspopup="dialog"
+                          data-product-url="{{ product_url }}"
+                          {%- if product.available == false %}disabled{% endif %}>
+                    <span class="quick-add-btn-text pointer-events-none">
+                      {{- button_text -}}
+                    </span>
+                    <span class="quick-add-btn-icon pointer-events-none">
+                      {% render 'icon-chevron-right' %}
+                    </span>
+                  </button>
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </product-card>
+{%- else -%}
+  <div class="card product-card color-scheme color-scheme--{{ settings.product_card_color_scheme.id }}">
+    <div class="card__media">
+      <div class="media relative custom-aspect-ratio" style="--ratio: {{ image_ratio }};">
+        {%- capture placeholder_name -%}product-{{ 'now' | date: '%N' | modulo: 6 | plus: 1 }}{%- endcapture -%}
+        {{ placeholder_name | placeholder_svg_tag: 'media__placeholder img-fit' }}
+      </div>
+    </div>
+    <div class="card__info">
+      <p class="card__title card__title--product">{{ 'onboarding.product.title' | t }}</p>
+      <div class="card__price theme-money">
+        {%- if settings.show_product_currency_code -%}
+          {{- 1234 | money_with_currency -}}
+        {%- else -%}
+          {{- 1234 | money -}}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}

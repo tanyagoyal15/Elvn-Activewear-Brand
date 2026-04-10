@@ -1,0 +1,116 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "main-blog-banner",
+      "settings": {
+        "style": "text-over-image",
+        "heading_marquee_speed": 15,
+        "heading_size": "x-large-heading",
+        "heading_case": "none",
+        "text_align": "text-center",
+        "color_scheme": "",
+        "show_blog_description": true,
+        "blog_description": "<p>Style tips, how-to guides and the latest trends</p>",
+        "image": "",
+        "fixed_height_desktop": 480,
+        "fixed_height_mobile": 380,
+        "tint_color": "#000000",
+        "tint_opacity": 15,
+        "show_share_buttons": true,
+        "show_twitter": true,
+        "show_facebook": true,
+        "show_pinterest": true
+      }
+    },
+    "main": {
+      "type": "main-blog",
+      "settings": {
+        "show_tag_filter": true,
+        "image_ratio": "1.33",
+        "show_excerpt": true,
+        "show_date": false,
+        "show_author": false,
+        "show_reading_time": false,
+        "show_tags": true,
+        "show_button": true,
+        "button_article": "link block",
+        "show_featured_post": true,
+        "button_featured": "link block",
+        "color_scheme": "scheme-1"
+      }
+    },
+    "collection_list_W6zLmq": {
+      "type": "collection-list",
+      "blocks": {
+        "collection_zTcjrV": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_g8ADzF": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_HFt79Y": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_B4METn": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_zTcjrV",
+        "collection_g8ADzF",
+        "collection_HFt79Y",
+        "collection_B4METn"
+      ],
+      "name": "Collection list",
+      "settings": {
+        "title": "Shop Collections...",
+        "heading_h1": false,
+        "heading_size": "h2",
+        "heading_align": "text-center",
+        "heading_after_blocks": false,
+        "card_size": "small",
+        "card_style": "text-over",
+        "card_show_count": true,
+        "card_compact": true,
+        "grid_offset": true,
+        "color_scheme": "scheme-1",
+        "remove_top_padding": false,
+        "replace_color_scheme_bg": true,
+        "bg_color": "",
+        "bg_gradient": "linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 244, 240, 1) 99%)",
+        "card_inherit_color_scheme": true,
+        "card_color_scheme": ""
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "main",
+    "collection_list_W6zLmq"
+  ]
+}

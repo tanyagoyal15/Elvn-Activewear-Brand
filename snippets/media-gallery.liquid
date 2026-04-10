@@ -1,0 +1,352 @@
+{%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - media_ratio {Number} - Media aspect ratio.
+  - featured_media {Object} - product.featured_media object to show
+  - media_crop {String} - If media should crop to fill available spacfe (Options: none, top, center)
+  - first_3d_model {Boolean} - First 3d model (if applicable).
+  - featured_product {Boolean} - Gallery is for a 'Featured product' section (optional, default is false).
+  - enable_zoom {Boolean} - Whether zoom should be enabled or not
+  - enable_lightbox_mobile {Boolean} - Whether lightbox should be enabled on mobile or not
+  - zoom_level {String} - The level of zoom to apply to the image. (Options: medium, large, original)
+  - zoom_mode {String} - The type of image zoom to initialize (Options: lightbox, click, hover)
+  - omit_script_tag {Boolean} - Whether to omit scripts from markup (optional, default is false)
+
+  Usage:
+  {% render 'media-gallery',
+    product: product,
+    media_ratio: section.settings.media_ratio,
+    media_crop: 'top',
+    thumb_ratio: thumb_ratio,
+    thumb_crop: 'top',
+    first_3d_model: first_3d_model,
+    enable_zoom: section.settings.enable_zoom,
+    zoom: section.settings.hover_zoom,
+    zoom_mode: section.settings.zoom_mode
+  %}
+{%- endcomment -%}
+
+{%- unless omit_script_tag -%}
+  <script src="{{ 'media-gallery.js' | asset_url }}" defer></script>
+{%- endunless -%}
+
+{%- liquid
+  assign select_first_variant = true
+  assign media_arrows = 'always'
+  assign variant_images = product.images | where: 'attached_to_variant?', true | map: 'src'
+  assign media_count = product.media.size
+  assign layout = section.settings.media_layout
+
+  if product.variants_count > 1 and section.settings.underline_active
+    assign underline_active = true
+  else
+    assign underline_active = false
+  endif
+
+  if enable_zoom
+    if zoom_mode == 'lightbox' or enable_lightbox_mobile
+      assign lightbox_enabled = true
+    endif
+  endif
+-%}
+
+<media-gallery
+    class="media-gallery{% if section.settings.stick_media %} media-gallery--sticky{% endif %}"
+    role="region"
+    {% if featured_product %}
+      data-is-featured="true"
+    {% endif %}
+    data-layout="{{ layout }}"
+    data-media-count="{{ media_count }}"
+    {%- if enable_zoom -%}
+      {% if lightbox_enabled %}
+        data-zoom-enabled{% if zoom_mode != 'lightbox' and enable_lightbox_mobile %}="mobile"{% elsif zoom_mode == 'lightbox' and enable_lightbox_mobile == false %}="desktop"{% endif %}
+      {% endif %}
+      {% if zoom_mode == 'hover' or zoom_mode == 'click' %}
+        data-zoom-trigger="{{ zoom_mode }}"
+      {% endif %}
+    {%- endif -%}
+    {% if section.settings.media_layout == "stacked" %}
+      data-stacked-scroll="{{ section.settings.stacked_scroll | default: 'change' }}"
+      {% if section.settings.stick_media %}data-stacked-scroll-sticky="true"{% endif %}
+      data-stacked-underline="{{ underline_active }}"
+    {% endif %}
+    {% if section.settings.enable_media_grouping %}
+      data-media-grouping-enabled="true"
+    {% endif %}
+    {% unless select_first_variant or product.variants_count == 1 or product.selected_variant %}
+      data-no-selected-variant="true"
+    {% endunless %}
+    data-dynamic-product-content="{{ section.id }}-media-gallery"
+    aria-label="{{ 'products.product.media.gallery_viewer' | t }}"
+    style="--gallery-bg-color:{{ section.settings.bg_color }};--gallery-border-color:{{ section.settings.border_color.rgb }};">
+  <div class="media-gallery__status visually-hidden" role="status"></div>
+
+  <div class="media-gallery__viewer relative">
+    <ul class="media-viewer flex" id="gallery-viewer" role="list" tabindex="0">
+      {%- for media in product.media -%}
+        {%- liquid
+          assign lazy_load = true
+          assign select_first_image = false
+
+          if featured_media == null and forloop.index == 1
+            assign lazy_load = false
+            assign select_first_image = true
+          endif
+
+          assign is_stacked_wider_media = false
+          if section.settings.media_layout == 'stacked'
+            if media_count == 1 or section.settings.media_stacked_type == '1' or section.settings.enable_media_grouping
+              assign is_stacked_wider_media = true
+            elsif section.settings.media_stacked_type == '2-1'
+              assign index_mod_3 = forloop.index0 | modulo: 3
+              if index_mod_3 == 2
+                assign is_stacked_wider_media = true
+              endif
+            elsif section.settings.media_stacked_type == '1-2'
+              assign index_mod_3 = forloop.index0 | modulo: 3
+              if index_mod_3 == 0
+                assign is_stacked_wider_media = true
+              endif
+            endif
+          endif
+
+          if forloop.index == 1
+            assign lazy_load = false
+          endif
+
+          assign fetchpriority = nil
+          if featured_product != true and forloop.index == 1
+            assign fetchpriority = 'high'
+          endif
+        -%}
+        <li class="media-viewer__item
+                   {%- if media.id == featured_media.id or select_first_image %} is-current-variant{% endif %}
+                   {%- if section.settings.media_layout == 'stacked' and media.id == featured_media.id %}
+                     {%- if underline_active and section.settings.enable_media_grouping == false %} is-active{% endif %}
+                   {%- endif %}
+                   {%- if media_count == 1 %} media-viewer__item--single{% endif %}"
+            data-media-id="{{ media.id }}"
+            data-media-type="{{ media.media_type }}">
+          {%- if enable_zoom and lightbox_enabled and media.media_type == 'image' -%}
+            <gallery-zoom-open class="gallery-zoom-open cursor-pointer w-full">
+          {%- endif -%}
+          {% render 'product-media',
+            media: media,
+            media_ratio: media_ratio,
+            media_crop: media_crop,
+            is_stacked_wider_media: is_stacked_wider_media,
+            loop: section.settings.enable_video_looping,
+            lazy_load: lazy_load,
+            fetchpriority: fetchpriority,
+            enable_zoom: enable_zoom,
+            zoom_level: zoom_level,
+            zoom_mode: zoom_mode
+          %}
+          {%- if enable_zoom and lightbox_enabled and media.media_type == 'image' -%}
+            </gallery-zoom-open>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if media_count > 1 -%}
+      {% if section.settings.media_layout == "stacked" and section.settings.stick_media %}
+        <div class="sticky-scroll-container hidden md:flex flex-col absolute" quick-add-hidden>
+          <button type="button" class="media-ctrl__btn tap-target btn hidden md:block js-stacked-scroll-up" name="up" aria-controls="gallery-viewer" disabled aria-label="{{ 'products.product.media.scroll_up' | t }}">
+            {% render 'icon-chevron-down' %}
+          </button>
+          <div class="scroll-indicator-container">
+            <div class="scroll-indicator-container__inner relative">
+              <div class="sticky-scroll-indicator js-sticky-scroll-indicator"></div>
+            </div>
+          </div>
+          <button type="button" class="media-ctrl__btn tap-target btn hidden md:block js-stacked-scroll-down" name="down" aria-controls="gallery-viewer" aria-label="{{ 'products.product.media.scroll_down' | t }}">
+            {% render 'icon-chevron-down' %}
+          </button>
+        </div>
+      {% endif %}
+
+      {%- if media_arrows != 'never' or section.settings.show_slide_count -%}
+        <div class="media-ctrl{% unless section.settings.media_thumbs == 'always' %} media-ctrl--lg-down-static{% endunless %}{% if section.settings.media_layout == 'stacked' %} md:hidden{% endif %} no-js-hidden">
+          {% if media_arrows != 'never' %}
+            <button type="button" class="media-ctrl__btn tap-target vertical-center btn{% if media_arrows == 'desktop' %} visible-lg{% elsif media_arrows == 'mobile' %} lg:hidden{% endif %}" name="prev" aria-controls="gallery-viewer" disabled aria-label="{{ 'products.product.media.previous' | t }}">
+              {% render 'icon-chevron-left' %}
+            </button>
+          {% endif %}
+          {% if section.settings.show_slide_count %}
+            <div class="media-ctrl__counter text-sm">
+              <span class="media-ctrl__current-item">1</span>
+              <span aria-hidden="true"> / </span>
+              <span class="visually-hidden">{{ 'products.product.media.of' | t }}</span>
+              <span class="media-ctrl__total-items">{{ media_count }}</span>
+            </div>
+          {% endif %}
+          {% if media_arrows != 'never' %}
+            <button type="button" class="media-ctrl__btn tap-target vertical-center btn{% if media_arrows == 'desktop' %} visible-lg{% elsif media_arrows == 'mobile' %} lg:hidden{% endif %}" name="next" aria-controls="gallery-viewer" aria-label="{{ 'products.product.media.next' | t }}">
+              {% render 'icon-chevron-right' %}
+            </button>
+          {% endif %}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if enable_zoom -%}
+      <div class="loading-spinner loading-spinner--out" role="status">
+        <span class="sr-only">{{ 'accessibility.loading' | t }}</span>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if first_3d_model -%}
+    <button type="button"
+            class="media-xr-button btn btn--secondary btn--icon-with-text font-normal w-full mt-2 mb-2{% if section.settings.media_layout == 'stacked' %} md:hidden{% endif %}"
+            data-shopify-model3d-id="{{ first_3d_model.id }}"
+            data-shopify-title="{{ product.title | escape }}"
+            data-shopify-xr
+            data-shopify-xr-hidden>
+      {% render 'icon-3d-model' %}
+      {{ 'products.product.xr_button' | t }}
+    </button>
+  {%- endif -%}
+
+  {%- if media_count > 1 and section.settings.media_thumbs != 'never' -%}
+    {%- unless section.settings.media_layout == 'stacked' and section.settings.media_thumbs == 'desktop' -%}
+      <div class="media-gallery__thumbs{% if section.settings.media_thumbs == 'desktop' %} hidden md:block{% endif %}{% if section.settings.media_layout == 'stacked' %} md:hidden{% endif %} no-js-hidden">
+        <ul class="media-thumbs relative flex" role="list">
+          {%- for media in product.media -%}
+            {%- liquid
+              capture thumb_index
+                if media.media_type == 'model'
+                  increment model_index
+                elsif media.media_type == 'video' or media.media_type == 'external_video'
+                  increment video_index
+                elsif media.media_type == 'image'
+                  increment image_index
+                endif
+              endcapture
+
+              assign active = false
+              if media == current_variant.featured_media
+                assign active = true
+              endif
+              if current_variant.featured_media == blank and forloop.first
+                assign active = true
+              endif
+            -%}
+            <li class="media-thumbs__item" data-media-id="{{ media.id }}">
+              <button class="media-thumbs__btn media relative w-full
+                             {%- if settings.blend_product_images %} image-blend{% endif %}
+                             {%- if active %} is-active{% endif %}
+                             {%- if media_ratio != 'natural' %} custom-aspect-ratio{% endif %}"
+                      {%- if active %} aria-current="true"{% endif %}
+                      aria-controls="gallery-viewer"
+                      {%- if media_ratio != 'natural' %} style="--ratio: {{ thumb_ratio }};"{% endif %}>
+                <span class="visually-hidden">
+                  {%- if media.media_type == 'image' -%}
+                    {{- 'products.product.media.load_image' | t: index: image_index -}}
+                  {%- elsif media.media_type == 'model' -%}
+                    {{- 'products.product.media.load_model' | t: index: model_index -}}
+                  {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+                    {{- 'products.product.media.load_video' | t: index: video_index -}}
+                  {%- endif -%}
+                </span>
+
+                {%- if media.media_type == 'model' -%}
+                  <span class="media-thumbs__badge absolute flex items-center justify-center pointer-events-none">
+                    {%- render 'icon-3d-model' -%}
+                  </span>
+                {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+                  <span class="media-thumbs__badge absolute flex items-center justify-center pointer-events-none">
+                    {%- render 'icon-video' -%}
+                  </span>
+                {%- endif -%}
+
+                {%- liquid
+                  assign src_width = 80
+                  if media_ratio != 'natural'
+                    if thumb_crop == 'top'
+                      assign img_class = 'img-fit object-top w-full'
+                      assign src_width = 150
+                    elsif thumb_crop == 'center'
+                      assign img_class = 'img-fit w-full'
+                      assign src_width = 150
+                    else
+                      assign img_class = 'img-fit img-fit--contain w-full'
+                    endif
+                  endif
+                -%}
+
+                {% render 'image',
+                  image: media,
+                  src_width: src_width,
+                  srcset_2x: true,
+                  lazy_load: false,
+                  class: img_class,
+                  disable_focal_point: true
+                %}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endunless -%}
+  {%- endif -%}
+
+  {%- if enable_zoom and lightbox_enabled -%}
+    {%- render 'gallery-zoom',
+      product: product,
+      zoom_size: 5000,
+      thumb_ratio: thumb_ratio,
+      thumb_crop: thumb_crop
+    -%}
+  {%- endif -%}
+
+  {%- if section.settings.enable_media_grouping -%}
+    {%- liquid
+      assign enable_media_grouping = false
+      assign media_grouping_options = section.settings.media_grouping_option | replace: ', ', ',' | split: ','
+      for option in product.options_with_values
+        if media_grouping_options contains option.name
+          assign media_grouping_option = option
+
+          for value in option.values
+            if value.variant.featured_media
+              assign enable_media_grouping = true
+              break
+            endif
+          endfor
+        endif
+      endfor
+    -%}
+    {%- if enable_media_grouping -%}
+      <script class="js-data-variant-media" type="application/json">
+        {
+          "groupOptionName": {{- media_grouping_option.name | json -}},
+          "groupOptionIndex": {{- media_grouping_option.position | minus: 1 | json }},
+          "variantMedia": [
+            {% capture data %}
+              {%- for media in product.media -%}
+                {%- liquid
+                  for value in media_grouping_option.values
+                    if value.variant and value.variant.featured_media.id == media.id
+                      assign option_name = value.name
+                      break
+                    endif
+                  endfor
+                -%}
+                {
+                  "mediaId": {{- media.id | json -}},
+                  "option": {{- option_name | json -}}
+                },
+              {%- endfor -%}
+            {% endcapture %}
+            {{ data | replace_last: ',', '' }}
+          ]
+        }
+      </script>
+    {%- endif -%}
+  {%- endif -%}
+</media-gallery>

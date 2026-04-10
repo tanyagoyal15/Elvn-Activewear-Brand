@@ -1,0 +1,228 @@
+{%- comment -%}
+  Parameters:
+  - is_drawer {Boolean} - Is cart drawer.
+  - show_gift_wrapping {Boolean} - Whether gift wrap should show.
+
+  Usage:
+  {% render 'cart-items', is_drawer: true %}
+{%- endcomment -%}
+
+{%- if cart != empty -%}
+  <script src="{{ 'cart-items.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+<cart-items id="cart-items" data-section="{{ section.id }}" data-empty="{% if cart == empty %}true{% else %}false{% endif %}">
+  {%- if cart == empty -%}
+    <div class="flex flex-col justify-center items-center h-full js-cart-empty">
+      <p>{{ 'cart.general.empty' | t }}</p>
+      <a class="btn btn--primary" href="{{ settings.cart_continue_shop_link }}">
+        {{- 'cart.general.start_shopping' | t -}}
+      </a>
+    </div>
+  {%- endif -%}
+
+  {%- if cart != empty -%}
+    {%- for item in cart.items -%}
+      {%- liquid
+        if item.variant.compare_at_price > item.variant.price
+          assign variant_price_reduced = true
+        else
+          assign variant_price_reduced = false
+        endif
+
+        assign is_gift_wrap = false
+        if show_gift_wrapping and settings.gift_wrap_product != blank
+          assign gift_wrap_product_id = settings.gift_wrap_product.selected_or_first_available_variant.id
+          if item.id == gift_wrap_product_id and item.properties['_gift-wrap']
+            assign is_gift_wrap = true
+          endif
+        endif
+      -%}
+      <div class="cart-item relative p-3 flex mb-3 last-child:mb-0{% if settings.use_cart_item_color_scheme and settings.cart_item_color_scheme %} color-scheme color-scheme--{{ settings.cart_item_color_scheme.id }}{% endif %}" id="cart-item-{{ item.index | plus: 1 }}" data-product-id="{{ item.product_id }}" data-variant-id="{{ item.id }}" data-key="{{ item.key }}"{% if is_gift_wrap %} data-is-gift-wrap="true"{% endif %}>
+        <div class="flex flex-col md:flex-row w-full justify-between gap-x-4 gap-y-4">
+          <div class="flex gap-x-4">
+            <div class="cart-item__image">
+              <a href="{{ item.url }}" class="block {% if settings.blend_product_images %}image-blend{% endif %}">
+                {%- if item.image -%}
+                  {%- capture sizes -%}
+                    {%- render 'sizes-attribute', min: '64px', sm: false, md: '128px', lg: false, xl: false, max: false -%}
+                  {%- endcapture -%}
+                  {{ item.image | image_url: width: 256 | image_tag: widths: '64, 128, 256', sizes: sizes, loading: 'lazy' }}
+                {%- else -%}
+                  <div class="media relative" style="padding-top: 100%;">
+                    {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+                  </div>
+                {%- endif -%}
+              </a>
+            </div>
+
+            <div class="cart-item__details grow">
+              {%- if settings.card_show_vendor == 'vendor_overline' and item.vendor != blank -%}
+                <div class="text-theme-light text-sm mb-0">
+                  {{ item.vendor }}
+                </div>
+              {%- endif -%}
+
+              <div class="flex gap-x-4 justify-between">
+                <a class="cart-item__title m-0 font-bold text-current js-item-name" href="{{ item.url }}">
+                  {%- liquid
+                    assign product_title = item.product.title
+                    if settings.enable_sibling_products
+                      assign split_product_title = item.product.title | split: ' / '
+                      assign product_title = split_product_title | first
+                    endif
+                  -%}
+                  {%- if settings.card_show_vendor == 'vendor_title' and item.vendor != blank -%}
+                    {{- item.vendor }}
+                  {%- endif -%}
+                  {{- product_title | escape -}}
+                </a>
+                <a class="cart-item__remove self-start hover:lighten md:hidden link text-xs flex items-center gap-x-1 js-remove-item" href="{{ item.url_to_remove }}" data-index="{{ item.index | plus: 1 }}">
+                  {{- 'cart.items.remove' | t -}}
+                  {% render 'icon-trash' %}
+                </a>
+              </div>
+
+              <div class="cart-item__info">
+                <div class="price{% if variant_price_reduced or item.original_line_price != item.final_line_price %} price--on-sale{% endif %} mt-1 flex flex-wrap items-center gap-x-2">
+                  <span class="cart-item__total">
+                    {%- if variant_price_reduced or item.original_line_price != item.final_line_price -%}
+                      <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+                      <span class="price__current">
+                        {{- item.final_price | money -}}
+                      </span>
+                      <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+                      <span class="price__was line-through">
+                        {%- if variant_price_reduced -%}
+                          {{- item.variant.compare_at_price | money -}}
+                        {%- else -%}
+                          {{- item.original_price | money -}}
+                        {%- endif -%}
+                      </span>
+                    {%- else -%}
+                      <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+                      <span>
+                        {{- item.original_price | money -}}
+                      </span>
+                    {%- endif -%}
+                  </span>
+
+                  {%- if item.variant.available and item.unit_price_measurement -%}
+                    <span class="unit-price small-text">
+                      <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>
+                      <span>({{ item.unit_price | unit_price_with_measurement: item.unit_price_measurement }})</span>
+                    </span>
+                  {%- endif -%}
+
+                  {%- if item.product.template_suffix contains 'preorder' -%}
+                    <span class="product-label product-label--preorder">
+                      {{- 'products.product.preorder' | t -}}
+                    </span>
+                  {%- endif -%}
+                </div>
+
+                {%- if item.product.has_only_default_variant == false or item.properties != empty or item.selling_plan_allocation != nil -%}
+                  <div class="cart-item__variants text-xs">
+                    <dl class="mt-2 mb-0">
+                      {%- if item.product.has_only_default_variant == false -%}
+                        {%- for option in item.options_with_values -%}
+                          <div>
+                            <dt class="inline"><strong>{{ option.name }}: </strong></dt>
+                            <dd class="inline m-0">{{ option.value }}</dd>
+                          </div>
+                        {%- endfor -%}
+                      {%- endif -%}
+
+                      {%- for property in item.properties -%}
+                        {%- assign property_first_char = property.first | slice: 0 -%}
+                        {%- if property.last != blank and property_first_char != '_' -%}
+                          <div>
+                            <dt class="inline"><strong>{{ property.first }}: </strong></dt>
+                            <dd class="inline m-0">
+                              {%- if property.last contains '/uploads/' -%}
+                                <a href="{{ property.last }}" class="link" target="_blank">
+                                  
+{% assign file_type = property.last | split: '.' | last | downcase %}
+{% assign file_types = 'jpg,jpeg,webp,gif,png,apng,avif,svg,bmp,ico,tiff' | split: ',' %}
+{% if file_types contains file_type %}
+  <div class="bcpo-cart-file"><img src="{{ property.last }}" style="max-width: 50px; height: auto;"></div>
+{% else %}
+  <span class="bcpo-cart-file">Uploaded file</span>
+{% endif %}
+
+                                </a>
+                              {%- else -%}
+                                
+{% if property.last contains '/uploads/' %}
+	{% assign file_type = property.last | split: '.' | last | downcase %}
+	{% assign file_types = 'jpg,jpeg,webp,gif,png,apng,avif,svg,bmp,ico,tiff' | split: ',' %}
+	{% if file_types contains file_type %}
+		<div class="bcpo-cart-file"><img src="{{ property.last }}" style="max-width: 50px; height: auto;"></div>
+	{% else %}
+		<span class="bcpo-cart-file">Uploaded file</span>
+	{% endif %}
+{% else %}
+	{{ property.last }}
+{% endif %}
+                              {%- endif -%}
+                            </dd>
+                          </div>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </dl>
+
+                    {%- if item.selling_plan_allocation != nil -%}
+                      <p class="mt-2 mb-0">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+
+                {%- if section.settings.show_backorder_text -%}
+                  <div class="text-xs">
+                    {% render 'backorder', product: item.product, variant: item.variant %}
+                  </div>
+                {%- endif -%}
+
+                {%- if item.discounts.size > 0 -%}
+                  <ul class="mt-3" role="list" aria-label="{{ 'customer.order.discount' | t }}">
+                    {%- for discount in item.discounts -%}
+                      <li class="mt-2">
+                        <div class="discount inline-flex items-start text-xs">
+                          {% render 'icon-tags' %} <span>{{ discount.title }}</span>
+                        </div>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+
+          <div class="cart-item__qty">
+            <div class="flex flex-col-reverse h-full justify-between items-end">
+              {% render 'quantity-input', is_cart: true, item: item, layout_style: 'combined', is_gift_wrap: is_gift_wrap %}
+
+              <a class="cart-item__remove hover:lighten mb-2 hidden md:flex link text-xs items-center gap-x-1 js-remove-item" href="{{ item.url_to_remove }}" data-index="{{ item.index | plus: 1 }}">
+                {{- 'cart.items.remove' | t -}}
+                {% render 'icon-trash' %}
+              </a>
+              <div class="cart-item__loader absolute top-0 left-0 flex justify-center items-center w-full h-full pointer-events-none is-loading" hidden></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="alert mt-6 mb-4 text-sm bg-error-bg text-error-text cart-item__error" id="line-item-error-{{ item.index | plus: 1 }}" role="alert" hidden></div>
+    {%- endfor -%}
+  {%- endif -%}
+
+  <p class="visually-hidden" id="cart-live-region-text" role="status" aria-live="polite">
+    {{ 'cart.summary.subtotal' | t }}: {% if settings.show_cart_currency_code %}{{ cart.total_price | money_with_currency }}{% else %}{{ cart.total_price | money }}{% endif %}
+  </p>
+  <p class="visually-hidden" id="cart-line-item-status" role="status" aria-live="polite" aria-hidden="true">
+    {{- 'accessibility.loading' | t -}}
+  </p>
+
+  {%- if is_drawer -%}
+    <div class="alert mt-6 mb-4 text-sm bg-error-bg text-error-text" id="cart-errors" role="alert" hidden></div>
+  {%- endif -%}
+</cart-items>

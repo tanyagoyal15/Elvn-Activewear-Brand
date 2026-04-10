@@ -1,0 +1,106 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-search",
+      "settings": {
+        "products_per_page": 16,
+        "products_per_row": "2",
+        "products_per_row_desktop": "4",
+        "show_layout_toggle": true,
+        "enable_filtering": true,
+        "hide_tag_filter": true,
+        "show_active_filter_counts": true,
+        "show_filter_counts": true,
+        "filter_two_columns": true,
+        "button_grid_filter_name": "Size,Taille,Größe",
+        "expand_filters": true,
+        "max_filter_options": 6,
+        "enable_sorting": true,
+        "show_article_excerpt": false,
+        "show_article_date": false,
+        "show_article_author": false,
+        "show_article_reading_time": false,
+        "show_article_tags": true,
+        "show_article_button": true,
+        "button_article": "link block",
+        "show_page_media": true,
+        "page_media_metafield": "",
+        "show_page_reading_time": false,
+        "show_page_button": true,
+        "button_page": "link block"
+      }
+    },
+    "collection_list_YFxLPy": {
+      "type": "collection-list",
+      "blocks": {
+        "collection_pPRfdr": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_FFKtTn": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_TypABA": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        },
+        "collection_Y6pTNr": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_pPRfdr",
+        "collection_FFKtTn",
+        "collection_TypABA",
+        "collection_Y6pTNr"
+      ],
+      "name": "Collection list",
+      "settings": {
+        "title": "",
+        "heading_h1": false,
+        "heading_size": "h2",
+        "heading_align": "text-center",
+        "heading_after_blocks": false,
+        "card_size": "small",
+        "card_style": "text-over",
+        "card_show_count": true,
+        "card_compact": true,
+        "grid_offset": true,
+        "color_scheme": "scheme-1",
+        "remove_top_padding": true,
+        "replace_color_scheme_bg": true,
+        "bg_color": "",
+        "bg_gradient": "linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 244, 240, 1) 99%)",
+        "card_inherit_color_scheme": true,
+        "card_color_scheme": ""
+      }
+    }
+  },
+  "order": [
+    "main",
+    "collection_list_YFxLPy"
+  ]
+}

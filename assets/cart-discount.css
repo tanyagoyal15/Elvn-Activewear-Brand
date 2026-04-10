@@ -1,0 +1,69 @@
+.cart-discount .disclosure > summary {
+  padding: calc(3 * var(--space-unit)) 0;
+}
+.cart-discount .disclosure .disclosure__content {
+  padding-bottom: calc(3 * var(--space-unit));
+}
+
+.cart-discount__codes {
+  display: none;
+  flex-wrap: wrap;
+  list-style: none;
+  padding-inline: 0;
+}
+
+.cart-discount__codes:has(.cart-discount__pill) {
+  display: flex;
+  gap: calc(2 * var(--space-unit));
+}
+
+.cart-discount__pill {
+  display: flex;
+  align-items: center;
+}
+
+.cart-discount__pill-code span {
+  overflow: hidden;
+  max-width: 96px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+.cart-discount__pill-code svg.icon {
+  width: calc(4 * var(--space-unit));
+  height: calc(4 * var(--space-unit));
+}
+.cart-discount__pill-code svg.icon:first-of-type {
+  margin-inline-end: calc(2 * var(--space-unit));
+}
+.cart-discount__pill-code svg.icon:last-of-type {
+  margin-inline-end: 0;
+  margin-inline-start: calc(2 * var(--space-unit));
+}
+
+.cart-discount__pill-remove,
+.cart-discount__pill-remove:hover {
+  pointer-events: all;
+  cursor: pointer;
+  height: 100%;
+}
+
+.cart-discount__error .icon {
+  width: 24px;
+  height: 24px;
+}
+
+.cart-discount__error .svg-wrapper {
+  flex-shrink: 0;
+}
+
+.disclosure--row:not(#cart-drawer *) {
+  border-top: 0;
+}
+
+.cart-discount__pill-code svg.icon:first-of-type {
+  margin-inline-end: var(--space-unit);
+}
+.cart-discount__pill-code svg.icon:last-of-type {
+  margin-inline-start: var(--space-unit);
+}

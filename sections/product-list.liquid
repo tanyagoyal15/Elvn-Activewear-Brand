@@ -1,0 +1,922 @@
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+
+  if section.settings.product_list == blank
+    assign products = false
+    assign product_count = 20
+  else
+    assign products = section.settings.product_list
+    assign product_count = products.count
+  endif
+
+  assign carousel = false
+  if section.settings.layout == 'carousel' and product_count > 4
+    assign carousel = true
+    assign use_swiper = false
+    if section.settings.carousel_effect == 'coverflow' or section.settings.carousel_effect == 'arc'
+      assign use_swiper = true
+    endif
+  endif
+
+  assign grid_classes = 'grid gap-x-5 gap-y-6 md:gap-6'
+  if carousel
+    if use_swiper
+      assign grid_classes = 'swiper-wrapper'
+    else
+      assign grid_classes = grid_classes | append: ' grid-flow-col auto-cols-1 sm:auto-cols-2 md:auto-cols-3 lg:auto-cols-4 xl:auto-cols-5 stretch-cards'
+    endif
+  else
+    if section.settings.products_per_row == '1'
+      assign grid_classes = grid_classes | append: ' grid-cols-1 sm:grid-cols-2'
+    elsif section.settings.products_per_row == '2'
+      assign grid_classes = grid_classes | append: ' grid-cols-2'
+    endif
+    if section.settings.products_per_row_desktop == '3'
+      assign grid_classes = grid_classes | append: ' md:grid-cols-3'
+    elsif section.settings.products_per_row_desktop == '4'
+      assign grid_classes = grid_classes | append: ' md:grid-cols-3 lg:grid-cols-4'
+    elsif section.settings.products_per_row_desktop == '5'
+      assign grid_classes = grid_classes | append: ' md:auto-cols-4 lg:auto-cols-5'
+    endif
+    assign grid_classes = grid_classes | append: ' stretch-cards'
+  endif
+  if section.settings.card_cutout
+    assign grid_classes = grid_classes | append: ' has-cutout-cards'
+  endif
+
+  if carousel
+    assign product_limit = 20
+  else
+    assign product_limit = section.settings.products_to_show
+  endif
+
+  if settings.prod_card_image_ratio == 'shortest'
+    assign image_ratio = 0
+    for product in products limit: product_limit
+      if product.featured_media.preview_image.aspect_ratio > image_ratio
+        assign image_ratio = product.featured_media.preview_image.aspect_ratio
+      endif
+    endfor
+  elsif settings.prod_card_image_ratio == 'tallest'
+    assign image_ratio = 99
+    for product in products limit: product_limit
+      if product.featured_media.preview_image.aspect_ratio < image_ratio
+        assign image_ratio = product.featured_media.preview_image.aspect_ratio
+      endif
+    endfor
+  else
+    assign image_ratio = settings.prod_card_image_ratio
+  endif
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  {%- if section.settings.text_width_override -%}
+    #{{ section.id }} {
+      --reading-width: {{ section.settings.text_max_width }}px;
+    }
+  {%- endif -%}
+
+  {%- if section.settings.text_column_to_edge and section.settings.text_align != 'text-center' -%}
+    {%- if section.settings.mob_center_text -%}
+      @media (min-width: 768px) {
+    {%- endif -%}
+
+    #{{ section.id }} .reading-width--fixed {
+      {%- if section.settings.text_align == 'text-start' -%}
+        margin-inline-start: 0;
+      {%- elsif section.settings.text_align == 'text-end' -%}
+        margin-inline-end: 0;
+      {%- endif -%}
+    }
+
+    {%- if section.settings.mob_center_text -%}
+      }
+    {%- endif -%}
+  {%- endif -%}
+{%- endstyle -%}
+
+<div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}{% if use_swiper %} overflow-hidden{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  <div class="flex {% if section.settings.full_width == false %} container{% endif %}">
+    <div class="section
+                {%- if section.settings.full_width %}
+                  section--full-width
+                  {%- if section.settings.section_height == 'large' %}
+                    section--padded-more
+                  {%- elsif section.settings.section_height == 'medium' %}
+                    section--padded-large
+                  {%- else %}
+                    section--padded
+                  {%- endif %}
+                {%- else %}
+                  section--standard
+                {%- endif %}
+                {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                z-3
+                {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                color-scheme
+                {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                color-scheme--{{ color_scheme }}">
+      <div class="{{ section.settings.text_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+        <div class="container container--text">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'heading' -%}
+                {%- if block.settings.heading != blank -%}
+                  <{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__block section__block--heading reading-width--fixed {{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+                    {{- block.settings.heading | escape -}}
+                  </{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+                {%- endif -%}
+
+              {%- when 'subheading' -%}
+                {%- if block.settings.text != blank -%}
+                  <p class="section__block section__block--subheading reading-width--fixed subheading" {{ block.shopify_attributes }}>
+                    {{- block.settings.text | escape -}}
+                  </p>
+                {%- endif -%}
+
+              {%- when 'text' -%}
+                {%- if block.settings.text != blank -%}
+                  <div class="section__block reading-width--fixed rte{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}{% if block.settings.enlarge_text %} enlarge-text{% endif %}" {{ block.shopify_attributes }}>
+                    {{ block.settings.text }}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'button' -%}
+                {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+                  <div class="section__block section__block--buttons reading-width--fixed flex flex-wrap {% if section.settings.text_align == 'text-start' %} justify-start{% elsif section.settings.text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mob_center_text %} md-down:justify-center{% endif %}" {{ block.shopify_attributes }}>
+                    {%- if block.settings.button_1_label != blank %}
+                      <a class="{{ block.settings.button_1_style }}" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
+                        {{- block.settings.button_1_label | escape -}}
+                      </a>
+                    {%- endif -%}
+                    {%- if block.settings.button_2_label != blank %}
+                      <a class="{{ block.settings.button_2_style }}" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
+                        {{- block.settings.button_2_label | escape -}}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'countdown' -%}
+                {%- style -%}
+                  #{{ section.id }} .countdown__grid {
+                    font-size: calc(({{ block.settings.number_size }} / 1.25) * var(--fluid-1-25));
+                  }
+                {%- endstyle -%}
+                <script src="{{ 'countdown-timer.js' | asset_url }}" defer></script>
+                <div class="section__block section__block--countdown reading-width--fixed countdown-font-{{ block.settings.number_font }} no-js-hidden" {{ block.shopify_attributes }}>
+                  {% render 'countdown-timer',
+                    end_date: block.settings.end_date,
+                    end_time: block.settings.end_time,
+                    end_text: block.settings.end_text,
+                    end_midnight: true,
+                    hide_on_end: block.settings.hide_on_end,
+                    show_labels: block.settings.show_timer_labels
+                  %}
+                </div>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+
+        <div class="{% if section.settings.full_width == false or carousel == false %}container container--text{% endif %}">
+          <div class="section__block {% if section.settings.card_cutout %}mt-8{% else %}mt-12{% endif %} mb-12">
+            {%- if settings.enable_quick_shop -%}
+              <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+              <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+              <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+              <script src="{{ 'variant-picker.js' | asset_url }}" defer></script>
+              <script src="{{ 'product-form.js' | asset_url }}" defer></script>
+              <script src="{{ 'dual-swatch-selector.js' | asset_url }}" defer></script>
+            {%- endif -%}
+
+            <div class="{% if carousel %}uncontain{% endif %}">
+
+              {%- if carousel -%}
+                {%- if use_swiper -%}
+                  <product-swiper id="product-carousel-{{ section.id }}" class="block" data-full-width="{{ section.settings.full_width }}" data-effect="{{ section.settings.carousel_effect }}"{% if settings.animate_cards %}{%- render 'animation-attrs', attrs: 'data-cc-animate="fade-in-up"' %}{% endif %}>
+                    <div class="swiper py-4">
+                {%- else -%}
+                  <carousel-slider class="carousel carousel--cards block" inactive>
+                    <div class="container{% if section.settings.full_width %} container--full{% endif %}">
+                      <div class="slider slider--no-scrollbar" id="slider-{{ section.id }}">
+                        <div class="container{% if section.settings.full_width %} container--full{% endif %}">
+                {%- endif -%}
+              {%- endif -%}
+
+              <ul class="{% if carousel and use_swiper == false %}slider__grid {% endif %}{{ grid_classes }}" role="list">
+                {%- for product in products limit: product_limit -%}
+                  {%- capture cc_animate_attr -%} data-cc-animate="fade-in-up" data-cc-animate-delay="{{ forloop.index | times: 0.09 }}s"{%- endcapture -%}
+                  <li{% if carousel %} class="{% if use_swiper%}swiper-slide{% else %}slider__item{% endif %}"{% endif %} {% if settings.animate_cards and carousel == false %}{%- render 'animation-attrs', attrs: cc_animate_attr %}{% endif %}>
+                    {%- render 'product-card', product: product, image_ratio: image_ratio, disable_image_blending: section.settings.card_cutout, disable_animate: true -%}
+                  </li>
+                {%- else -%}
+                  {%- for i in (1..product_limit) -%}
+                    <li{% if carousel %} class="{% if use_swiper %}swiper-slide{% else %}slider__item{% endif %}"{% endif %}>
+                      {%- render 'product-card', product: '', image_ratio: image_ratio, disable_image_blending: section.settings.card_cutout, disable_animate: true -%}
+                    </li>
+                  {%- endfor -%}
+                {%- endfor -%}
+              </ul>
+
+              {%- if carousel -%}
+                {%- if use_swiper -%}
+                    </div>
+
+                    <div class="slider-nav flex {% if section.settings.view_all_style == 'link' %}gap-x-6{% else %}gap-x-2{% endif %} items-center justify-center mt-8">
+                      {% if settings.slider_show_arrows != 'never' %}
+                        <button type="button" class="slider-nav__btn btn--circle-icon has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                          {% render 'icon-chevron-left' %}
+                        </button>
+                      {% endif %}
+
+                      {% if section.settings.show_view_all %}
+                        <span>
+                          <a href="{{ section.settings.view_all_url }}" class="{{ section.settings.view_all_style }}">
+                            {{-  section.settings.view_all_text | escape -}}
+                          </a>
+                        </span>
+                      {% endif %}
+
+                      {% if settings.slider_show_arrows != 'never' %}
+                        <button type="button" class="slider-nav__btn btn--circle-icon has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                          {% render 'icon-chevron-right' %}
+                        </button>
+                      {% endif %}
+                    </div>
+                  </product-swiper>
+                {%- else -%}
+                      </div>
+                    </div> {% # slider %}
+
+                    <div class="slider-nav slider-nav--alt flex {% if section.settings.view_all_style == 'link' %}gap-x-6{% else %}gap-x-2{% endif %} mt-8 items-center justify-center no-js-hidden">
+                      {% if settings.slider_show_arrows != 'never' %}
+                        <button type="button" class="slider-nav__btn btn has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                          {% render 'icon-chevron-left' %}
+                        </button>
+                      {% endif %}
+
+                      {% if section.settings.show_view_all %}
+                        <span>
+                          <a href="{{ section.settings.view_all_url }}" class="{{ section.settings.view_all_style }}">
+                            {{-  section.settings.view_all_text | escape -}}
+                          </a>
+                        </span>
+                      {% endif %}
+
+                      {% if settings.slider_show_arrows != 'never' %}
+                        <button type="button" class="slider-nav__btn btn has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                          {% render 'icon-chevron-right' %}
+                        </button>
+                      {% endif %}
+                    </div>
+                  </div>
+                </carousel-slider>
+                {%- endif -%}
+              {% else %}
+                {% if section.settings.show_view_all %}
+                  <div class="text-center mt-8">
+                    <a href="{{ section.settings.view_all_url }}" class="{{ section.settings.view_all_style }}">
+                      {{-  section.settings.view_all_text | escape -}}
+                    </a>
+                  </div>
+                {% endif %}
+              {%- endif -%}
+            </div>
+
+            {%- if carousel and use_swiper -%}
+              {{ 'swiper.css' | asset_url | stylesheet_tag }}
+              <script src="{{ 'product-swiper.js' | asset_url }}" defer></script>
+              <script src="{{ 'swiper.js' | asset_url }}" onload="document.dispatchEvent(new CustomEvent('swiper-loaded'))" defer></script>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product list",
+  "class": "cc-product-list",
+  "settings": [
+    {
+      "type": "product_list",
+      "id": "product_list",
+      "label": "Selected products"
+    },
+    {
+      "type": "radio",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        },
+        {
+          "value": "grid",
+          "label": "Grid"
+        }
+      ],
+      "default": "carousel"
+    },
+    {
+      "visible_if": "{{ section.settings.layout == 'carousel' }}",
+      "type": "select",
+      "id": "carousel_effect",
+      "label": "Effect",
+      "info": "Min 12 products required for Focus/Arc",
+      "options": [
+        {
+          "value": "slide",
+          "label": "None"
+        },
+        {
+          "value": "coverflow",
+          "label": "Focus"
+        },
+        {
+          "value": "arc",
+          "label": "Arc"
+        }
+      ],
+      "default": "coverflow"
+    },
+    {
+      "visible_if": "{{ section.settings.layout == 'grid' or section.settings.carousel_effect == 'slide' }}",
+      "type": "select",
+      "id": "products_per_row",
+      "label": "Products per row on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "visible_if": "{{ section.settings.layout == 'grid' or section.settings.carousel_effect == 'slide' }}",
+      "type": "select",
+      "id": "products_per_row_desktop",
+      "label": "Products per row on desktop",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
+        }
+      ],
+      "default": "4"
+    },
+    {
+      "visible_if": "{{ section.settings.layout == 'grid' or section.settings.carousel_effect == 'slide' }}",
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Maximum products to show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "card_cutout",
+      "label": "Show cutout cards",
+      "info": "This setting works best with transparent background images. This will prevent hover images and image blending from taking effect.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show \"View all\" button",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.show_view_all }}",
+      "type": "text",
+      "id": "view_all_text",
+      "label": "\"View all\" text",
+      "default": "View all"
+    },
+    {
+      "visible_if": "{{ section.settings.show_view_all }}",
+      "type": "url",
+      "id": "view_all_url",
+      "label": "\"View all\" link"
+    },
+    {
+      "visible_if": "{{ section.settings.show_view_all }}",
+      "type": "select",
+      "id": "view_all_style",
+      "label": "\"View all\" style",
+      "options": [
+        {
+          "value": "link",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--secondary"
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_width_override",
+      "label": "Custom text width",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.text_width_override }}",
+      "type": "range",
+      "id": "text_max_width",
+      "min": 400,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "label": "Maximum text width",
+      "default": 640
+    },
+    {
+      "type": "checkbox",
+      "id": "text_column_to_edge",
+      "label": "Align text to edge",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width }}",
+      "type": "checkbox",
+      "id": "remove_top_padding",
+      "label": "Remove top padding",
+      "info": "Use to tidy layout when color schemes match",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.full_width }}",
+      "type": "select",
+      "id": "section_height",
+      "label": "Spacing",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Rich text headline"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h4",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            },
+            {
+              "value": "x-large-heading",
+              "label": "Large"
+            },
+            {
+              "value": "xx-large-heading",
+              "label": "Extra large"
+            }
+          ],
+          "default": "x-large-heading"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_h1",
+          "label": "Set as page heading (uses h1 tag)",
+          "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subheading",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share information about your store with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_text",
+          "label": "Enlarge text",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "Button 1 label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button 1 link"
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button 1 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Button 2 label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Button 2 link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Button 2 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        }
+      ]
+    },
+    {
+      "type": "countdown",
+      "name": "Countdown timer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "end_date",
+          "label": "End date",
+          "info": "Required. Format: YYYY-MM-DD."
+        },
+        {
+          "type": "text",
+          "id": "end_time",
+          "label": "End time (optional)",
+          "info": "Format: 17:00 (24 hour clock). Uses the store's timezone."
+        },
+        {
+          "type": "richtext",
+          "id": "end_text",
+          "label": "End text",
+          "info": "This shows when the date and time elapses."
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_end",
+          "label": "Hide the timer when the date and time elapses",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "number_size",
+          "min": 20,
+          "max": 60,
+          "step": 2,
+          "unit": "px",
+          "label": "Number size",
+          "default": 40
+        },
+        {
+          "type": "select",
+          "id": "number_font",
+          "label": "Number font",
+          "options": [
+            {
+              "label": "Text font",
+              "value": "base"
+            },
+            {
+              "label": "Heading font",
+              "value": "heading"
+            }
+          ],
+          "default": "base"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_timer_labels",
+          "label": "Show labels",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product list",
+      "category": "Products",
+      "settings": {
+        "full_width": true
+      },
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Product list"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

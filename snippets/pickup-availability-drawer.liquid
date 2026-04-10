@@ -1,0 +1,79 @@
+{%- comment -%}
+  Parameters:
+  - current_variant {Object} - Current product variant.
+
+  Usage:
+  {% render 'pickup-availability-drawer', current_variant: current_variant %}
+{%- endcomment -%}
+
+{%- assign pick_up_availabilities = current_variant.store_availabilities | where: 'pick_up_enabled', true -%}
+
+<side-drawer id="pickup-availability-{{ current_variant.id }}-{{ section.id }}" class="drawer fixed top-0 right-0 flex flex-col w-full has-motion js-pickup-drawer" role="dialog" tabindex="-1" aria-labelledby="pickup-availability-heading" aria-modal="true" aria-hidden="true">
+  <header class="drawer__header drawer__header--with-line flex justify-between items-start">
+    <div>
+      <h2 class="h6 mb-0" id="pickup-availability-heading">
+        {{- current_variant.product.title | escape -}}
+      </h2>
+
+      {%- unless current_variant.product.has_only_default_variant -%}
+        <p class="m-0 text-sm">
+          {%- for product_option in current_variant.product.options_with_values -%}
+            <strong>{{ product_option.name | escape }}:</strong>&nbsp;
+            {%- for value in product_option.values -%}
+              {%- if product_option.selected_value == value -%}
+                <span>{{ value | escape }}</span>
+              {%- endif -%}
+            {%- endfor -%}
+            {%- unless forloop.last -%}, {% endunless forloop.last -%}
+          {%- endfor -%}
+        </p>
+      {%- endunless -%}
+    </div>
+    <button type="button" class="drawer__close-btn js-close-drawer">
+      <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+      {% render 'icon-close' %}
+    </button>
+  </header>
+  <div class="drawer__content md:p-8 flex-auto">
+    <ul class="store-pickup-locations" role="list">
+      {%- for availability in pick_up_availabilities -%}
+        <li>
+          {% unless forloop.first %}<hr>{% endunless %}
+          <div class="h6 text-theme-text-accent" role="heading" aria-level="3">{{ availability.location.name | escape }}</div>
+
+          {%- assign address = availability.location.address -%}
+          <address class="text-sm">
+            {{ address | format_address }}
+            {%- if address.phone.size > 0 -%}
+              <div class="flex items-center mb-3">
+                <span class="pickup-icon flex">
+                  {% render 'icon-phone' %}
+                </span>
+                <span>{{ address.phone }}</span>
+              </div>
+            {%- endif -%}
+          </address>
+
+          <div class="flex font-bold text-sm">
+            <div class="flex items-center">
+              {%- if availability.available -%}
+                <span class="pickup-icon pickup-icon--lower flex text-success-text">
+                  {% render 'icon-tick-circle' %}
+                </span>
+                <p class="mb-0">
+                  {{ 'products.product.pickup_availability.pick_up_available' | t }},
+                  {{ availability.pick_up_time }}
+                </p>
+              {%- else -%}
+                <span class="pickup-icon flex text-error-text">
+                  {% render 'icon-unavailable' %}
+                </span>
+                <p class="mb-0">{{ 'products.product.pickup_availability.pick_up_unavailable' | t }}</p>
+              {%- endif -%}
+            </div>
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</side-drawer>

@@ -1,0 +1,398 @@
+{{ 'collection-banner.css' | asset_url | stylesheet_tag: preload: true }}
+
+{%- liquid
+  # constants
+  assign gutter_lg = 56
+  assign breakpoint_sm = 480
+  assign breakpoint_xxl = 1536
+  assign breakpoint_page = settings.max_page_width | default: 1320 | plus: gutter_lg | plus: gutter_lg
+
+  capture collection_drop
+    echo collection
+  endcapture
+
+  assign banner_style = section.settings.style
+  if collection_drop != 'CollectionDrop' or section.settings.image == blank
+    if banner_style contains 'image'
+      assign banner_style = 'text'
+    endif
+  endif
+
+  if section.index == 1
+    assign lazy_load_images = false
+    assign fetchpriority = 'high'
+  else
+    assign lazy_load_images = true
+    assign fetchpriority = 'low'
+  endif
+-%}
+
+{%- style -%}
+  #{{ section.id }} .collection-title {
+    --heading-text-transform: {{ section.settings.heading_case }};
+    margin-inline-start: {% if section.settings.text_align != 'text-start' %}auto{% else %}0px{% endif %};
+    margin-inline-end: {% if section.settings.text_align != 'text-end' %}auto{% else %}0px{% endif %};
+  }
+
+  #{{ section.id }} .collection-description {
+    margin-inline-start: {% if section.settings.text_align != 'text-start' %}auto{% else %}0px{% endif %};
+    margin-inline-end: {% if section.settings.text_align != 'text-end' %}auto{% else %}0px{% endif %};
+  }
+
+  {%- if section.settings.style == 'scrolling-text' -%}
+    {%- liquid
+      assign duration_per_char = 30 | minus: section.settings.heading_marquee_speed | times: 5 | plus: 100
+      assign title_char_count = collection.title | split: '' | size
+    -%}
+    #{{ section.id }}.collection-banner--scrolling-text .marquee {
+      --marquee-duration: {{ duration_per_char | times: title_char_count | divided_by: 100 }}s;
+    }
+  {%- endif -%}
+
+  {%- if section.settings.style contains 'image' -%}
+    #{{ section.id }}.collection-banner--text-over-image,
+    #{{ section.id }}.collection-banner--text-below-image .media {
+      min-height: {{ section.settings.fixed_height_mobile }}px;
+    }
+
+    @media (min-width: {{ breakpoint_sm }}px) {
+      #{{ section.id }}.collection-banner--text-over-image,
+      #{{ section.id }}.collection-banner--text-below-image .media {
+        min-height: calc({{ section.settings.fixed_height_mobile }}px + ({{ section.settings.fixed_height_desktop }} - {{ section.settings.fixed_height_mobile }}) * ((100vw - {{ breakpoint_sm }}px) / {{ breakpoint_xxl | minus: breakpoint_sm }}));
+      }
+    }
+
+    @media (min-width: {{ breakpoint_page }}px) {
+      #{{ section.id }}.collection-banner--text-over-image,
+      #{{ section.id }}.collection-banner--text-below-image .media {
+        min-height: {{ section.settings.fixed_height_desktop }}px;
+      }
+    }
+
+    {%- if section.settings.tint_opacity > 0 -%}
+      #{{ section.id }}.collection-banner .media--has-overlay::after {
+        background-color: rgba({{ section.settings.tint_color.rgb }} / {{ section.settings.tint_opacity | divided_by: 100.0 }});
+      }
+    {%- endif -%}
+  {%- endif -%}
+{%- endstyle -%}
+
+<div class="collection-banner section color-scheme color-scheme--{{ section.settings.color_scheme }}" id="{{ section.id }}">
+  {%- case banner_style -%}
+  {%- when 'scrolling-text' -%}
+    <div class="collection-banner--scrolling-text{% if settings.show_breadcrumbs_collection %} pb-6 md:pb-8{% else %} py-6 md:py-8{% endif %} overflow-hidden" id="{{ section.id }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      <div class="container">
+        {%- if settings.show_breadcrumbs_collection -%}
+          {%- render 'breadcrumbs', class: 'max-md:my-4 custom-case', divider: '&nbsp;/&nbsp;' -%}
+        {%- endif -%}
+      </div>
+
+      {%- assign content_class = section.settings.heading_size | append: ' leading-[1.2] font-normal mb-0' -%}
+      {%- render 'marquee',
+          class: 'collection-title mb-0',
+          content_element: 'h1',
+          content_class: content_class,
+          content: collection.title -%}
+
+      {%- if section.settings.show_collection_description and collection.description != blank -%}
+        <div class="container mt-2 md:mt-4 {{ section.settings.text_align }}">
+          <div class="collection-description rte text-sm custom-case" {%- render 'animation-attrs', attrs: 'data-cc-animate="slide-in-up"' %}>
+            {{- collection.description -}}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+
+  {%- when 'text' -%}
+    <div class="collection-banner--text{% if settings.show_breadcrumbs_collection %} pb-6 md:pb-8{% else %} my-6 pd:py-8{% endif %} overflow-hidden" id="{{ section.id }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      <div class="container">
+        {%- if settings.show_breadcrumbs_collection -%}
+          {%- render 'breadcrumbs', class: 'max-md:my-4 custom-case', divider: '&nbsp;/&nbsp;' -%}
+        {%- endif -%}
+      </div>
+
+      <div class="container {{ section.settings.text_align }}">
+        <h1 class="collection-title mb-0 {{ section.settings.heading_size }} leading-[1.2] font-normal">
+          {{- collection.title | escape -}}
+        </h1>
+
+        {%- if section.settings.show_collection_description and collection.description != blank -%}
+          <div class="collection-description mt-2 md:mt-4 rte text-sm custom-case">
+            {{- collection.description -}}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+  {%- when 'text-below-image' -%}
+    <div class="collection-banner--text-below-image pb-6 md:pb-8 relative" id="{{ section.id }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      {%- if settings.show_breadcrumbs_collection -%}
+        <div class="w-full absolute top-0 z-1">
+          <div class="container">
+            {%- render 'breadcrumbs', class: 'max-md:my-4 custom-case', divider: '&nbsp;/&nbsp;' -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="media media--has-overlay relative">
+        {%- if section.settings.image -%}
+          {%- capture sizes %}{% render 'sizes-attribute', grid: false, min: '100vw', sm: false, xl: false %}{% endcapture -%}
+          {%- render 'image',
+            image: section.settings.image,
+            widths: '320, 640, 960, 1280, 1600, 1920, 2240, 2560',
+            src_width: 1280,
+            sizes: sizes,
+            class: 'img-fit',
+            lazy_load: lazy_load_images,
+            fetchpriority: fetchpriority
+          -%}
+        {%- endif -%}
+      </div>
+
+      <div class="container mt-4 md:mt-6 lg:mt-14 {{ section.settings.text_align }}">
+        <h1 class="collection-title mb-0 {{ section.settings.heading_size }} font-normal">
+          {{- collection.title | escape -}}
+        </h1>
+
+        {%- if section.settings.show_collection_description and collection.description != blank -%}
+          <div class="collection-description mt-2 rte text-sm custom-case">
+            {{- collection.description -}}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+  {%- when 'text-over-image' -%}
+    <div class="collection-banner--text-over-image relative flex flex-col justify-center color-scheme color-scheme--no-bg color-scheme--{{ section.settings.color_scheme_overlay }}" id="{{ section.id }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+      {%- if settings.show_breadcrumbs_collection -%}
+        <div class="w-full absolute top-0 z-1">
+          <div class="container">
+            {%- render 'breadcrumbs', class: 'max-md:my-4 custom-case', divider: '&nbsp;/&nbsp;' -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="media media--has-overlay absolute top-0 left-0 w-full h-full">
+        {%- if section.settings.image -%}
+          {%- capture sizes %}{% render 'sizes-attribute', grid: false, min: '100vw', sm: false, xl: false %}{% endcapture -%}
+          {%- render 'image',
+            image: section.settings.image,
+            widths: '320, 640, 960, 1280, 1600, 1920, 2240, 2560',
+            src_width: 1280,
+            sizes: sizes,
+            class: 'img-fit',
+            lazy_load: lazy_load_images,
+            fetchpriority: fetchpriority
+          -%}
+        {%- endif -%}
+      </div>
+
+      <div class="container relative z-1 {{ section.settings.text_align }}">
+        <h1 class="collection-title mb-0 {{ section.settings.heading_size }} font-normal">
+          {{- collection.title | escape -}}
+        </h1>
+
+        {%- if section.settings.show_collection_description and collection.description != blank -%}
+          <div class="collection-description mt-2 md:mt-4 rte max-md:text-sm custom-case">
+            {{- collection.description -}}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endcase -%}
+</div>
+
+{% schema %}
+{
+  "name": "Collection banner",
+  "class": "cc-collection-banner",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Add a description or image by editing your collection. [Learn more](https://help.shopify.com/en/manual/products/collections/collection-layout)"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "info": "Defaults to \"Text\", if no image is present.",
+      "options": [
+        {
+          "value": "scrolling-text",
+          "label": "Scrolling text"
+        },
+        {
+          "value": "text",
+          "label": "Text"
+        },
+        {
+          "value": "text-below-image",
+          "label": "Text below image"
+        },
+        {
+          "value": "text-over-image",
+          "label": "Text over image"
+        }
+      ],
+      "default": "text-over-image"
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'scrolling-text' }}",
+      "type": "range",
+      "id": "heading_marquee_speed",
+      "min": 1,
+      "max": 40,
+      "step": 1,
+      "label": "Scrolling speed",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        },
+        {
+          "value": "xxx-large-heading",
+          "label": "Super large"
+        }
+      ],
+      "default": "x-large-heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_case",
+      "label": "Headings capitalization",
+      "info": "Replaces [Headings capitalization](/editor?context=theme&category=typography) setting.",
+      "options": [
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "none",
+          "label": "None (leave as entered)"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "color_scheme",
+      "id": "color_scheme_overlay",
+      "label": "Color scheme overlay",
+      "default": "scheme-3"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_description",
+      "label": "Show collection description",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "range",
+      "id": "fixed_height_desktop",
+      "min": 320,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "label": "Fixed height (desktop)",
+      "default": 400
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "range",
+      "id": "fixed_height_mobile",
+      "min": 160,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Fixed height (mobile)",
+      "default": 240
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "color",
+      "id": "tint_color",
+      "label": "Tint color",
+      "default": "#4c4339"
+    },
+    {
+      "visible_if": "{{ section.settings.style == 'text-below-image' or section.settings.style == 'text-over-image' }}",
+      "type": "range",
+      "id": "tint_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Tint opacity",
+      "default": 30
+    }
+  ]
+}
+{% endschema %}

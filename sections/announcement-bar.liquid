@@ -1,0 +1,158 @@
+{%- unless request.page_type != 'index' and section.settings.home_page_only -%}
+  {%- if section.blocks.size > 0 -%}
+    {{ 'slideshow.css' | asset_url | stylesheet_tag: preload: true }}
+
+    {%- if section.blocks.size > 1 -%}
+      <script src="{{ 'slideshow.js' | asset_url }}" defer></script>
+      <script src="{{ 'announcement-bar.js' | asset_url }}" defer></script>
+    {%- endif -%}
+
+    {%- style -%}
+      announcement-bar {
+        --announcement-text-color: {{ section.blocks.first.settings.text_color.rgb }};
+        --announcement-bg-color: {{ section.blocks.first.settings.bg_color }};
+        --announcement-bg-gradient: {{ section.blocks.first.settings.bg_gradient }};
+      }
+      .announcement {
+        --font-size: {{ section.settings.font_size }}px;
+      }
+    {%- endstyle -%}
+
+    <announcement-bar id="announcement-{{ section.id }}" class="block relative">
+      {%- # Hide as soon as possible, if dismissed -%}
+      {%- if section.settings.enable_close -%}
+        <script>
+          if (sessionStorage.getItem('cc-theme-announcement-dismissed') === 'true' && (!Shopify || !Shopify.designMode)) {
+            document.getElementById('announcement-{{ section.id }}').hidden = true;
+          }
+        </script>
+      {%- endif -%}
+      {%- for block in section.blocks offset: 1 -%}
+        <div class="announcement-bg absolute inset-0" data-index="{{ forloop.index }}" style="background: {{ block.settings.bg_gradient | default: block.settings.bg_color }}"></div>
+      {%- endfor -%}
+
+      <div class="container relative">
+        <slide-show class="announcement block relative overflow-hidden" role="region" aria-roledescription="{{ 'sections.slideshow.carousel' | t }}" aria-label="{{ 'sections.slideshow.carousel' | t }}" data-autoplay="true" data-speed="{{ section.settings.read_time }}" data-transition="fade">
+          <div class="slideshow flex relative" id="slideshow-{{ section.id }}" aria-live="polite" aria-atomic="true">
+            {%- for block in section.blocks -%}
+              <div class="slideshow__slide announcement__slide{% if forloop.first %} is-active{% endif %} w-full"
+                  role="group" aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
+                  aria-label="{{ forloop.index }} {{ 'general.slider.of' | t }} {{ forloop.length }}"
+                  {%- unless forloop.first %} tabindex="-1"{% endunless %}
+                  data-index="{{ forloop.index0 }}"
+                  data-text-color="{{ block.settings.text_color.rgb }}"
+                  style="--announcement-text-color: {{ block.settings.text_color.rgb }}; --slide-index: {{ forloop.index0 }}"
+                  {{ block.shopify_attributes }}>
+                <div class="has-motion">
+                  <div class="announcement__text text-center rte">
+                    {{- block.settings.text -}}
+                  </div>
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+
+          {%- if section.blocks.size > 1 -%}
+            <div class="slideshow-nav absolute inset-0 z-10 flex items-center justify-between">
+              <button type="button" class="slideshow-nav__btn btn relative hidden has-ltr-icon" name="prev" aria-controls="slideshow-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                {% render 'icon-chevron-left' %}
+              </button>
+
+              <button type="button" class="slideshow-nav__btn btn relative hidden has-ltr-icon" name="next" aria-controls="slideshow-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                {% render 'icon-chevron-right' %}
+              </button>
+            </div>
+          {%- endif -%}
+        </slide-show>
+      </div>
+
+      {%- if section.settings.enable_close -%}
+        <button type="button" class="announcement__close absolute z-10" aria-label="{{ 'accessibility.close' | t }}">
+          {% render 'icon-close' %}
+        </button>
+      {%- endif -%}
+    </announcement-bar>
+
+  {%- endif -%}
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Announcement",
+  "class": "cc-announcement",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "home_page_only",
+      "label": "Show on home page only",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_close",
+      "label": "Enable close button",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "read_time",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "label": "Announcement read time",
+      "default": 7
+    }
+  ],
+  "max_blocks": 5,
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "Welcome to our store. <a href='#' title='#'>Learn more</a>",
+          "info": "If you have multiple announcements, keep them short as they may wrap on smaller screens."
+        },
+        {
+          "type": "header",
+          "content": "Style"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background color",
+          "default": "#3f3f3f"
+        },
+        {
+          "type": "color_background",
+          "id": "bg_gradient",
+          "label": "Background gradient (optional)"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#ffffff"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

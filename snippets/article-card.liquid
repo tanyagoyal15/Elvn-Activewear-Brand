@@ -1,0 +1,156 @@
+{%- comment %}theme-check-disable LiquidTag{% endcomment -%}
+
+{%- comment -%}
+  Parameters:
+  - article {Object} - Article object.
+  - featured {Boolean} - Apply featured card style/layout (optional, default is false).
+  - color_scheme {String} - Color scheme for the card (optional).
+  - image_ratio {Number} - Aspect ratio for the image (optional).
+  - show_author {Boolean} - Show the article author (optional, default is true).
+  - show_date {Boolean} - Show the article published date (optional, default is true).
+  - show_reading_time {Boolean} - Show the reading time (optional, default is true).
+  - show_tags {Boolean} -  Show article tags (optional).
+  - show_excerpt {Boolean} - Show the article excerpt (optional, default is true).
+  - show_button {Boolean} - Show the article button / link (optional, default is true).
+  - custom_sizes {String} - Image sizes pulled in from main-search (optional).
+  - custom_quality {String} - Image quality pulled in from main-search (optional).
+
+  Usage:
+  {% render 'article-card',
+    article: article,
+    show_date: section.settings.show_date
+    show_author: section.settings.show_author
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  if image_ratio == nil
+    if section.settings.image_ratio == 'shortest' or section.settings.image_ratio == 'tallest'
+      assign image_ratio = 1
+    else
+      assign image_ratio = section.settings.image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+
+  assign sizes = ''
+
+  if custom_sizes
+    assign sizes = custom_sizes
+  else
+    if article.image
+      capture sizes
+        assign grid_columns_mobile = 1
+        assign grid_columns_sm = 1
+        assign grid_columns_md = 3
+        assign grid_columns_lg = 3
+        render 'sizes-attribute', grid: true, min: grid_columns_mobile, sm: grid_columns_sm, md: grid_columns_md, lg: grid_columns_lg, xl: false, max: false
+      endcapture
+    endif
+  endif
+
+  assign image_quality = settings.image_quality
+
+  if custom_quality
+    assign image_quality = custom_quality
+  endif
+
+  assign words_per_minute = 225
+  assign word_count = article.content | strip_html | split: ' ' | size
+  assign reading_time = word_count | times: 1.0 | divided_by: words_per_minute
+  assign rounded_minutes = reading_time | ceil
+-%}
+
+<article class="article-card card{% if featured %} card--featured card--wide{% endif %} relative flex{% if color_scheme %} color-scheme color-scheme--{{ color_scheme }}{% endif %}">
+  <div class="card__media">
+    {%- if article != blank -%}
+      <a href="{{ article.url }}" class="media block relative h-full custom-aspect-ratio" style="--ratio: {{ image_ratio }};">
+        {%- if article.image -%}
+          {% render 'image',
+            image: article.image,
+            widths: '320, 460, 600, 700, 800, 900, 1200',
+            src_width: 460,
+            sizes: sizes,
+            quality: image_quality,
+            class: 'img-fit'
+          %}
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+        {%- endif -%}
+      </a>
+    {%- else -%}
+      <div class="media block relative custom-aspect-ratio" style="--ratio: {{ image_ratio }};">
+        {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+      </div>
+    {%- endif -%}
+  </div>
+  <div class="card__info relative{% if featured %} flex flex-col items-start max-md:mb-10{% endif %}">
+    <div class="flex-auto">
+
+      <h2 class="card__title mt-8 {% if featured %}h3{% else %}h5{% endif %}">
+        {%- if article != blank -%}
+          <a href="{{ article.url }}" class="{% unless show_button %}card-link{% endunless %} text-current">{{ article.title | escape }}</a>
+        {%- else -%}
+          {{ 'onboarding.article.title' | t }}
+        {%- endif -%}
+      </h2>
+
+      {%- if article == blank -%}
+        <p class="mt-2{% if featured %} md:mt-8{% endif %} mb-0">{{ 'onboarding.article.excerpt' | t }}</p>
+      {%- elsif show_excerpt -%}
+        {%- if article.excerpt.size > 0 or article.content.size > 0 -%}
+          <p class="mt-2{% if featured %} md:mt-8{% endif %} mb-0">
+            {{ article.excerpt_or_content | strip_html | truncatewords: 30 }}
+          </p>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if show_author or show_date or show_reading_time -%}
+        <div class="article-details flex flex-wrap mt-6 mb-0 gap-x-6 gap-y-3 rte max-md:text-sm custom-case">
+          {%- if show_date -%}
+            <div class="flex">
+              {% render 'icon-calendar' %}
+              <span class="article-details__date whitespace-nowrap">{{ article.published_at | time_tag: format: 'date' }}</span>
+            </div>
+          {%- endif -%}
+
+          {%- if show_author -%}
+            <div class="flex">
+              {% render 'icon-customer' %}
+              <span class="article-details__author whitespace-nowrap">{{ article.author }}</span>
+            </div>
+          {%- endif -%}
+
+          {%- if show_reading_time -%}
+            <div class="flex">
+              {% render 'icon-clock' %}
+              <span class="article-details__reading whitespace-nowrap">
+                {{ 'blogs.article.read_time' | t: count: rounded_minutes }}
+              </span>
+            </div>
+          {%- endif -%}
+        </div>
+      {% endif %}
+
+      {%- if show_tags and article.tags.size > 0 -%}
+        <ul class="card__tags mt-6 list-none flex justify-start gap-x-2 gap-y-1 flex-wrap">
+          {%- for tag in article.tags -%}
+            <li>
+              <a href="{{ tag | link_to_tag: tag | split: 'href="' | last | split: '"' | first }}" data-tag="{{ tag | escape }}"
+                class="article-tag block text-xs text-theme-text px-3 py-1">
+                {{- tag -}}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {% if show_button %}
+        <a class="{{ button_style }} block mt-6" href="{{ article.url }}">
+          {{ 'blogs.article.read_more' | t }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</article>

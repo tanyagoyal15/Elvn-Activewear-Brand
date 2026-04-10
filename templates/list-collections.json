@@ -1,0 +1,139 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "main-list-collections-banner",
+      "settings": {
+        "style": "text",
+        "heading_marquee_speed": 15,
+        "heading": "Our collections",
+        "heading_size": "h2",
+        "heading_case": "none",
+        "heading_h1": true,
+        "text_align": "text-center",
+        "show_description": true,
+        "description": "<h6>Explore our best-selling <em><strong>collections</strong></em> all in one place.Thoughtful curations of underwear and sleepwear created from <em><strong>natural</strong></em> and <em><strong>recycled</strong></em> materials</h6>",
+        "color_scheme": "scheme-1",
+        "color_scheme_overlay": "scheme-3",
+        "fixed_height_desktop": 320,
+        "fixed_height_mobile": 350,
+        "tint_color": "#000000",
+        "tint_opacity": 0
+      }
+    },
+    "main": {
+      "type": "main-list-collections",
+      "blocks": {
+        "highlight_collection_1": {
+          "type": "highlight_collection",
+          "disabled": true,
+          "settings": {
+            "collection": "",
+            "title": "",
+            "card_image_ratio": "1.5",
+            "card_image_fit": "cover",
+            "card_image_align": "",
+            "card_image_disable_focal_point": false,
+            "card_style": "text-below",
+            "card_show_count": true,
+            "card_compact": false,
+            "card_inherit_color_scheme": false,
+            "card_color_scheme": "scheme-6"
+          }
+        },
+        "highlight_collection_2": {
+          "type": "highlight_collection",
+          "disabled": true,
+          "settings": {
+            "collection": "",
+            "title": "",
+            "card_image_ratio": "1.5",
+            "card_image_fit": "cover",
+            "card_image_align": "",
+            "card_image_disable_focal_point": false,
+            "card_style": "text-below",
+            "card_show_count": true,
+            "card_compact": false,
+            "card_inherit_color_scheme": false,
+            "card_color_scheme": "scheme-6"
+          }
+        },
+        "highlight_collection_3": {
+          "type": "highlight_collection",
+          "disabled": true,
+          "settings": {
+            "collection": "",
+            "title": "",
+            "card_image_ratio": "1.5",
+            "card_image_fit": "cover",
+            "card_image_align": "",
+            "card_image_disable_focal_point": false,
+            "card_style": "text-below",
+            "card_show_count": true,
+            "card_compact": false,
+            "card_inherit_color_scheme": false,
+            "card_color_scheme": "scheme-6"
+          }
+        },
+        "highlight_collection_67pTKt": {
+          "type": "highlight_collection",
+          "disabled": true,
+          "settings": {
+            "collection": "",
+            "title": "",
+            "card_image_ratio": "1.4",
+            "card_image_fit": "cover",
+            "card_image_align": "",
+            "card_image_disable_focal_point": false,
+            "card_style": "text-over",
+            "card_show_count": true,
+            "card_compact": true,
+            "card_inherit_color_scheme": true,
+            "card_color_scheme": "scheme-1"
+          }
+        }
+      },
+      "block_order": [
+        "highlight_collection_1",
+        "highlight_collection_2",
+        "highlight_collection_3",
+        "highlight_collection_67pTKt"
+      ],
+      "settings": {
+        "title": "More Collections",
+        "heading_h1": false,
+        "heading_size": "h2",
+        "heading_align": "text-center",
+        "heading_after_blocks": true,
+        "display_type": "all",
+        "selected_collections": [],
+        "collections_per_page": 23,
+        "sort_order": "alphabetical",
+        "card_size": "small",
+        "card_style": "text-below",
+        "card_show_count": true,
+        "card_compact": true,
+        "grid_offset": false,
+        "color_scheme": "scheme-1",
+        "remove_top_padding": false,
+        "replace_color_scheme_bg": true,
+        "bg_color": "",
+        "bg_gradient": "linear-gradient(180deg, rgba(251, 250, 242, 1), rgba(249, 244, 234, 1) 96%)",
+        "card_inherit_color_scheme": false,
+        "card_color_scheme": "scheme-4"
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "main"
+  ]
+}

@@ -1,0 +1,492 @@
+<link rel="stylesheet" href="{{ 'media-with-text.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+{%- for block in section.blocks -%}
+  {%- if block.settings.video != blank -%}
+    {{ 'video.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'video.js' | asset_url }}" defer></script>
+  {%- endif -%}
+{%- endfor -%}
+
+{%- liquid
+  # constants
+  assign gutter_sm = 20
+  assign breakpoint_md_down = 768 | minus: 0.02
+-%}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+  assign quality = settings.image_quality
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  {% if section.settings.text_align == 'text-center' %}
+    @media (max-width: {{ breakpoint_md_down }}px) {
+      #{{ section.id }} .media-with-text__media-container { align-items: center };
+    }
+  {% elsif section.settings.text_align == 'text-end' %}
+    @media (max-width: {{ breakpoint_md_down }}px) {
+      #{{ section.id }} .media-with-text__media-container { align-items: flex-end };
+    }
+  {% endif %}
+{%- endstyle -%}
+
+<div id="{{ section.id }}" class="media-with-text section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  <div class="flex{% if section.settings.full_width == false %} container{% endif %}">
+    <div class="section
+                {%- if section.settings.full_width %} section--full-width section--padded-more{% else %} section--standard{% endif %}
+                {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                z-3
+                {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                color-scheme
+                {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                color-scheme--{{ color_scheme }}">
+      <div class="container" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+        <div class="media-with-text__text w-full flex flex-col justify-center {% if section.settings.layout == 'right' %} mie-auto{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+          <div class="reading-width--inline {{ section.settings.text_align }}{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}">
+            {%- if section.settings.heading != blank -%}
+              <{% if section.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__block section__block--heading {{ section.settings.heading_size }}">
+                {{ section.settings.heading }}
+              </{% if section.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+            {%- endif -%}
+
+            {%- if section.settings.text != blank -%}
+              <div class="section__block rte{% if section.settings.enlarge_text %} enlarge-text{% endif %}">
+                {{ section.settings.text }}
+              </div>
+            {%- endif -%}
+
+            {%- if section.settings.button_label != blank -%}
+              <div class="section__block section__block--button">
+                {%- if section.settings.button_label != blank %}
+                  <a class="{{ section.settings.button_style }}" {% if section.settings.button_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ section.settings.button_link }}"{% endif %}>
+                    {{- section.settings.button_label | escape -}}
+                  </a>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+        <div class="media-with-text__media-container w-full flex justify-between items-start">
+          {% for block in section.blocks %}
+            {%- liquid
+              assign media_width = 'w-full md:w-7/12 '
+              if forloop.length > 1
+                if forloop.first
+                  assign media_width = 'w-3/5 md:w-1/3'
+                endif
+              endif
+            -%}
+
+            {% liquid
+              assign media_type = 'image'
+              assign image = block.settings.image
+              if block.settings.video != blank
+                assign media_type = 'video'
+                assign autoplay = block.settings.autoplay
+
+                if image == blank
+                  assign image = block.settings.video.preview_image
+                endif
+              endif
+            %}
+            {%- if block.settings.video != blank -%}
+              {% assign video = block.settings.video %}
+              {%- capture video_component -%}
+                <video-component class="has-video absolute top-0 left-0 w-full h-full"
+                                data-video-id="{{ block.id }}"
+                                data-autoplay="{% if autoplay %}true{% else %}false{% endif %}"
+                                data-background="false"
+                                data-natural-width="true"
+                                data-description="{{ block.settings.video_description | escape }}">
+                  {{ video | video_tag: playsinline: true, autoplay: autoplay, muted: autoplay, controls: true, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
+                </video-component>
+              {%- endcapture -%}
+            {%- endif -%}
+            <div class="media-with-text__media img--border-radius relative flex flex-col justify-center overflow-hidden {{ media_width }}{% if media_type == 'video' %} video-section{% endif %}" {{ block.shopify_attributes }}>
+              {%- if image != blank or video != blank -%}
+                {%- if media_type == 'video' -%}<div class="custom-aspect-ratio" style="--ratio: {{ video.aspect_ratio }};">{%- endif -%}
+                  <div class="media w-full{% if media_type == 'video' %} absolute top-0 left-0 w-full h-full video-section__media video-played-hidden{% else %} relative{% endif %}{% if media_type == 'image' and image != blank %} custom-aspect-ratio{% endif %}"{% if media_type == 'image' and image != blank %} style="--ratio: {{ image.aspect_ratio }};"{% endif %}>
+                    {%- if image != blank -%}
+                      {%- capture sizes_md %}calc((50vw - {{ gutter_sm | times: 2 }}px) + 9px){% endcapture -%}
+                      {%- capture sizes -%}
+                        {%- render 'sizes-attribute', min: 'page', sm: 'page', md: sizes_md, lg: '536px', xl: false, max: false -%}
+                      {%- endcapture -%}
+                      {% render 'image',
+                        image: image,
+                        quality: quality,
+                        widths: '536, 800, 1072, 1280',
+                        mobile_widths: '690, 800',
+                        src_width: 536,
+                        sizes: sizes,
+                        section_index: section.index,
+                        class: 'img-fit'
+                      %}
+                    {%- endif -%}
+                  </div>
+
+                  {%- if media_type == 'video' -%}
+                    {%- if block.settings.video_autoplay -%}
+                      <deferred-media class="video-section__media block absolute top-0 left-0 w-full h-full no-js-hidden">
+                        <template>{{ video_component }}</template>
+                      </deferred-media>
+
+                      <noscript>
+                        <div class="video-section__media block w-full">
+                          {{ video_component }}
+                        </div>
+                      </noscript>
+                    {%- else -%}
+                      <deferred-media class="video-section__media height-clip block absolute top-0 left-0 w-full h-full no-js-hidden">
+                        <button type="button" class="video-section__play-btn video-played-hidden absolute top-0 left-0 flex justify-center items-center w-full h-full js-load-media" aria-label="{{ 'general.icon_labels.play' | t }}">
+                          {%- render 'icon-play' -%}
+                        </button>
+                        <template>
+                          {{ video_component }}
+                        </template>
+                      </deferred-media>
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- if media_type == 'video' -%}</div>{%- endif -%}
+              {%- else -%}
+                {%- if forloop.first -%}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'media__placeholder img--border-radius' }}
+                {%- else -%}
+                  {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder img--border-radius' }}
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Media with text",
+  "class": "cc-media-with-text",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Media with text"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_h1",
+      "label": "Set as page heading (uses h1 tag)",
+      "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+      "default": false
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "enlarge_text",
+      "label": "Enlarge text",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Label",
+      "default": "Optional button"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Style",
+      "options": [
+        {
+          "value": "link",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--primary"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Content alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Media",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video upload (optional)",
+          "info": "The image above will show if the video is loading or autoplay is disabled."
+        },
+        {
+          "type": "text",
+          "id": "video_description",
+          "label": "Video description",
+          "info": "Describe the video for customers using screen readers."
+        },
+        {
+          "type": "checkbox",
+          "id": "video_autoplay",
+          "label": "Autoplay",
+          "info": "Some devices will not autoplay videos under certain circumstances. In accordance with Google's guidelines, autoplaying videos will be muted. [Learn more](https://cleancanvas.co.uk/support/beautify/media-with-text)",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Media with text",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

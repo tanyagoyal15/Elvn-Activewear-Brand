@@ -1,0 +1,93 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {
+            "vendor_title": false
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_tax_and_shipping": true,
+            "show_percentage_discount": true
+          }
+        },
+        "description_nAxHqR": {
+          "type": "description",
+          "settings": {
+            "show_as_collapsible_content": false,
+            "open": false,
+            "icon": "none"
+          }
+        }
+      },
+      "block_order": [
+        "title",
+        "price",
+        "description_nAxHqR"
+      ],
+      "settings": {
+        "stick_media": true,
+        "media_layout": "stacked",
+        "media_stacked_type": "2-1",
+        "media_size": "edge",
+        "media_ratio": "natural",
+        "media_crop": "none",
+        "stacked_scroll": "always",
+        "underline_active": false,
+        "enable_video_looping": false,
+        "enable_video_autoplay": false,
+        "enable_video_controls": true,
+        "slider_full_width_mobile": true,
+        "media_thumbs": "desktop",
+        "enable_zoom": true,
+        "enable_lightbox_mobile": false,
+        "hover_zoom": "large",
+        "border_color": "#000000",
+        "bg_color": "#f9f7f8",
+        "sticky_atc_panel": true,
+        "sticky_atc_mobile": true,
+        "enable_media_grouping": false,
+        "media_grouping_option": "Color,Colour,Couleur,Farbe"
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "disabled": true,
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h4",
+        "heading_align": "text-center",
+        "mob_center_text": true,
+        "color_scheme": "",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#cccccc",
+        "background_gradient_stop_2": "#ffffff",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "products_to_show": 8,
+        "products_per_row": "2",
+        "products_per_row_desktop": "4",
+        "layout": "carousel"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "recommendations"
+  ]
+}
