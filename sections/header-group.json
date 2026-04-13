@@ -47,8 +47,43 @@
     "header": {
       "type": "header",
       "blocks": {
+        "mega_menu_columns_HTqNjK": {
+          "type": "mega-menu-columns",
+          "settings": {
+            "menu_link_title": "Shop By",
+            "show_collection_images": false,
+            "collection_image_source": "featured",
+            "collection_image_ratio": "1",
+            "promo_image_ratio": "1",
+            "image_1": "shopify://shop_images/DRU0181.jpg",
+            "link_1": "shopify://collections/court-muse",
+            "overline_1": "",
+            "heading_1": "Court Muse",
+            "heading_size_1": "h3",
+            "button_label_1": "Shop Now",
+            "button_style_1": "btn btn--primary",
+            "text_position_1": "justify-center items-end",
+            "text_alignment_1": "text-start",
+            "color_scheme_1": "scheme-3",
+            "tint_color_1": "#000000",
+            "tint_opacity_1": 0,
+            "image_2": "shopify://shop_images/287.png",
+            "link_2": "shopify://collections/matchpoint",
+            "overline_2": "",
+            "heading_2": "Match Point",
+            "heading_size_2": "h3",
+            "button_label_2": "Shop Now",
+            "button_style_2": "btn btn--primary",
+            "text_position_2": "justify-center items-end",
+            "text_alignment_2": "text-center",
+            "color_scheme_2": "scheme-3",
+            "tint_color_2": "#000000",
+            "tint_opacity_2": 0
+          }
+        },
         "mega_menu_coll_cards_mdGVfk": {
           "type": "mega-menu-coll-cards",
+          "disabled": true,
           "settings": {
             "menu_link_title": "Activity",
             "card_style": "text-below",
@@ -60,6 +95,7 @@
         },
         "mega_menu_coll_cards_cEWgUE": {
           "type": "mega-menu-coll-cards",
+          "disabled": true,
           "settings": {
             "menu_link_title": "Category",
             "card_style": "text-below",
@@ -71,6 +107,7 @@
         },
         "mega_menu_coll_cards_pcDpiY": {
           "type": "mega-menu-coll-cards",
+          "disabled": true,
           "settings": {
             "menu_link_title": "Collections",
             "card_style": "text-below",
@@ -193,6 +230,7 @@
         },
         "mega_menu_coll_cards_Dw4R9G": {
           "type": "mega-menu-coll-cards",
+          "disabled": true,
           "settings": {
             "menu_link_title": "Shop",
             "card_style": "text-below",
@@ -204,6 +242,7 @@
         }
       },
       "block_order": [
+        "mega_menu_columns_HTqNjK",
         "mega_menu_coll_cards_mdGVfk",
         "mega_menu_coll_cards_cEWgUE",
         "mega_menu_coll_cards_pcDpiY",
@@ -221,7 +260,7 @@
         "logo_width_mobile": 75,
         "logo_h1": true,
         "enable_transparency": true,
-        "menu": "main-menu",
+        "menu": "main-menu-dev",
         "parent_opens_child_mobile": false,
         "enable_localization": true,
         "cart_icon": "cart",
