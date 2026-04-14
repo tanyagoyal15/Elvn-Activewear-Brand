@@ -33,10 +33,7 @@
           }
         }
       },
-      "block_order": [
-        "announcement_KpK7CV",
-        "announcement-2"
-      ],
+      "block_order": ["announcement_KpK7CV", "announcement-2"],
       "settings": {
         "home_page_only": true,
         "enable_close": true,
@@ -281,8 +278,5 @@
       }
     }
   },
-  "order": [
-    "announcement-bar",
-    "header"
-  ]
+  "order": ["announcement-bar", "header"]
 }
