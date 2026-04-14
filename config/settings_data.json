@@ -111,7 +111,7 @@
     "custom_label_3_text_color": "#4c4339",
     "show_custom_label_3_border": true,
     "custom_label_3_border_color": "#4c4339",
-    "favicon": "{{ shop.brand.square_logo }}",
+    "favicon": "shopify://shop_images/Elvn-logo.png",
     "show_language": true,
     "cart_message": "",
     "show_gift_wrapping": true,
