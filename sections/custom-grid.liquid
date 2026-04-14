@@ -1,0 +1,236 @@
+{{ 'custom-grid.css' | asset_url | stylesheet_tag }}
+
+<div class="custom-grid-wrapper {% unless section.settings.full_width %}page-width{% endunless %}">
+  
+  {% if section.settings.section_heading != blank %}
+    <div class="custom-grid-heading">
+      <h2>{{ section.settings.section_heading }}</h2>
+      {% if section.settings.section_subheading != blank %}
+        <p>{{ section.settings.section_subheading }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% assign max_items = section.settings.grid_type | plus: 0 %}
+
+  
+  {% assign mobile_class = '' %}
+
+  {% if section.settings.layout_style == 'uniform' %}
+    {% if section.settings.grid_type == '2' %}
+      {% assign mobile_class = 'mobile-grid-2' %}
+    {% else %}
+      {% assign mobile_class = 'mobile-scroll' %}
+    {% endif %}
+  {% else %}
+    {% assign mobile_class = 'mobile-grid-2' %}
+  {% endif %}
+
+  <div 
+    class="custom-grid 
+    grid-{{ section.settings.grid_type }} 
+    {{ section.settings.layout_style }} 
+    {{ mobile_class }}"
+    style="gap: {{ section.settings.gap }}px;"
+  >
+
+    {% for block in section.blocks limit: max_items %}
+      
+      {% assign index = forloop.index %}
+
+      <div class="grid-item grid-image{{index }}
+        {% if section.settings.layout_style == 'asymmetric' %}
+          
+          {% if section.settings.grid_type == '3' and index == 2 %}
+            span-2 span-vertical
+          {% elsif section.settings.grid_type == '5' and index == 2 %}
+            span-2 span-vertical
+          {% endif %}
+        
+        {% else %}
+          span-{{ block.settings.span }}
+        {% endif %}
+      ">
+
+        <a href="{{ block.settings.link | default: '#' }}">
+
+          <div class="grid-item-inner aspect-{{ section.settings.aspect_ratio }}">
+            
+            {% assign img = block.settings.image %}
+            
+            {% if img != blank %}
+              <img
+                src="{{ img | image_url: width: 1500 }}"
+                srcset="
+                  {{ img | image_url: width: 400 }} 400w,
+                  {{ img | image_url: width: 800 }} 800w,
+                  {{ img | image_url: width: 1200 }} 1200w,
+                  {{ img | image_url: width: 1500 }} 1500w
+                "
+                sizes="(max-width: 768px) 80vw, 33vw"
+                width="{{ img.width }}"
+                height="{{ img.height }}"
+                alt="{{ block.settings.title | escape }}"
+                loading="lazy"
+              >
+            {% else %}
+                <div class="media relative">
+                    {{ 'image' | placeholder_svg_tag: 'media__placeholder' }}
+                  </div>
+            {% endif %}
+
+            {% if block.settings.dark_overlay %}
+              <div class="overlay"></div>
+            {% endif %}
+
+            {% if block.settings.title != blank %}
+              <div class="grid-content {{ block.settings.overlay_position }}">
+                <h3>{{ block.settings.title }}</h3>
+                <p class="grid-cta">Shop Now</p>
+              </div>
+            {% endif %}
+
+          </div>
+
+        </a>
+
+      </div>
+
+    {% endfor %}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Custom Grid",
+  "tag": "section",
+  "class": "section-custom-grid",
+  "settings": [
+    {
+      "type": "select",
+      "id": "grid_type",
+      "label": "Grid Layout",
+      "options": [
+        { "value": "2", "label": "2 Columns" },
+        { "value": "3", "label": "3 Columns" },
+        { "value": "4", "label": "4 Columns" },
+        { "value": "5", "label": "5 Columns" },
+        { "value": "6", "label": "6 Columns" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "select",
+      "id": "layout_style",
+      "label": "Layout Style",
+      "options": [
+        { "value": "uniform", "label": "Uniform Grid" },
+        { "value": "asymmetric", "label": "Asymmetric (Editorial)" }
+      ],
+      "default": "uniform"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full Width Section",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Grid Gap",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Image Aspect Ratio",
+      "options": [
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (4:5)" },
+        { "value": "landscape", "label": "Landscape (16:9)" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": "Shop the Collection"
+    },
+    {
+      "type": "text",
+      "id": "section_subheading",
+      "label": "Section Subheading"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "grid_item",
+      "name": "Grid Item",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Category"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "overlay_position",
+          "label": "Text Position",
+          "options": [
+            { "value": "center", "label": "Center" },
+            { "value": "bottom-left", "label": "Bottom Left" },
+            { "value": "bottom-right", "label": "Bottom Right" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "checkbox",
+          "id": "dark_overlay",
+          "label": "Enable Dark Overlay",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "span",
+          "label": "Grid Span (Only for Uniform Layout)",
+          "options": [
+            { "value": "1", "label": "Normal" },
+            { "value": "2", "label": "Double Width" },
+            { "value": "vertical", "label": "Tall" }
+          ],
+          "default": "1"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Grid",
+      "blocks": [
+        { "type": "grid_item" },
+        { "type": "grid_item" },
+        { "type": "grid_item" }
+      ]
+    }
+  ]
+}
+{% endschema %}
