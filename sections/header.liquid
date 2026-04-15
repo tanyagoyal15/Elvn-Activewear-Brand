@@ -180,7 +180,7 @@
                   -%}
                   <li>
                     {%- if link.links == blank and mega_menu_block == false -%}
-                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}" {% if link.current %} aria-current="page"{% endif %}>
+                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>
                         {{- link.title | escape -}}
                       </a>
                     {%- else -%}
