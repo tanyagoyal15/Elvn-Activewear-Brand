@@ -27,7 +27,8 @@
    * Returns null if product has no color option.
    */
   function getActiveColor(card) {
-    const checked = card.querySelector(".card__swatches .opt-btn:checked");
+    const checked = card.querySelector(".elvn-card-swatches .opt-btn:checked");
+    console.log("CHECKED");
     if (checked) return checked.value;
     // Fallback: no swatches, return null (single-color product)
     return null;
@@ -108,6 +109,9 @@
 
   class ElvnQuickAdd {
     constructor(card) {
+      if (card.classList.contains("elvn-initialized")) return;
+      card.classList.add("elvn-initialized");
+
       this.card = card;
       this.strip = card.querySelector(".elvn-size-strip");
       this.chipsContainer = card.querySelector(".elvn-size-strip__chips");
@@ -131,8 +135,8 @@
         const chip = e.target.closest(".elvn-size-chip");
         if (!chip || chip.classList.contains("is-oos")) return;
 
-        e.preventDefault(); // ✅ stop default behavior
-        e.stopPropagation(); // ✅ stop bubbling to product link
+        e.preventDefault();
+        e.stopPropagation();
         e.stopImmediatePropagation();
 
         this.selectChip(chip);
@@ -140,8 +144,8 @@
 
       // Add to cart
       this.addBtn.addEventListener("click", (e) => {
-        e.preventDefault(); // ✅ stop default behavior
-        e.stopPropagation(); // prevent card link navigation
+        e.preventDefault();
+        e.stopPropagation();
         this.handleAdd();
       });
 
@@ -194,18 +198,31 @@
       }
     }
 
+    normalize(str) {
+      return str?.toLowerCase().replace(/\s+/g, "").trim();
+    }
+
     /**
      * Render size chips filtered by current active color.
      */
     renderChips() {
       const { variants, hasColorOption } = this.variantData;
       const activeColor = getActiveColor(this.card);
+      console.log(
+        "VARIANT COLORS:",
+        variants.map((v) => v.color),
+      );
+      console.log("ACTIVE COLOR : ", activeColor);
 
       let filtered;
       if (hasColorOption && activeColor) {
         filtered = variants.filter(
-          (v) => v.color && v.color.toLowerCase() === activeColor.toLowerCase(),
+          (v) => normalize(v.color) === normalize(activeColor),
         );
+
+        if (!filtered.length) {
+          console.warn("No variants found for color:", activeColor);
+        }
       } else {
         filtered = variants;
       }
@@ -311,15 +328,41 @@
     //   }
     // }
 
+    getSelectedVariant() {
+      const activeColor = getActiveColor(this.card);
+
+      const selectedChip = this.card.querySelector(
+        ".elvn-size-chip.is-selected",
+      );
+      if (!selectedChip) return null;
+
+      const selectedSize = selectedChip.dataset.size;
+
+      const { variants } = this.variantData;
+
+      const variant = variants.find((v) => {
+        return (
+          this.normalize(v.color) === this.normalize(activeColor) &&
+          this.normalize(v.size) === this.normalize(selectedSize)
+        );
+      });
+
+      return variant;
+    }
+
     async handleAdd() {
       if (this.isAdding) return;
 
-      if (!this.selectedVariantId) {
-        this.showMsg("Please select a size");
+      const variant = this.getSelectedVariant();
+
+      if (!variant) {
+        this.showMsg("Please select size");
         this.addBtn.classList.add("is-error");
         setTimeout(() => this.addBtn.classList.remove("is-error"), 1000);
         return;
       }
+
+      console.log("ADDING VARIANT:", variant);
 
       this.isAdding = true;
       this.addBtn.disabled = true;
@@ -335,7 +378,7 @@
             "X-Requested-With": "XMLHttpRequest",
           },
           body: JSON.stringify({
-            id: this.selectedVariantId,
+            id: variant.id,
             quantity: 1,
           }),
         });
@@ -393,7 +436,7 @@
     }
 
     resetAddBtn() {
-      this.addBtn.textContent = "Add";
+      this.addBtn.textContent = "Quick Add";
       this.addBtn.disabled = false;
       this.addBtn.classList.remove("is-added", "is-error");
     }

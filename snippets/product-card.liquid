@@ -211,7 +211,7 @@
     {%- endif -%}
 
     <div class="card__info{% if card_type == 'related' %} card__info--compact{% endif %}">
-      {%- # Sibling swatches -%}
+      {% comment %} {%- # Sibling swatches -%}
       {%- if sibling_products and card_type != 'related' -%}
         <div class="card__swatches has-motion" data-total="{{ sibling_products.size }}" data-sibling-card-swatches>
           {%- capture option_id %}{{ section.id }}-{{ product.id }}-sibling{% endcapture -%}
@@ -313,7 +313,7 @@
             </div>
           {%- endif -%}
         {%- endfor -%}
-      {%- endif -%}
+      {%- endif -%} {% endcomment %}
 
       {%- # Rating -%}
       {%- if card_type != 'related' and settings.card_show_rating != empty -%}
@@ -350,7 +350,6 @@
           endif
         -%}
 
-        <div class="elvn-card-title-price">
           <div class="elvn-card-title">
             {%- # Title -%}
             <div class="card__title card__title--product">
@@ -385,69 +384,97 @@
               </div>
             {%- endif -%}
           </div>
-          
           {%- # Price -%}
-          <div class="card__price{% if card_type == 'related' %} text-sm{% endif %}">
-            {%- render 'price', product: product -%}
-          </div>
+        <div class="card__price{% if card_type == 'related' %} text-sm{% endif %}">
+          {%- render 'price', product: product -%}
         </div>
-
-        
-
-        
-
-
-        {%- comment %} Elvn Quick Add Strip {%- endcomment -%}
-        {%- if card_type == 'standard' -%}
-          {%- liquid
-            assign size_option_index = nil
-            assign color_option_index = nil
-            for option in product.options_with_values
-              assign option_name_down = option.name | downcase
-              if option_name_down == 'size'
-                assign size_option_index = forloop.index0
-              endif
-              if option_name_down == 'color' or option_name_down == 'colour'
-                assign color_option_index = forloop.index0
-              endif
-            endfor
-          -%}
-
-          {%- if size_option_index != nil -%}
-            <script type="application/json" class="elvn-variants-json">
-              {
-                "variants": [
-                  {%- for variant in product.variants -%}
-                    {
-                      "id": {{ variant.id }},
-                      "available": {{ variant.available | json }},
-                      "size": {{ variant.options[size_option_index] | json }},
-                      "color": {% if color_option_index != nil %}{{ variant.options[color_option_index] | json }}{% else %}null{% endif %},
-                      "inventory_quantity": {{ variant.inventory_quantity }}
-                    }{% unless forloop.last %},{% endunless %}
-                  {%- endfor -%}
-                ],
-                "hasColorOption": {{ color_option_index | default: 'false' | json }}
-              }
-            </script>
-
-            <div class="elvn-size-strip" data-product-id="{{ product.id }}">
-              <div class="elvn-size-strip__chips" role="group" aria-label="Select size">
-                {{- '' -}}
-              </div>
-              <button class="elvn-size-strip__add" type="button" aria-label="Add to cart">
-                Add
-              </button>
-            </div>
-          {%- endif -%}
-        {%- endif -%}
       </div>
 
-      {%- # Quick Add -%}
+      {%- # Quick Shop Button -%}
       {%- if show_quick_shop -%}
         <div class="card-reveal has-motion relative hidden">
+          {% comment %} <div> {% endcomment %}
           <div class="has-motion">
-            <div class="card__quick-add">
+            <div class="card__quick-add elvn-card-quick-add">
+              
+              {%- comment %} Elvn Static Color Swatches (Always Visible) {%- endcomment -%}
+              {%- if sibling_products == blank and card_type != 'related' and settings.swatch_source == 'native' -%}
+                {%- for option in product.options_with_values -%}
+                  {%- assign native_swatch_options = option.values | where: 'swatch' -%}
+                  {%- if native_swatch_options.size > 0 -%}
+                    
+                    <div class="elvn-card-swatches">
+                      {%- for value in option.values limit: 5 -%}
+                        <label class="elvn-swatch">
+                            <input type="radio"
+                              class="opt-btn visually-hidden js-option"
+                              name="{{ product.id }}-color"
+                              value="{{ value | escape }}"
+                              data-variant-id="{{ value.variant.id }}"
+                              data-media-id="{{ value.variant.featured_media.id }}"
+                              {% if value.selected %} checked{% endif %}
+                              {% unless value.available %} disabled{% endunless %}
+                            >
+
+                          <span class="elvn-swatch-dot"
+                            {% if value.swatch.color %}
+                              style="background: rgb({{ value.swatch.color.rgb }})"
+                            {% endif %}
+                          ></span>
+                        </label>
+                      {%- endfor -%}
+                    </div>
+
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+
+              {% comment %} Sizes Reveal {% endcomment %}
+              {%- if card_type == 'standard' -%}
+                {%- liquid
+                  assign size_option_index = nil
+                  assign color_option_index = nil
+                  for option in product.options_with_values
+                    assign option_name_down = option.name | downcase
+                    if option_name_down == 'size'
+                      assign size_option_index = forloop.index0
+                    endif
+                    if option_name_down == 'color' or option_name_down == 'colour'
+                      assign color_option_index = forloop.index0
+                    endif
+                  endfor
+                -%}
+      
+                {%- if size_option_index != nil -%}
+                  <script type="application/json" class="elvn-variants-json">
+                    {
+                      "variants": [
+                        {%- for variant in product.variants -%}
+                          {
+                            "id": {{ variant.id }},
+                            "available": {{ variant.available | json }},
+                            "size": {{ variant.options[size_option_index] | json }},
+                            "color": {% if color_option_index != nil %}{{ variant.options[color_option_index] | json }}{% else %}null{% endif %},
+                            "inventory_quantity": {{ variant.inventory_quantity }}
+                          }{% unless forloop.last %},{% endunless %}
+                        {%- endfor -%}
+                      ],
+                      "hasColorOption": {{ color_option_index | default: 'false' | json }}
+                    }
+                  </script>
+      
+                  <div class="elvn-size-strip" data-product-id="{{ product.id }}">
+                    <div class="elvn-size-strip__chips" role="group" aria-label="Select size">
+                      {{- '' -}}
+                    </div>
+                    {% comment %} <button class="elvn-size-strip__add" type="button" aria-label="Add to cart">
+                      Add
+                    </button> {% endcomment %}
+                  </div>
+                {%- endif -%}
+              {%- endif -%}
+
+              {% comment %} Quick add btn {% endcomment %}
               {%- liquid
                 assign show_one_click_add = false
                 if settings.enable_quick_shop_single_click and sibling_products == blank and disable_one_click_add != true
@@ -519,8 +546,8 @@
                     endif
                   endcapture
                 -%}
-                <div class="no-js-hidden">
-                  <button type="button"
+                <div class="no-js-hidden w-full">
+                  {% comment %} <button type="button"
                           class="btn quick-add-btn{% if card_type != 'related' %} btn--secondary{% endif %} js-quick-add"
                           aria-haspopup="dialog"
                           data-product-url="{{ product_url }}"
@@ -531,6 +558,10 @@
                     <span class="quick-add-btn-icon pointer-events-none">
                       {% render 'icon-chevron-right' %}
                     </span>
+                  </button> {% endcomment %}
+
+                  <button data-product-url="{{ product_url }}" class="elvn-size-strip__add btn quick-add-btn{% if card_type != 'related' %} btn--secondary{% endif %} js-quick-add" type="button" aria-label="Add to cart">
+                    Quick Add
                   </button>
                 </div>
               {%- endif -%}
