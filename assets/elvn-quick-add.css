@@ -1,0 +1,188 @@
+.w-full {
+  width: 100%;
+}
+
+.elvn-size-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.elvn-size-strip__chips {
+  display: flex;
+  gap: 6px;
+}
+
+.elvn-size-strip__msg {
+  color: #ff0000;
+  font-size: 10px;
+}
+
+.elvn-size-chip {
+  font-size: 11px;
+  padding: 3px 6px;
+  border: 1px solid #ddd;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+}
+.elvn-size-chip:hover {
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.elvn-size-chip.is-selected {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.elvn-size-strip__add {
+  font-size: 11px;
+  padding: 4px 10px;
+  width: 100%;
+}
+
+.card__media a {
+  position: relative;
+  /* z-index: 1; */
+}
+
+.card__media a {
+  pointer-events: none;
+}
+
+.card__media img {
+  pointer-events: auto;
+}
+
+.card__title a {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+}
+
+.elvn-card-title-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.elvn-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card__price {
+  margin: 0;
+  font-size: 12px;
+  color: #757575;
+}
+
+.elvn-card-swatches {
+  display: flex;
+  gap: 6px;
+  line-height: 0;
+}
+
+.elvn-swatch {
+  display: flex;
+  align-items: center;
+}
+
+.elvn-swatch-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  display: block;
+  cursor: pointer;
+  transition: border 0.2s ease;
+  box-sizing: border-box;
+}
+
+.elvn-swatch:hover .elvn-swatch-dot {
+  border-color: #000;
+}
+
+.elvn-swatch input:checked + .elvn-swatch-dot {
+  border-color: #000;
+  transform: scale(1.1);
+}
+
+.elvn-card-quick-add {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.elvn-size-strip--reveal {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  justify-content: flex-start;
+}
+
+.elvn-size-strip--reveal .elvn-size-chip {
+  font-size: 11px;
+  padding: 3px 6px;
+  border: 1px solid #ddd;
+  background: transparent;
+}
+
+.elvn-size-strip--reveal .elvn-size-chip.is-selected {
+  background: #111;
+  color: #fff;
+}
+
+.elvn-card-swatches,
+.elvn-size-strip {
+  padding: 0 2px;
+}
+
+.card--standard .card__info {
+  padding: 8px;
+}
+
+variant-king-combined-listing {
+  display: none !important;
+}
+
+@media (max-width: 767.98px) {
+  product-card.elvn-hover .card-reveal {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    z-index: 100;
+  }
+
+  .card-reveal {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
+    padding: 12px;
+    background: var(--bg-color);
+
+    opacity: 0;
+    transform: translateY(100%);
+    pointer-events: none;
+
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .elvn-size-strip__chips {
+    flex-wrap: wrap;
+  }
+
+  .elvn-card-quick-add {
+    margin-top: 0;
+  }
+}
