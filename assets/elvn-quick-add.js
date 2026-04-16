@@ -499,3 +499,43 @@
 
   observer.observe(document.body, { childList: true, subtree: true });
 })();
+
+let elvnOutsideClickBound = false;
+
+function initMobileCardReveal() {
+  const cards = document.querySelectorAll("product-card");
+
+  cards.forEach((card) => {
+    if (card.classList.contains("elvn-touch-init")) return;
+    card.classList.add("elvn-touch-init");
+
+    card.addEventListener("click", (e) => {
+      if (e.target.closest("button, a, input, label")) return;
+
+      const isOpen = card.classList.contains("elvn-hover");
+
+      document.querySelectorAll("product-card.elvn-hover").forEach((c) => {
+        c.classList.remove("elvn-hover");
+      });
+
+      if (!isOpen) {
+        card.classList.add("elvn-hover");
+      }
+    });
+  });
+
+  if (!elvnOutsideClickBound) {
+    elvnOutsideClickBound = true;
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("product-card")) {
+        document
+          .querySelectorAll("product-card.elvn-hover")
+          .forEach((c) => c.classList.remove("elvn-hover"));
+      }
+    });
+  }
+}
+
+document.addEventListener("DOMContentLoaded", initMobileCardReveal);
+document.addEventListener("shopify:section:load", initMobileCardReveal);

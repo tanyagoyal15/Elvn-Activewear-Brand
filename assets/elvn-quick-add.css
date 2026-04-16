@@ -152,3 +152,37 @@
 variant-king-combined-listing {
   display: none !important;
 }
+
+@media (max-width: 767.98px) {
+  product-card.elvn-hover .card-reveal {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    z-index: 100;
+  }
+
+  .card-reveal {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
+    padding: 12px;
+    background: var(--bg-color);
+
+    opacity: 0;
+    transform: translateY(100%);
+    pointer-events: none;
+
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .elvn-size-strip__chips {
+    flex-wrap: wrap;
+  }
+
+  .elvn-card-quick-add {
+    margin-top: 0;
+  }
+}
