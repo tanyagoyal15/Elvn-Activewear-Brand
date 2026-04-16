@@ -350,48 +350,102 @@
           endif
         -%}
 
-        {%- # Title -%}
-        <div class="card__title card__title--product">
-          <a href="{{ product_url }}" class="card-link text-current js-prod-link{% if card_type == 'related' %} text-sm{% endif %}">
-            <span class="{% if truncate_title == "1" %}line-clamp-1{% elsif truncate_title == "2" %}line-clamp-2{% endif %}">
-              {%- if settings.card_show_vendor == 'vendor_title' -%}
-                {{- product.vendor }}
-              {%- endif -%}
-              {{- product_title | escape -}}
-            </span>
-            {% comment %} {% if product.metafields.custom.custom_color != blank %}
-              <p class="product-card__color" style="color: A9A9A9; font-weight:400;">
-                {{ product.metafields.custom.custom_color }}
-              </p>
-            {% endif %} {% endcomment %}
-          </a>
+        <div class="elvn-card-title-price">
+          <div class="elvn-card-title">
+            {%- # Title -%}
+            <div class="card__title card__title--product">
+              <a href="{{ product_url }}" class="card-link text-current js-prod-link{% if card_type == 'related' %} text-sm{% endif %}">
+                <span class="{% if truncate_title == "1" %}line-clamp-1{% elsif truncate_title == "2" %}line-clamp-2{% endif %}">
+                  {%- if settings.card_show_vendor == 'vendor_title' -%}
+                    {{- product.vendor }}
+                  {%- endif -%}
+                  {{- product_title | escape -}}
+                </span>
+                {% comment %} {% if product.metafields.custom.custom_color != blank %}
+                  <p class="product-card__color" style="color: A9A9A9; font-weight:400;">
+                    {{ product.metafields.custom.custom_color }}
+                  </p>
+                {% endif %} {% endcomment %}
+              </a>
+            </div>
+    
+            {%- # Split title -%}
+            {%- if settings.enable_sibling_products and split_product_title.size == 2 -%}
+              <div class="card__split-title{% if card_type == 'related' %} text-sm{% endif %}">
+                {{- split_product_title | last | escape -}}
+              </div>
+            {%- endif -%}
+    
+            {%- # Subtitle -%}
+            {%- if card_type != 'related' and settings.card_show_subtitle and product.metafields.descriptors.subtitle != blank -%}
+              <div class="card__subtitle">
+                <span class="{% if truncate_subtitle == "1" %}line-clamp-1{% elsif truncate_subtitle == "2" %}line-clamp-2{% endif %}">
+                  {{- product.metafields.descriptors.subtitle -}}
+                </span>
+              </div>
+            {%- endif -%}
+          </div>
+          
+          {%- # Price -%}
+          <div class="card__price{% if card_type == 'related' %} text-sm{% endif %}">
+            {%- render 'price', product: product -%}
+          </div>
         </div>
 
-        {%- # Split title -%}
-        {%- if settings.enable_sibling_products and split_product_title.size == 2 -%}
-          <div class="card__split-title{% if card_type == 'related' %} text-sm{% endif %}">
-            {{- split_product_title | last | escape -}}
-          </div>
-        {%- endif -%}
+        
 
-        {%- # Subtitle -%}
-        {%- if card_type != 'related' and settings.card_show_subtitle and product.metafields.descriptors.subtitle != blank -%}
-          <div class="card__subtitle">
-            <span class="{% if truncate_subtitle == "1" %}line-clamp-1{% elsif truncate_subtitle == "2" %}line-clamp-2{% endif %}">
-              {{- product.metafields.descriptors.subtitle -}}
-            </span>
-          </div>
-        {%- endif -%}
+        
 
-        {%- # Price -%}
-        <div class="card__price{% if card_type == 'related' %} text-sm{% endif %}">
-          {%- render 'price', product: product -%}
-        </div>
+
+        {%- comment %} Elvn Quick Add Strip {%- endcomment -%}
+        {%- if card_type == 'standard' -%}
+          {%- liquid
+            assign size_option_index = nil
+            assign color_option_index = nil
+            for option in product.options_with_values
+              assign option_name_down = option.name | downcase
+              if option_name_down == 'size'
+                assign size_option_index = forloop.index0
+              endif
+              if option_name_down == 'color' or option_name_down == 'colour'
+                assign color_option_index = forloop.index0
+              endif
+            endfor
+          -%}
+
+          {%- if size_option_index != nil -%}
+            <script type="application/json" class="elvn-variants-json">
+              {
+                "variants": [
+                  {%- for variant in product.variants -%}
+                    {
+                      "id": {{ variant.id }},
+                      "available": {{ variant.available | json }},
+                      "size": {{ variant.options[size_option_index] | json }},
+                      "color": {% if color_option_index != nil %}{{ variant.options[color_option_index] | json }}{% else %}null{% endif %},
+                      "inventory_quantity": {{ variant.inventory_quantity }}
+                    }{% unless forloop.last %},{% endunless %}
+                  {%- endfor -%}
+                ],
+                "hasColorOption": {{ color_option_index | default: 'false' | json }}
+              }
+            </script>
+
+            <div class="elvn-size-strip" data-product-id="{{ product.id }}">
+              <div class="elvn-size-strip__chips" role="group" aria-label="Select size">
+                {{- '' -}}
+              </div>
+              <button class="elvn-size-strip__add" type="button" aria-label="Add to cart">
+                Add
+              </button>
+            </div>
+          {%- endif -%}
+        {%- endif -%}
       </div>
 
       {%- # Quick Add -%}
       {%- if show_quick_shop -%}
-        <div class="card-reveal has-motion relative">
+        <div class="card-reveal has-motion relative hidden">
           <div class="has-motion">
             <div class="card__quick-add">
               {%- liquid
