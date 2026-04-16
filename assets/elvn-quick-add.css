@@ -198,4 +198,9 @@ variant-king-combined-listing {
   .elvn-card-quick-add {
     margin-top: 0;
   }
+
+  .elvn-size-strip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

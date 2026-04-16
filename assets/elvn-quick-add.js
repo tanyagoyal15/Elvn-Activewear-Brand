@@ -7,8 +7,6 @@
 (function () {
   "use strict";
 
-  // ── Helpers ──────────────────────────────────────────────
-
   /**
    * Get variant data from the JSON block inside a product-card.
    */
@@ -28,7 +26,6 @@
    */
   function getActiveColor(card) {
     const checked = card.querySelector(".elvn-card-swatches .opt-btn:checked");
-    console.log("CHECKED");
     if (checked) return checked.value;
     // Fallback: no swatches, return null (single-color product)
     return null;
@@ -66,7 +63,6 @@
       let badge = document.querySelector(".header__cart-count");
 
       if (!badge) {
-        // Badge doesn't exist yet (was empty cart) — create and inject it
         const cartIcon = document.querySelector("#cart-icon");
         if (!cartIcon) return;
 
@@ -97,15 +93,10 @@
         hiddenSpan.textContent = `${count} items in cart`;
       }
 
-      // Animate the badge briefly
       badge.classList.add("elvn-count-bump");
       setTimeout(() => badge.classList.remove("elvn-count-bump"), 400);
-    } catch (e) {
-      // Cart count update failed silently — not critical
-    }
+    } catch (e) {}
   }
-
-  // ── Per-card controller ───────────────────────────────────
 
   class ElvnQuickAdd {
     constructor(card) {
@@ -126,7 +117,7 @@
       this.isAdding = false;
 
       this.bindEvents();
-      this.renderChips(); // initial render
+      this.renderChips();
     }
 
     bindEvents() {
@@ -208,11 +199,6 @@
     renderChips() {
       const { variants, hasColorOption } = this.variantData;
       const activeColor = getActiveColor(this.card);
-      console.log(
-        "VARIANT COLORS:",
-        variants.map((v) => v.color),
-      );
-      console.log("ACTIVE COLOR : ", activeColor);
 
       let filtered;
       if (hasColorOption && activeColor) {
@@ -370,7 +356,6 @@
       this.clearMsg();
 
       try {
-        // 1. Add to cart
         const res = await fetch("/cart/add.js", {
           method: "POST",
           headers: {
@@ -388,10 +373,8 @@
           throw new Error(err.description || "Could not add to cart");
         }
 
-        // 2. Update cart count
         await updateCartCount();
 
-        // 3. Refresh cart drawer content
         const cartDrawer = document.querySelector("cart-drawer");
 
         if (cartDrawer) {
@@ -407,11 +390,9 @@
             cartDrawer.innerHTML = newDrawer.innerHTML;
           }
 
-          // Open updated drawer
           cartDrawer.open();
         }
 
-        // 4. Success UI
         this.addBtn.textContent = "Added ✓";
         this.addBtn.classList.add("is-added");
 
@@ -420,7 +401,6 @@
           this.resetAddBtn();
         }, 2000);
       } catch (err) {
-        // Error UI
         this.addBtn.textContent = "Error";
         this.addBtn.classList.add("is-error");
         this.showMsg(err.message || "Something went wrong");
@@ -454,8 +434,6 @@
     }
   }
 
-  // ── Init all cards on page ────────────────────────────────
-
   function initCards() {
     document.querySelectorAll("product-card").forEach((card) => {
       if (!card.dataset.elvnQaInit) {
@@ -465,7 +443,6 @@
     });
   }
 
-  // Init on DOM ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initCards);
   } else {

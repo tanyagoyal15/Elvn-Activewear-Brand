@@ -86,7 +86,7 @@
             {% if block.settings.title != blank %}
               <div class="grid-content {{ block.settings.overlay_position }}">
                 <h3>{{ block.settings.title }}</h3>
-                <p class="grid-cta">Shop Now</p>
+                <p class="grid-cta">{{ block.settings.cta }}</p>
               </div>
             {% endif %}
 
@@ -185,6 +185,12 @@
           "id": "title",
           "label": "Title",
           "default": "Category"
+        },
+        {
+          "type": "text",
+          "id": "cta",
+          "label": "CTA",
+          "default": "Shop Now"
         },
         {
           "type": "url",
