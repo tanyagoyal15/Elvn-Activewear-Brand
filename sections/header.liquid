@@ -15,6 +15,8 @@
 -%}
 
 {%- if section.settings.enable_search and settings.enable_predictive_search -%}
+  <link rel="stylesheet" href="{{ 'mobile-header.css' | asset_url }}" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ 'mobile-header.css' | asset_url }}"></noscript>
   <link rel="stylesheet" href="{{ 'predictive-search.css' | asset_url }}" media="print" onload="this.media='all'">
   <script src="{{ 'predictive-search.js' | asset_url }}" defer></script>
   <script src="{{ 'tabs.js' | asset_url }}" defer></script>
@@ -182,7 +184,7 @@
                         {{- link.title | escape -}}
                       </a>
                     {%- else -%}
-                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>
+                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}" {% if link.current %} aria-current="page"{% endif %}>
                         {{- link.title | escape -}}
                       </a>
                       <details>
@@ -414,6 +416,10 @@
     {%- endif -%}
 
     <div class="header__icons flex-1 flex justify-end items-center">
+      <a class="header__icon text-current" href="https://wa.me/919892836850" target="_blank" rel="noopener">
+        {% render 'icon-whatsapp' %}
+        <span class="visually-hidden">WhatsApp</span>
+      </a>
       {%- if section.settings.enable_localization -%}
         {% if show_country or show_language %}
           <button class="localization-options localization-options--header text-current js-toggle-localization" data-localization-trigger="localization-drawer-header">
@@ -527,6 +533,7 @@
 
 {% render 'structured-data-header' %}
 
+
 <script>
   // From set-dimensions.js
   requestAnimationFrame(() => {
@@ -544,6 +551,125 @@
   });
 </script>
 
+<script>
+  (function () {
+    'use strict';
+  
+    var MOBILE_BREAKPOINT = 990;
+    var initialized = false;
+  
+    function isMobile() {
+      return window.innerWidth < MOBILE_BREAKPOINT;
+    }
+  
+    function disableThemeDetailsDisclosure() {
+      document.querySelectorAll('details-disclosure').forEach(function (el) {
+        el.replaceWith(...el.childNodes);
+      });
+    }
+  
+    function closeSiblingDetails(currentDetails) {
+      var parent = currentDetails.parentElement;
+      var grandparent = parent ? parent.parentElement : null;
+      if (!grandparent) return;
+  
+      var siblings = grandparent.querySelectorAll(':scope > li > details');
+      siblings.forEach(function (sib) {
+        if (sib !== currentDetails && sib.hasAttribute('open')) {
+          sib.removeAttribute('open');
+        }
+      });
+    }
+  
+    function handleSummaryClick(e) {
+      if (!isMobile()) return;
+    
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    
+      var summary = e.currentTarget;
+      var details = summary.closest('details');
+      if (!details) return;
+    
+      var isOpen = details.hasAttribute('open');
+    
+      closeSiblingDetails(details);
+    
+      if (isOpen) {
+        details.removeAttribute('open');
+      } else {
+        details.setAttribute('open', '');
+      }
+    }
+  
+    function handleParentClick(e) {
+      if (!isMobile()) return;
+  
+      var link = e.currentTarget;
+      var parent = link.closest('li');
+      var details = parent ? parent.querySelector('details') : null;
+  
+      if (!details) return;
+  
+      e.preventDefault();
+      e.stopImmediatePropagation(); // 🔥 MUST
+  
+      var isOpen = details.hasAttribute('open');
+  
+      closeSiblingDetails(details);
+  
+      if (isOpen) {
+        details.removeAttribute('open');
+      } else {
+        details.setAttribute('open', '');
+      }
+    }
+  
+    function initAccordion() {
+      if (!isMobile()) return;
+      if (initialized) return;
+  
+      disableThemeDetailsDisclosure();
+  
+      var mainMenu = document.querySelector('main-menu');
+      if (!mainMenu) return;
+  
+      var summaries = mainMenu.querySelectorAll(
+        '.main-nav > li > details > summary.main-nav__summary');      
+      summaries.forEach(function (summary) {
+        summary.addEventListener('click', handleSummaryClick);
+      });
+  
+      var parentLinks = mainMenu.querySelectorAll('.main-nav__item--primary');
+      parentLinks.forEach(function (link) {
+        link.addEventListener('click', handleParentClick);
+      });
+  
+      var grandchildDetails = mainMenu.querySelectorAll('.child-nav details');
+      grandchildDetails.forEach(function (d) {
+        d.removeAttribute('open');
+      });
+  
+      initialized = true;
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAccordion);
+    } else {
+      initAccordion();
+    }
+  
+    window.addEventListener('resize', function () {
+      if (!isMobile()) {
+        initialized = false;
+      } else {
+        initAccordion();
+      }
+    });
+  
+  })();
+  </script>
+  
 {% schema %}
 {
   "name": "Header",
