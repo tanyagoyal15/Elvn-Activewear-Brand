@@ -570,6 +570,13 @@
         </div>
       {%- endif -%}
     </div>
+
+    <img 
+      src="{{ 'quick-add-icon.png' | asset_url }}" 
+      width="20" 
+      height="20" 
+      class="quick-cart-icon" 
+    />
   </product-card>
 {%- else -%}
   <div class="card product-card color-scheme color-scheme--{{ settings.product_card_color_scheme.id }}">

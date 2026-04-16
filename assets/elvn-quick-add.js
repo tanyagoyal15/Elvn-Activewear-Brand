@@ -510,7 +510,7 @@ function initMobileCardReveal() {
     card.classList.add("elvn-touch-init");
 
     card.addEventListener("click", (e) => {
-      if (e.target.closest("button, a, input, label")) return;
+      if (e.target.closest("button, a, input, label, .quick-cart-icon")) return;
 
       const isOpen = card.classList.contains("elvn-hover");
 
@@ -522,6 +522,25 @@ function initMobileCardReveal() {
         card.classList.add("elvn-hover");
       }
     });
+
+    const quickIcon = card.querySelector(".quick-cart-icon");
+
+    if (quickIcon) {
+      quickIcon.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const isOpen = card.classList.contains("elvn-hover");
+
+        document.querySelectorAll("product-card.elvn-hover").forEach((c) => {
+          c.classList.remove("elvn-hover");
+        });
+
+        if (!isOpen) {
+          card.classList.add("elvn-hover");
+        }
+      });
+    }
   });
 
   if (!elvnOutsideClickBound) {

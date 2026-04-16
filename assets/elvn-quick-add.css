@@ -153,6 +153,19 @@ variant-king-combined-listing {
   display: none !important;
 }
 
+.quick-cart-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+@media (min-width: 767.98px) {
+  .quick-cart-icon {
+    display: none;
+  }
+}
+
 @media (max-width: 767.98px) {
   product-card.elvn-hover .card-reveal {
     opacity: 1;
