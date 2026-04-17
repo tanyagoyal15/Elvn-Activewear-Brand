@@ -265,46 +265,52 @@
                 </div>
               
                 <div class="mobile-extra-menu">
-              
+  
                   {% if section.settings.mobile_footer_menu != blank %}
                     <ul>
+                
                       {% for child_link in section.settings.mobile_footer_menu.links %}
-                        {% if child_link.links != blank %}
-                                  
-                          <details class="mobile-accordion">
-                            <summary class="flex justify-between items-center">
-                              <span>{{ child_link.title }}</span>
-                              <span class="icon">{% render 'icon-chevron-down' %}</span>
-                            </summary>
-      
-                            <ul class="mobile-submenu">
-                              {% for grandchild_link in child_link.links %}
-                                <li>
-                                  <a href="{{ grandchild_link.url }}">
-                                    {{ grandchild_link.title }}
-                                  </a>
-                                </li>
-                              {% endfor %}
-                            </ul>
-                          </details>
-      
-                        {% else %}
-      
-                          <a href="{{ child_link.url }}">
-                            {{ child_link.title }}
-                          </a>
-      
-                        {% endif %}
+                        <li>
+                
+                          {% if child_link.links != blank %}
+                            
+                            <details class="mobile-accordion">
+                              <summary class="flex justify-between items-center">
+                                <span>{{ child_link.title }}</span>
+                                <span class="icon">{% render 'icon-chevron-down' %}</span>
+                              </summary>
+                
+                              <ul class="mobile-submenu">
+                                {% for grandchild_link in child_link.links %}
+                                  <li>
+                                    <a href="{{ grandchild_link.url }}">
+                                      {{ grandchild_link.title }}
+                                    </a>
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            </details>
+                
+                          {% else %}
+                
+                            <a href="{{ child_link.url }}">
+                              {{ child_link.title }}
+                            </a>
+                
+                          {% endif %}
+                
+                        </li>
                       {% endfor %}
+                
                     </ul>
                   {% endif %}
-              
+                
                   <div class="mobile-social">
                     <a href="#">Instagram</a>
                     <a href="#">Facebook</a>
                     <a href="#">Pinterest</a>
                   </div>
-              
+                
                 </div>
               
               </div>
