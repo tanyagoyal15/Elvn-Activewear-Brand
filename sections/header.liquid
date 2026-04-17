@@ -266,9 +266,9 @@
               
                 <div class="mobile-extra-menu">
               
-                  {% if section.settings.mobile_extra_menu != blank %}
+                  {% if section.settings.mobile_footer_menu != blank %}
                     <ul>
-                      {% for link in section.settings.mobile_extra_menu.links %}
+                      {% for link in section.settings.mobile_footer_menu.links %}
                         <li>
                           <a href="{{ link.url }}">{{ link.title }}</a>
                         </li>
