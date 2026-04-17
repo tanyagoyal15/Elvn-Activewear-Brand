@@ -180,137 +180,139 @@
                 </div>
               
                 <!-- TAB CONTENT -->
-                <div class="mobile-tabs__content">
+                <div class="mobile-tab-content-footer-menu">
+                  <div class="mobile-tabs__content">
               
-                  {% for link in section.settings.menu.links %}
-                    <div 
-                      class="mobile-tab-panel {% unless forloop.first %}hidden{% endunless %}" 
-                      data-panel="{{ forloop.index }}">
-              
-                      {% if link.links != blank %}
-              
-                        {% if link.title == 'Activities' %}
-              
-                          <!-- ACTIVITIES GRID -->
-                          <div class="mobile-grid">
-                            {% for child_link in link.links %}
-                              {% assign collection = child_link.object %}
-              
-                              <a href="{{ child_link.url }}" class="mobile-card">
-                                {% if collection.featured_image %}
-                                  <div class="mobile-card__image">
-                                    <img 
-                                      width="100%"
-                                      height="100%"
-                                      src="{{ collection.featured_image | image_url: width: 600 }}" 
-                                      alt="{{ child_link.title }}"
-                                    />
-                                    <div class="mobile-card__overlay">
-                                      {{ child_link.title }}
+                    {% for link in section.settings.menu.links %}
+                      <div 
+                        class="mobile-tab-panel {% unless forloop.first %}hidden{% endunless %}" 
+                        data-panel="{{ forloop.index }}">
+                
+                        {% if link.links != blank %}
+                
+                          {% if link.title == 'Activities' %}
+                
+                            <!-- ACTIVITIES GRID -->
+                            <div class="mobile-grid">
+                              {% for child_link in link.links %}
+                                {% assign collection = child_link.object %}
+                
+                                <a href="{{ child_link.url }}" class="mobile-card">
+                                  {% if collection.featured_image %}
+                                    <div class="mobile-card__image">
+                                      <img 
+                                        width="100%"
+                                        height="100%"
+                                        src="{{ collection.featured_image | image_url: width: 600 }}" 
+                                        alt="{{ child_link.title }}"
+                                      />
+                                      <div class="mobile-card__overlay">
+                                        {{ child_link.title }}
+                                      </div>
                                     </div>
-                                  </div>
-                                {% endif %}
-                              </a>
-              
-                            {% endfor %}
-                          </div>
-              
-                        {% else %}
-              
-                          <!-- NORMAL MENU -->
-                          <ul class="mobile-tab-links">
-                            {% for child_link in link.links %}
-                              <li>
-              
-                                {% if child_link.links != blank %}
-                                  
-                                  <details class="mobile-accordion">
-                                    <summary class="flex justify-between items-center">
-                                      <span>{{ child_link.title }}</span>
-                                      <span class="icon">{% render 'icon-chevron-down' %}</span>
-                                    </summary>
-              
-                                    <ul class="mobile-submenu">
-                                      {% for grandchild_link in child_link.links %}
-                                        <li>
-                                          <a href="{{ grandchild_link.url }}">
-                                            {{ grandchild_link.title }}
-                                          </a>
-                                        </li>
-                                      {% endfor %}
-                                    </ul>
-                                  </details>
-              
-                                {% else %}
-              
-                                  <a href="{{ child_link.url }}">
-                                    {{ child_link.title }}
-                                  </a>
-              
-                                {% endif %}
-              
-                              </li>
-                            {% endfor %}
-                          </ul>
-              
-                        {% endif %}
-              
-                      {% else %}
-                        <a href="{{ link.url }}">{{ link.title }}</a>
-                      {% endif %}
-              
-                    </div>
-                  {% endfor %}
-              
-                </div>
-              
-                <div class="mobile-extra-menu">
-  
-                  {% if section.settings.mobile_footer_menu != blank %}
-                    <ul>
+                                  {% endif %}
+                                </a>
                 
-                      {% for child_link in section.settings.mobile_footer_menu.links %}
-                        <li>
-                
-                          {% if child_link.links != blank %}
-                            
-                            <details class="mobile-accordion">
-                              <summary class="flex justify-between items-center">
-                                <span>{{ child_link.title }}</span>
-                                <span class="icon">{% render 'icon-chevron-down' %}</span>
-                              </summary>
-                
-                              <ul class="mobile-submenu">
-                                {% for grandchild_link in child_link.links %}
-                                  <li>
-                                    <a href="{{ grandchild_link.url }}">
-                                      {{ grandchild_link.title }}
-                                    </a>
-                                  </li>
-                                {% endfor %}
-                              </ul>
-                            </details>
+                              {% endfor %}
+                            </div>
                 
                           {% else %}
                 
-                            <a href="{{ child_link.url }}">
-                              {{ child_link.title }}
-                            </a>
+                            <!-- NORMAL MENU -->
+                            <ul class="mobile-tab-links">
+                              {% for child_link in link.links %}
+                                <li>
+                
+                                  {% if child_link.links != blank %}
+                                    
+                                    <details class="mobile-accordion">
+                                      <summary class="flex justify-between items-center">
+                                        <span>{{ child_link.title }}</span>
+                                        <span class="icon">{% render 'icon-chevron-down' %}</span>
+                                      </summary>
+                
+                                      <ul class="mobile-submenu">
+                                        {% for grandchild_link in child_link.links %}
+                                          <li>
+                                            <a href="{{ grandchild_link.url }}">
+                                              {{ grandchild_link.title }}
+                                            </a>
+                                          </li>
+                                        {% endfor %}
+                                      </ul>
+                                    </details>
+                
+                                  {% else %}
+                
+                                    <a href="{{ child_link.url }}">
+                                      {{ child_link.title }}
+                                    </a>
+                
+                                  {% endif %}
+                
+                                </li>
+                              {% endfor %}
+                            </ul>
                 
                           {% endif %}
                 
-                        </li>
-                      {% endfor %}
+                        {% else %}
+                          <a href="{{ link.url }}">{{ link.title }}</a>
+                        {% endif %}
                 
-                    </ul>
-                  {% endif %}
+                      </div>
+                    {% endfor %}
                 
-                  <div class="mobile-social">
-                    <a href="#">Instagram</a>
-                    <a href="#">Facebook</a>
-                    <a href="#">Pinterest</a>
                   </div>
                 
+                  <div class="mobile-extra-menu">
+    
+                    {% if section.settings.mobile_footer_menu != blank %}
+                      <ul>
+                  
+                        {% for child_link in section.settings.mobile_footer_menu.links %}
+                          <li>
+                  
+                            {% if child_link.links != blank %}
+                              
+                              <details class="mobile-accordion">
+                                <summary class="flex justify-between items-center">
+                                  <span>{{ child_link.title }}</span>
+                                  <span class="icon">{% render 'icon-chevron-down' %}</span>
+                                </summary>
+                  
+                                <ul class="mobile-submenu">
+                                  {% for grandchild_link in child_link.links %}
+                                    <li>
+                                      <a href="{{ grandchild_link.url }}">
+                                        {{ grandchild_link.title }}
+                                      </a>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                              </details>
+                  
+                            {% else %}
+                  
+                              <a href="{{ child_link.url }}">
+                                {{ child_link.title }}
+                              </a>
+                  
+                            {% endif %}
+                  
+                          </li>
+                        {% endfor %}
+                  
+                      </ul>
+                    {% endif %}
+                  
+                    <div class="mobile-social">
+                      <a href="#">Instagram</a>
+                      <a href="#">Facebook</a>
+                      <a href="#">Pinterest</a>
+                    </div>
+                  
+                  </div>
                 </div>
               
               </div>
@@ -883,6 +885,9 @@
 
 <style>
   @media (max-width: 767.98px) {
+    .mobile-tabs {
+      height: 90vh;
+    }
     .header-nav-menu {
       padding-top: 0px !important;
     }
@@ -934,7 +939,7 @@
     }
     
     .mobile-submenu li {
-      padding: 8px 0;
+      {% comment %} padding: 8px 0; {% endcomment %}
     }
     
     .mobile-tab-links > li > details > summary {
@@ -972,7 +977,7 @@
     }
 
     .mobile-card__image img {
-      aspect-ratio: 16/9;
+      aspect-ratio: 4 / 1;
       object-fit: cover;
     }
 
@@ -995,10 +1000,11 @@
       margin-top: 32px;
       padding: 20px 0 10px;
       border-top: 1px solid #eee;
+      margin-top: auto;
     }
     
     .mobile-extra-menu ul li {
-      padding: 10px 0;
+      padding: 6px 0;
     }
     
     .mobile-extra-menu a {
@@ -1016,6 +1022,26 @@
     .mobile-social a {
       font-size: 12px;
       opacity: 0.6;
+    }
+
+    .mobile-tab-content-footer-menu {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      flex: 1;
+    }
+
+    .mobile-tabs__content {
+      flex: 1;
+    }
+
+    .main-menu__mobile-nav-header {
+      padding: 0;
+    }
+
+    .mobile-tab-links .icon svg {
+      width: 16px;
+      height: 16px;
     }
   }
 </style>
