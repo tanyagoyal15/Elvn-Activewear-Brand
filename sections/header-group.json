@@ -94,7 +94,7 @@
           "type": "mega-menu-coll-cards",
           "disabled": true,
           "settings": {
-            "menu_link_title": "Category",
+            "menu_link_title": "Shop By Category",
             "card_style": "text-below",
             "card_show_count": false,
             "card_compact": true,
@@ -106,7 +106,7 @@
           "type": "mega-menu-coll-cards",
           "disabled": true,
           "settings": {
-            "menu_link_title": "Collections",
+            "menu_link_title": "Shop By Collections",
             "card_style": "text-below",
             "card_show_count": false,
             "card_compact": true,
@@ -193,7 +193,6 @@
         },
         "mega_menu_columns_xJbx4d": {
           "type": "mega-menu-columns",
-          "disabled": true,
           "settings": {
             "menu_link_title": "Shop",
             "show_collection_images": true,
@@ -261,7 +260,7 @@
         "logo_width_mobile": 75,
         "logo_h1": true,
         "enable_transparency": true,
-        "menu": "main-menu-dev",
+        "menu": "main-menu-updated-copy",
         "parent_opens_child_mobile": true,
         "enable_localization": true,
         "cart_icon": "cart",
