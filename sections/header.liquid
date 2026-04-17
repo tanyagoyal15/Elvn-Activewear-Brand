@@ -167,8 +167,9 @@
 
             <nav aria-label="{{ 'accessibility.main_navigation' | t }}" class="header-nav-menu">
               <div class="mobile-tabs lg:hidden">
-                <div class="mobile-tabs__list flex border-b">
 
+                <!-- TABS -->
+                <div class="mobile-tabs__list flex border-b">
                   {% for link in section.settings.menu.links %}
                     <button 
                       class="mobile-tab {% if forloop.first %}active{% endif %}" 
@@ -176,29 +177,26 @@
                       {{ link.title }}
                     </button>
                   {% endfor %}
-
                 </div>
-
+              
+                <!-- TAB CONTENT -->
                 <div class="mobile-tabs__content">
-
-
+              
                   {% for link in section.settings.menu.links %}
                     <div 
                       class="mobile-tab-panel {% unless forloop.first %}hidden{% endunless %}" 
                       data-panel="{{ forloop.index }}">
-                  
+              
                       {% if link.links != blank %}
-                  
+              
                         {% if link.title == 'Activities' %}
-                  
+              
+                          <!-- ACTIVITIES GRID -->
                           <div class="mobile-grid">
-                  
                             {% for child_link in link.links %}
-                              
                               {% assign collection = child_link.object %}
-                  
+              
                               <a href="{{ child_link.url }}" class="mobile-card">
-                  
                                 {% if collection.featured_image %}
                                   <div class="mobile-card__image">
                                     <img 
@@ -207,26 +205,23 @@
                                       src="{{ collection.featured_image | image_url: width: 600 }}" 
                                       alt="{{ child_link.title }}"
                                     />
-                  
                                     <div class="mobile-card__overlay">
                                       {{ child_link.title }}
                                     </div>
                                   </div>
                                 {% endif %}
-                  
                               </a>
-                  
+              
                             {% endfor %}
-                  
                           </div>
-                  
+              
                         {% else %}
-                  
+              
+                          <!-- NORMAL MENU -->
                           <ul class="mobile-tab-links">
-                  
                             {% for child_link in link.links %}
                               <li>
-                  
+              
                                 {% if child_link.links != blank %}
                                   
                                   <details class="mobile-accordion">
@@ -234,7 +229,7 @@
                                       <span>{{ child_link.title }}</span>
                                       <span class="icon">{% render 'icon-chevron-down' %}</span>
                                     </summary>
-                  
+              
                                     <ul class="mobile-submenu">
                                       {% for grandchild_link in child_link.links %}
                                         <li>
@@ -245,29 +240,50 @@
                                       {% endfor %}
                                     </ul>
                                   </details>
-                  
+              
                                 {% else %}
-                  
+              
                                   <a href="{{ child_link.url }}">
                                     {{ child_link.title }}
                                   </a>
-                  
+              
                                 {% endif %}
-                  
+              
                               </li>
                             {% endfor %}
-                  
                           </ul>
-                  
+              
                         {% endif %}
-                  
+              
                       {% else %}
                         <a href="{{ link.url }}">{{ link.title }}</a>
                       {% endif %}
-                  
+              
                     </div>
                   {% endfor %}
+              
                 </div>
+              
+                <div class="mobile-extra-menu">
+              
+                  {% if section.settings.mobile_extra_menu != blank %}
+                    <ul>
+                      {% for link in section.settings.mobile_extra_menu.links %}
+                        <li>
+                          <a href="{{ link.url }}">{{ link.title }}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+              
+                  <div class="mobile-social">
+                    <a href="#">Instagram</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">Pinterest</a>
+                  </div>
+              
+                </div>
+              
               </div>
               <ul class="main-nav hidden">
                 {%- for link in section.settings.menu.links -%}
@@ -826,7 +842,6 @@
   
         const parent = summary.parentElement;
   
-        // close others (optional but premium UX)
         document.querySelectorAll(".mobile-tab details").forEach(d => {
           if (d !== parent) d.classList.remove("is-open");
         });
@@ -835,119 +850,146 @@
       });
     });
   });
-  </script>
+</script>
 
-  <style>
-    @media (max-width: 767.98px) {
-      .header-nav-menu {
-        padding-top: 0px !important;
-      }
-
-      .mobile-tabs__list {
-        display: flex;
-        border-bottom: 1px solid #ddd;
-      }
-      
-      .mobile-tab {
-        font-size: 12px;
-        text-transform: uppercase;
-        flex: 1;
-        padding: 12px;
-        text-align: center;
-        font-weight: 500;
-        border-bottom: 2px solid transparent;
-      }
-      
-      .mobile-tab.active {
-        font-weight: 700;
-        border-bottom: 2px solid black;
-      }
-      
-      .mobile-tab-panel.hidden {
-        display: none;
-      }
-
-      .mobile-tab-links {
-        margin-top: 20px;
-      }
-      
-      .mobile-tab-links li {
-        font-size: 12px;
-        margin-bottom: 12px;
-      }
-  
-      .mobile-tab details summary .icon {
-        transition: transform 0.25s ease;
-      }
-      
-      .mobile-tab details[open] summary .icon {
-        transform: rotate(180deg);
-      }
-  
-      .mobile-submenu {
-        padding-left: 16px;
-        margin-top: 8px;
-      }
-      
-      .mobile-submenu li {
-        padding: 8px 0;
-      }
-      
-      .mobile-tab-links > li > details > summary {
-        cursor: pointer;
-      }
-
-      .mobile-tab details .mobile-submenu {
-        display: none;
-      }
-      
-      .mobile-tab details.is-open .mobile-submenu {
-        display: block;
-      }
-
-      .mobile-tab-panel {
-        opacity: 0;
-        transform: translateY(8px);
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      
-      .mobile-tab-panel.is-active {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      .mobile-grid {
-        display: grid;
-        gap: 20px;
-        margin-top: 20px;
-      }
-
-      .mobile-card__image {
-        position: relative;
-        width: 100%
-      }
-
-      .mobile-card__image img {
-        aspect-ratio: 16/9;
-        object-fit: cover;
-      }
-
-      .mobile-card__overlay {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        font-size: 14px;
-        margin-top: 4px;
-        opacity: 0.9;
-        text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-        letter-spacing: 0.4px;
-        color: #fff;
-        font-weight: bold;
-        text-transform: uppercase;
-        text-align: center;
-      }
+<style>
+  @media (max-width: 767.98px) {
+    .header-nav-menu {
+      padding-top: 0px !important;
     }
-  </style>
+
+    .mobile-tabs__list {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .mobile-tab {
+      font-size: 12px;
+      text-transform: uppercase;
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .mobile-tab.active {
+      font-weight: 700;
+      border-bottom: 2px solid black;
+    }
+    
+    .mobile-tab-panel.hidden {
+      display: none;
+    }
+
+    .mobile-tab-links {
+      margin-top: 20px;
+    }
+    
+    .mobile-tab-links li {
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mobile-tab details summary .icon {
+      transition: transform 0.25s ease;
+    }
+    
+    .mobile-tab details[open] summary .icon {
+      transform: rotate(180deg);
+    }
+
+    .mobile-submenu {
+      padding-left: 16px;
+      margin-top: 8px;
+    }
+    
+    .mobile-submenu li {
+      padding: 8px 0;
+    }
+    
+    .mobile-tab-links > li > details > summary {
+      cursor: pointer;
+    }
+
+    .mobile-tab details .mobile-submenu {
+      display: none;
+    }
+    
+    .mobile-tab details.is-open .mobile-submenu {
+      display: block;
+    }
+
+    .mobile-tab-panel {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .mobile-tab-panel.is-active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mobile-grid {
+      display: grid;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .mobile-card__image {
+      position: relative;
+      width: 100%
+    }
+
+    .mobile-card__image img {
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+
+    .mobile-card__overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      font-size: 14px;
+      margin-top: 4px;
+      opacity: 0.9;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+      letter-spacing: 0.4px;
+      color: #fff;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .mobile-extra-menu {
+      margin-top: 32px;
+      padding: 20px 0 10px;
+      border-top: 1px solid #eee;
+    }
+    
+    .mobile-extra-menu ul li {
+      padding: 10px 0;
+    }
+    
+    .mobile-extra-menu a {
+      font-size: 12px;
+      opacity: 0.7;
+      letter-spacing: 0.5px;
+    }
+    
+    .mobile-social {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    
+    .mobile-social a {
+      font-size: 12px;
+      opacity: 0.6;
+    }
+  }
+</style>
   
 {% schema %}
 {
@@ -1049,6 +1091,11 @@
       "id": "menu",
       "label": "Main menu",
       "default": "main-menu"
+    },
+    {
+      "type": "link_list",
+      "id": "mobile_footer_menu",
+      "label": "Mobile Footer Menu"
     },
     {
       "type": "checkbox",
