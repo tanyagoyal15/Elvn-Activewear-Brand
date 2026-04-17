@@ -268,10 +268,33 @@
               
                   {% if section.settings.mobile_footer_menu != blank %}
                     <ul>
-                      {% for link in section.settings.mobile_footer_menu.links %}
-                        <li>
-                          <a href="{{ link.url }}">{{ link.title }}</a>
-                        </li>
+                      {% for child_link in section.settings.mobile_footer_menu.links %}
+                        {% if child_link.links != blank %}
+                                  
+                          <details class="mobile-accordion">
+                            <summary class="flex justify-between items-center">
+                              <span>{{ child_link.title }}</span>
+                              <span class="icon">{% render 'icon-chevron-down' %}</span>
+                            </summary>
+      
+                            <ul class="mobile-submenu">
+                              {% for grandchild_link in child_link.links %}
+                                <li>
+                                  <a href="{{ grandchild_link.url }}">
+                                    {{ grandchild_link.title }}
+                                  </a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          </details>
+      
+                        {% else %}
+      
+                          <a href="{{ child_link.url }}">
+                            {{ child_link.title }}
+                          </a>
+      
+                        {% endif %}
                       {% endfor %}
                     </ul>
                   {% endif %}
