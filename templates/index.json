@@ -181,68 +181,68 @@
         "section_join_mode": "tight"
       }
     },
-    "image_banner_aArKYQ": {
-      "type": "image-banner",
-      "blocks": {
-        "subheading_etG984": {
-          "type": "subheading",
-          "settings": {
-            "text": "Shop Now"
-          }
-        },
-        "heading_aHGCxD": {
-          "type": "heading",
-          "settings": {
-            "heading": "Matching sets",
-            "heading_size_desktop": "h1",
-            "heading_size_mobile": "h1",
-            "heading_h1": false
-          }
-        },
-        "text_NnxGPV": {
-          "type": "text",
-          "settings": {
-            "text": "<p><strong>Lorem Ipsum</strong>is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,</p>",
-            "enlarge_text": false
-          }
-        }
-      },
-      "block_order": ["subheading_etG984", "heading_aHGCxD", "text_NnxGPV"],
-      "name": "Image banner",
-      "settings": {
-        "image_desktop": "shopify://shop_images/Elvn_lookBook_2442.jpg",
-        "image_mobile": "shopify://shop_images/DRU0204.jpg",
-        "url": "",
-        "height_mode": "fixed",
-        "fixed_height_desktop": 600,
-        "fixed_height_mobile": 350,
-        "mobile_stacked": false,
-        "tint_color": "#000000",
-        "tint_opacity": 0,
-        "overlay_position": "justify-start items-center",
-        "overlay_text_align": "text-start",
-        "overlay_width_override": false,
-        "overlay_max_width": 640,
-        "mob_center_text": false,
-        "color_scheme": "",
-        "full_width": true,
-        "enable_top_fade": false,
-        "top_fade_depth": 100,
-        "top_fade_color": "#ffffff",
-        "enable_bottom_fade": false,
-        "bottom_fade_depth": 100,
-        "bottom_fade_color": "#ffffff",
-        "background_mode": "default",
-        "background_color": "#ffffff",
-        "background_gradient_stop_1": "#cccccc",
-        "background_gradient_stop_2": "#ffffff",
-        "background_gradient_curve": "linear",
-        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
-        "section_join_mode": "default",
-        "scrollanim_image": "",
-        "scrollanim_text": ""
-      }
-    },
+    // "image_banner_aArKYQ": {
+    //   "type": "image-banner",
+    //   "blocks": {
+    //     "subheading_etG984": {
+    //       "type": "subheading",
+    //       "settings": {
+    //         "text": "Shop Now"
+    //       }
+    //     },
+    //     "heading_aHGCxD": {
+    //       "type": "heading",
+    //       "settings": {
+    //         "heading": "Matching sets",
+    //         "heading_size_desktop": "h1",
+    //         "heading_size_mobile": "h1",
+    //         "heading_h1": false
+    //       }
+    //     },
+    //     "text_NnxGPV": {
+    //       "type": "text",
+    //       "settings": {
+    //         "text": "<p><strong>Lorem Ipsum</strong>is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,</p>",
+    //         "enlarge_text": false
+    //       }
+    //     }
+    //   },
+    //   "block_order": ["subheading_etG984", "heading_aHGCxD", "text_NnxGPV"],
+    //   "name": "Image banner",
+    //   "settings": {
+    //     "image_desktop": "shopify://shop_images/Elvn_lookBook_2442.jpg",
+    //     "image_mobile": "shopify://shop_images/DRU0204.jpg",
+    //     "url": "",
+    //     "height_mode": "fixed",
+    //     "fixed_height_desktop": 600,
+    //     "fixed_height_mobile": 350,
+    //     "mobile_stacked": false,
+    //     "tint_color": "#000000",
+    //     "tint_opacity": 0,
+    //     "overlay_position": "justify-start items-center",
+    //     "overlay_text_align": "text-start",
+    //     "overlay_width_override": false,
+    //     "overlay_max_width": 640,
+    //     "mob_center_text": false,
+    //     "color_scheme": "",
+    //     "full_width": true,
+    //     "enable_top_fade": false,
+    //     "top_fade_depth": 100,
+    //     "top_fade_color": "#ffffff",
+    //     "enable_bottom_fade": false,
+    //     "bottom_fade_depth": 100,
+    //     "bottom_fade_color": "#ffffff",
+    //     "background_mode": "default",
+    //     "background_color": "#ffffff",
+    //     "background_gradient_stop_1": "#cccccc",
+    //     "background_gradient_stop_2": "#ffffff",
+    //     "background_gradient_curve": "linear",
+    //     "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+    //     "section_join_mode": "default",
+    //     "scrollanim_image": "",
+    //     "scrollanim_text": ""
+    //   }
+    // },
     "custom_grid_ndWCGY": {
       "type": "custom-grid",
       "blocks": {
@@ -741,14 +741,20 @@
         "height": "py-6",
         "color_scheme": ""
       }
+    },
+    "matching-sets": {
+      "type": "matching-sets",
+      "name": "Matching sets",
+      "settings": {}
     }
   },
   "order": [
     "background_video_EjnfpG",
     "slideshow_ThVGPN",
     "rich_text_MC7wKK",
-    "image_banner_aArKYQ",
+    // "image_banner_aArKYQ",
     "custom_grid_ndWCGY",
+    "matching-sets",
     "collection_list_irDAQm",
     "custom_grid_6Bbn4c",
     "image_banner_ygfrVG",
