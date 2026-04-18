@@ -405,6 +405,7 @@
       "custom_label_3_text_color": "#000000",
       "show_custom_label_3_border": true,
       "custom_label_3_border_color": "#000000",
+      "social_whatsapp_url": "https://api.whatsapp.com/send?phone=919892836850",
       "favicon": "{{ shop.brand.square_logo }}",
       "show_language": false,
       "cart_message": "⭐️ End of season <strong>sale</strong> now on! ⭐️",
