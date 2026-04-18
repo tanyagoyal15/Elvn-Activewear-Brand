@@ -253,6 +253,7 @@
                 </div>
               
               </div>
+
               {% comment %} MAIN MENU {% endcomment %}
               <ul class="main-nav hidden">
                 {%- for link in section.settings.menu.links -%}
@@ -679,182 +680,70 @@
   (function () {
     'use strict';
   
-    var MOBILE_BREAKPOINT = 990;
-    var initialized = false;
+    const MOBILE_BREAKPOINT = 990;
   
     function isMobile() {
       return window.innerWidth < MOBILE_BREAKPOINT;
     }
   
-    function disableThemeDetailsDisclosure() {
-      document.querySelectorAll('details-disclosure').forEach(function (el) {
-        el.replaceWith(...el.childNodes);
+    function initTabs() {
+      const tabs = document.querySelectorAll(".mobile-tab");
+      const panels = document.querySelectorAll(".mobile-tab-panel");
+  
+      if (!tabs.length || !panels.length) return;
+  
+      panels[0]?.classList.add("is-active");
+  
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const target = tab.dataset.tab;
+  
+          tabs.forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+  
+          panels.forEach(panel => {
+            if (panel.dataset.panel === target) {
+              panel.classList.remove("hidden");
+  
+              requestAnimationFrame(() => {
+                panel.classList.add("is-active");
+              });
+  
+            } else {
+              panel.classList.remove("is-active");
+              panel.classList.add("hidden");
+            }
+          });
+        });
       });
     }
   
-    function closeSiblingDetails(currentDetails) {
-      var parent = currentDetails.parentElement;
-      var grandparent = parent ? parent.parentElement : null;
-      if (!grandparent) return;
-  
-      var siblings = grandparent.querySelectorAll(':scope > li > details');
-      siblings.forEach(function (sib) {
-        if (sib !== currentDetails && sib.hasAttribute('open')) {
-          sib.removeAttribute('open');
-        }
-      });
-    }
-  
-    function handleSummaryClick(e) {
+    function initMobileAccordion() {
       if (!isMobile()) return;
-      const summary = e.currentTarget;
-    
-      if (summary.closest('.mobile-tabs')) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-    
-      var details = summary.closest('details');
-      if (!details) return;
-    
-      var isOpen = details.hasAttribute('open');
-    
-      closeSiblingDetails(details);
-    
-      if (isOpen) {
-        details.removeAttribute('open');
-      } else {
-        details.setAttribute('open', '');
-      }
-    }
-  
-    function handleParentClick(e) {
-      if (!isMobile()) return;
-  
-      var link = e.currentTarget;
-      var parent = link.closest('li');
-      var details = parent ? parent.querySelector('details') : null;
-  
-      if (!details) return;
-  
-      e.preventDefault();
-      e.stopImmediatePropagation(); // 🔥 MUST
-  
-      var isOpen = details.hasAttribute('open');
-  
-      closeSiblingDetails(details);
-  
-      if (isOpen) {
-        details.removeAttribute('open');
-      } else {
-        details.setAttribute('open', '');
-      }
-    }
-  
-    function initAccordion() {
-      if (!isMobile()) return;
-      if (initialized) return;
-  
-      disableThemeDetailsDisclosure();
-  
-      var mainMenu = document.querySelector('main-menu');
-      if (!mainMenu) return;
-  
-      var summaries = mainMenu.querySelectorAll(
-        '.main-nav > li > details > summary.main-nav__summary');      
-      summaries.forEach(function (summary) {
-        summary.addEventListener('click', handleSummaryClick);
-      });
-  
-      var parentLinks = mainMenu.querySelectorAll('.main-nav__item--primary');
-      parentLinks.forEach(function (link) {
-        link.addEventListener('click', handleParentClick);
-      });
-  
-      var grandchildDetails = mainMenu.querySelectorAll('.child-nav details');
-      grandchildDetails.forEach(function (d) {
-        d.removeAttribute('open');
-      });
-  
-      initialized = true;
-    }
 
-    if (!document.querySelector('.mobile-tabs')) {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAccordion);
-      } else {
-        initAccordion();
-      }
+      const accordions = document.querySelectorAll(".mobile-accordion");
+
+      accordions.forEach(details => {
+        details.addEventListener("toggle", () => {
+          if (!details.open) return;
+
+          const activePanel = details.closest(".mobile-tab-panel");
+
+          if (!activePanel) return;
+
+          activePanel.querySelectorAll("details").forEach(d => {
+            if (d !== details) d.removeAttribute("open");
+          });
+        });
+      });
     }
   
-    window.addEventListener('resize', function () {
-      if (!isMobile()) {
-        initialized = false;
-      } else {
-        initAccordion();
-      }
+    document.addEventListener("DOMContentLoaded", () => {
+      initTabs();
+      initMobileAccordion();
     });
   
   })();
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const tabs = document.querySelectorAll(".mobile-tab");
-    const panels = document.querySelectorAll(".mobile-tab-panel");
-  
-    if (panels.length) {
-      panels[0].classList.add("is-active");
-    }
-  
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        const target = tab.dataset.tab;
-  
-        tabs.forEach(t => t.classList.remove("active"));
-        tab.classList.add("active");
-  
-        panels.forEach(panel => {
-          if (panel.dataset.panel === target) {
-            panel.classList.remove("hidden");
-  
-            requestAnimationFrame(() => {
-              panel.classList.add("is-active");
-            });
-  
-          } else {
-            panel.classList.remove("is-active");
-  
-            panel.classList.add("hidden");
-          }
-        });
-      });
-    });
-  });
-
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".mobile-tab details summary").forEach(summary => {
-      summary.addEventListener("click", function (e) {
-        e.preventDefault();
-  
-        const parent = summary.parentElement;
-        parent.toggleAttribute("open");
-      });
-    });
-  });
-
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".mobile-tab details summary").forEach(summary => {
-      summary.addEventListener("click", function (e) {
-        e.preventDefault();
-  
-        const parent = summary.parentElement;
-  
-        document.querySelectorAll(".mobile-tab details").forEach(d => {
-          if (d !== parent) d.classList.remove("is-open");
-        });
-  
-        parent.classList.toggle("is-open");
-      });
-    });
-  });
 </script>
 
 <style>
@@ -899,11 +788,11 @@
       margin-bottom: 12px;
     }
 
-    .mobile-tab details summary .icon {
+    .mobile-tabs details summary .icon svg {
       transition: transform 0.25s ease;
     }
     
-    .mobile-tab details[open] summary .icon {
+    .mobile-tabs details[open] summary .icon svg {
       transform: rotate(180deg);
     }
 
@@ -920,13 +809,13 @@
       cursor: pointer;
     }
 
-    .mobile-tab details .mobile-submenu {
+    {% comment %} .mobile-tab details .mobile-submenu {
       display: none;
     }
     
     .mobile-tab details.is-open .mobile-submenu {
       display: block;
-    }
+    } {% endcomment %}
 
     .mobile-tab-panel {
       opacity: 0;
