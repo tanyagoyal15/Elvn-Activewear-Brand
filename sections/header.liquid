@@ -166,6 +166,7 @@
             </div>
 
             <nav aria-label="{{ 'accessibility.main_navigation' | t }}" class="header-nav-menu">
+              {% comment %} MOBILE MENU {% endcomment %}
               <div class="mobile-tabs lg:hidden">
 
                 <!-- TABS -->
@@ -221,36 +222,7 @@
                             <!-- NORMAL MENU -->
                             <ul class="mobile-tab-links">
                               {% for child_link in link.links %}
-                                <li>
-                
-                                  {% if child_link.links != blank %}
-                                    
-                                    <details class="mobile-accordion">
-                                      <summary class="flex justify-between items-center">
-                                        <span>{{ child_link.title }}</span>
-                                        <span class="icon">{% render 'icon-chevron-down' %}</span>
-                                      </summary>
-                
-                                      <ul class="mobile-submenu">
-                                        {% for grandchild_link in child_link.links %}
-                                          <li>
-                                            <a href="{{ grandchild_link.url }}">
-                                              {{ grandchild_link.title }}
-                                            </a>
-                                          </li>
-                                        {% endfor %}
-                                      </ul>
-                                    </details>
-                
-                                  {% else %}
-                
-                                    <a href="{{ child_link.url }}">
-                                      {{ child_link.title }}
-                                    </a>
-                
-                                  {% endif %}
-                
-                                </li>
+                                {% render 'nav-item', link: child_link, level: 1 %}
                               {% endfor %}
                             </ul>
                 
@@ -271,51 +243,17 @@
                       <ul>
                   
                         {% for child_link in section.settings.mobile_footer_menu.links %}
-                          <li>
-                  
-                            {% if child_link.links != blank %}
-                              
-                              <details class="mobile-accordion">
-                                <summary class="flex justify-between items-center">
-                                  <span>{{ child_link.title }}</span>
-                                  <span class="icon">{% render 'icon-chevron-down' %}</span>
-                                </summary>
-                  
-                                <ul class="mobile-submenu">
-                                  {% for grandchild_link in child_link.links %}
-                                    <li>
-                                      <a href="{{ grandchild_link.url }}">
-                                        {{ grandchild_link.title }}
-                                      </a>
-                                    </li>
-                                  {% endfor %}
-                                </ul>
-                              </details>
-                  
-                            {% else %}
-                  
-                              <a href="{{ child_link.url }}">
-                                {{ child_link.title }}
-                              </a>
-                  
-                            {% endif %}
-                  
-                          </li>
+                          {% render 'nav-item', link: child_link, level: 1 %}
                         {% endfor %}
                   
                       </ul>
                     {% endif %}
                   
-                    <div class="mobile-social">
-                      <a href="#">Instagram</a>
-                      <a href="#">Facebook</a>
-                      <a href="#">Pinterest</a>
-                    </div>
-                  
                   </div>
                 </div>
               
               </div>
+              {% comment %} MAIN MENU {% endcomment %}
               <ul class="main-nav hidden">
                 {%- for link in section.settings.menu.links -%}
                   {%- liquid
@@ -444,7 +382,7 @@
                                     endif
                                   endif
                                 -%}
-                                {%- for child_link in link.links -%}
+                                {% comment %} {%- for child_link in link.links -%}
                                   <li style="--column-index: {{ forloop.index0 }}">
                                     {%- if mega_menu_block and mega_menu_block.type == 'mega-menu-coll-cards' and child_link.type == 'collection_link' -%}
                                       {%- render 'collection-card',
@@ -496,6 +434,7 @@
                                         {% endif -%}
                                         <span class="{% if mega_menu_block %}main-nav__heading{% endif %}" role="heading" aria-level="2">{{- child_link.title | escape -}}</span>
                                       </a>
+                                      
                                       <details open>
                                         <summary class="main-nav__summary js-toggle" aria-label="{{ 'accessibility.toggle_submenu' | t: title: child_link.title }}">
                                           {%- render 'icon-chevron-right' -%}
@@ -512,7 +451,42 @@
                                       </details>
                                     {%- endif -%}
                                   </li>
-                                {%- endfor -%}
+                                {%- endfor -%} {% endcomment %}
+
+                                <!-- LEFT COLUMN -->
+                                <div class="mega-column mega-column--flat">
+                                  {% comment %} <div>Menu</div> {% endcomment %}
+                                  {% for child_link in link.links %}
+                                    {% if child_link.links == blank %}
+                                      <a class="main-nav__item child-nav__item" href="{{ child_link.url }}">
+                                        {{ child_link.title }}
+                                      </a>
+                                    {% endif %}
+                                  {% endfor %}
+                                </div>
+
+                                <!-- SUBMENU COLUMNS -->
+                                {% for child_link in link.links %}
+                                  {% comment %} <div>Submenu</div> {% endcomment %}
+                                  {% if child_link.links != blank %}
+                                    <div class="mega-column">
+                                      <span class="main-nav__heading">
+                                        {{ child_link.title }}
+                                      </span>
+
+                                      <ul>
+                                        {% for grandchild_link in child_link.links %}
+                                          <li>
+                                            <a class="child-nav__item" href="{{ grandchild_link.url }}">
+                                              {{ grandchild_link.title }}
+                                            </a>
+                                          </li>
+                                        {% endfor %}
+                                      </ul>
+                                    </div>
+                                  {% endif %}
+                                {% endfor %}
+
                               {%- endif -%}
                             </ul>
                             {%- if mega_menu_block -%}
@@ -1043,6 +1017,43 @@
       width: 16px;
       height: 16px;
     }
+  }
+
+  .mega-menu-columns {
+    display: flex;
+    gap: 60px;
+  }
+  
+  .mega-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+  }
+
+  .mega-column--flat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mega-column--flat .main-nav__item {
+    display: block !important;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .mega-column--flat a {
+    display: block;
+    margin-bottom: 12px;
+  }
+  
+  .main-nav__heading {
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .main-nav a {
+    cursor: pointer;
   }
 </style>
   
