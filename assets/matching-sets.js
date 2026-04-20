@@ -2,20 +2,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------- HOTSPOT CLICK ----------------
   document.querySelectorAll(".hotspot").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      e.stopPropagation(); // prevents instant close
+      e.stopPropagation();
 
       const setId = btn.dataset.set;
       const type = btn.dataset.type;
 
       const set = window.MATCHING_SETS[setId - 1];
-
       if (!set) return;
 
       showMiniCard(set, type, btn);
     });
   });
 
-  // ---------------- OPEN DRAWER CTA ----------------
+  // ---------------- SHOP FULL SET ----------------
   document.querySelectorAll(".open-drawer").forEach((btn) => {
     btn.addEventListener("click", () => {
       const setId = btn.dataset.set;
@@ -27,10 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ---------------- OUTSIDE CLICK CLOSE ----------------
+  // ---------------- MINI CARD CLOSE ----------------
   document.addEventListener("click", (e) => {
     const card = document.getElementById("matching-mini-card");
-
     if (!card) return;
 
     if (!e.target.closest(".mini-card")) {
@@ -38,46 +36,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // ---------------- DRAWER CLOSE ----------------
   const drawer = document.getElementById("matching-drawer");
-
   if (drawer) {
     const closeBtn = drawer.querySelector(".drawer-close");
     const overlay = drawer.querySelector(".drawer-overlay");
 
     if (closeBtn) closeBtn.onclick = closeDrawer;
     if (overlay) overlay.onclick = closeDrawer;
-  }
 
-  if (drawer) {
-    drawer.addEventListener("click", (e) => {
-      const btn = e.target.closest(".variant-btn");
-      if (!btn) return;
-
-      // remove active from siblings
-      btn.parentElement
-        .querySelectorAll(".variant-btn")
-        .forEach((b) => b.classList.remove("active"));
-
-      // set active
-      btn.classList.add("active");
-
-      // OPTIONAL (IMPORTANT): update state
-      const variantId = btn.dataset.variant;
-      const productId = btn.closest(".drawer-item").dataset.product;
-
-      const item = state.items.find((i) => i.productId == productId);
-      if (item) {
-        item.variantId = variantId;
-      }
-    });
-  }
-
-  if (drawer) {
     const cta = drawer.querySelector(".drawer-cta");
-
-    if (cta) {
-      cta.addEventListener("click", addAllToCart);
-    }
+    if (cta) cta.addEventListener("click", addAllToCart);
   }
 });
 
@@ -88,60 +57,40 @@ function showMiniCard(set, type, anchor) {
     type === "top" ? set.products[0] : set.products[1] || set.products[0];
 
   const miniCard = document.getElementById("matching-mini-card");
-
   if (!product || !miniCard) return;
 
-  // ---------------- RENDER HTML ----------------
   miniCard.innerHTML = `
-      <div class="row">
-        <img src="${product.featured_image || set.image}" />
-        <div>
-          <div style="font-size:13px;">${product.title}</div>
-          <div style="font-size:12px; opacity:0.7;">
-            ${formatPrice(product.price)}
-          </div>
+    <div class="row">
+      <img src="${product.featured_image || set.image}" />
+      <div>
+        <div style="font-size:13px;">${product.title}</div>
+        <div style="font-size:12px; opacity:0.7;">
+          ${formatPrice(product.price)}
         </div>
       </div>
-  
-      <div class="actions">
-        <button class="mini-add">Add</button>
-        <button class="mini-view">View Set</button>
-      </div>
-    `;
+    </div>
 
-  // ---------------- POSITIONING ----------------
+    <div class="actions">
+      <button class="mini-view">View Set</button>
+    </div>
+  `;
+
   const rect = anchor.getBoundingClientRect();
-
   const cardWidth = 220;
   const offsetY = 90;
 
   let left = rect.left - cardWidth / 2;
 
-  // prevent overflow right
   if (left + cardWidth > window.innerWidth - 10) {
     left = window.innerWidth - cardWidth - 10;
   }
-
-  // prevent overflow left
-  if (left < 10) {
-    left = 10;
-  }
+  if (left < 10) left = 10;
 
   miniCard.style.top = rect.top - offsetY + "px";
   miniCard.style.left = left + "px";
 
-  // ---------------- ANIMATION TRIGGER ----------------
   miniCard.classList.remove("show");
-
-  requestAnimationFrame(() => {
-    miniCard.classList.add("show");
-  });
-
-  // ---------------- ACTIONS ----------------
-  miniCard.querySelector(".mini-add").onclick = () => {
-    miniCard.classList.remove("show");
-    openDrawer(set);
-  };
+  requestAnimationFrame(() => miniCard.classList.add("show"));
 
   miniCard.querySelector(".mini-view").onclick = () => {
     miniCard.classList.remove("show");
@@ -149,26 +98,30 @@ function showMiniCard(set, type, anchor) {
   };
 }
 
-// ================= DRAWER =================
+// ================= STATE =================
 
 let state = {
   items: [],
 };
 
 function initState(set) {
-  state.items = set.products.map((p) => ({
-    productId: p.id,
-    variantId: p.variants[0].id,
-    price: p.price,
-    selected: true,
-  }));
+  state.items = set.products.map((p) => {
+    const firstVariant = p.variants[0];
+    const color = firstVariant.title.split("/")[0].trim();
+
+    return {
+      productId: p.id,
+      variantId: firstVariant.id,
+      selectedColor: color,
+      price: p.price,
+    };
+  });
 }
 
-function openDrawer(set) {
-  console.log("OPEN DRAWER", set);
-  const drawer = document.getElementById("matching-drawer");
-  console.log("DRAWER: ", drawer);
+// ================= DRAWER =================
 
+function openDrawer(set) {
+  const drawer = document.getElementById("matching-drawer");
   if (!drawer) return;
 
   drawer.classList.add("open");
@@ -181,108 +134,8 @@ function closeDrawer() {
   drawer.classList.remove("open");
 }
 
-//all color  + sizes
-// function renderDrawer(set) {
-//   initState(set);
+// ================= RENDER =================
 
-//   const container = document.querySelector(".drawer-content");
-
-//   const html = set.products
-//     .map(
-//       (p) => `
-//           <div class="drawer-item">
-
-//             <img src="${p.featured_image || set.image}" />
-
-//             <div class="drawer-info">
-
-//               <div class="drawer-name">${p.title}</div>
-
-//               <div class="variant-row">
-//                 ${p.variants
-//                   .map(
-//                     (v, i) => `
-//                       <button
-//                         class="variant-btn ${i === 0 ? "active" : ""}"
-//                         data-variant="${v.id}">
-//                         ${v.title}
-//                       </button>
-//                     `,
-//                   )
-//                   .join("")}
-//               </div>
-
-//               <div class="drawer-price">${formatPrice(p.price)}</div>
-
-//             </div>
-
-//           </div>
-//         `,
-//     )
-//     .join("");
-
-//   container.innerHTML = html;
-
-//   updateTotal();
-// }
-
-//matching set color and its all sizes (not color specific sizes)
-// function renderDrawer(set) {
-//   initState(set);
-
-//   const container = document.querySelector(".drawer-content");
-
-//   const html = set.products
-//     .map((p) => {
-//       // extract color from first variant
-//       const firstVariant = p.variants[0];
-//       const color = firstVariant.title.split("/")[0].trim();
-
-//       return `
-//         <div class="drawer-item" data-product="${p.id}">
-
-//           <img src="${p.featured_image || set.image}" />
-
-//           <div class="drawer-info">
-
-//             <div class="drawer-name">${p.title}</div>
-
-//             <!--  COLOR -->
-//             <div class="drawer-color">${color}</div>
-
-//             <!-- SIZES -->
-//             <div class="variant-row">
-//               ${p.variants
-//                 .map((v, i) => {
-//                   const parts = v.title.split("/");
-//                   const size = parts[parts.length - 1].trim();
-
-//                   return `
-//                     <button
-//                       class="variant-btn ${i === 0 ? "active" : ""}"
-//                       data-variant="${v.id}">
-//                       ${size}
-//                     </button>
-//                   `;
-//                 })
-//                 .join("")}
-//             </div>
-
-//             <div class="drawer-price">${formatPrice(p.price)}</div>
-
-//           </div>
-
-//         </div>
-//       `;
-//     })
-//     .join("");
-
-//   container.innerHTML = html;
-
-//   updateTotal();
-// }
-
-// color specific + size specific of that color
 function renderDrawer(set) {
   initState(set);
 
@@ -290,15 +143,20 @@ function renderDrawer(set) {
 
   const html = set.products
     .map((p) => {
-      // get color from first variant
-      const firstVariant = p.variants[0];
-      const color = firstVariant.title.split("/")[0].trim().toLowerCase();
+      const item = state.items.find((i) => i.productId == p.id);
 
-      // FILTER variants by this color
-      const filteredVariants = p.variants.filter((v) => {
-        const vColor = v.title.split("/")[0].trim().toLowerCase();
-        return vColor === color;
+      const colorMap = {};
+
+      p.variants.forEach((v) => {
+        const [color, size] = v.title.split("/").map((s) => s.trim());
+
+        if (!colorMap[color]) colorMap[color] = [];
+        colorMap[color].push({ id: v.id, size, available: v.available });
       });
+
+      const colors = Object.keys(colorMap);
+      const defaultColor = item?.selectedColor || colors[0];
+      const sizes = colorMap[defaultColor] || [];
 
       return `
         <div class="drawer-item" data-product="${p.id}">
@@ -309,21 +167,36 @@ function renderDrawer(set) {
 
             <div class="drawer-name">${p.title}</div>
 
-            <!-- COLOR -->
-            <div class="drawer-color">${firstVariant.title.split("/")[0].trim()}</div>
+            <div class="color-row">
+              ${colors
+                .map(
+                  (c) => `
+                    <button 
+                      class="color-btn ${c === defaultColor ? "active" : ""}" 
+                      data-color="${c}"
+                      data-product="${p.id}">
+                      ${c}
+                    </button>
+                  `,
+                )
+                .join("")}
+            </div>
 
-            <!-- SIZES (ONLY FILTERED) -->
             <div class="variant-row">
-              ${filteredVariants
-                .map((v, i) => {
-                  const parts = v.title.split("/");
-                  const size = parts[parts.length - 1].trim();
+              ${sizes
+                .map((v) => {
+                  const isAvailable = v.available !== false;
 
                   return `
                     <button 
-                      class="variant-btn ${i === 0 ? "active" : ""}" 
-                      data-variant="${v.id}">
-                      ${size}
+                      class="variant-btn 
+                      ${v.id === item.variantId ? "active" : ""} 
+                      ${!isAvailable ? "disabled" : ""}"
+                      data-variant="${v.id}"
+                      data-product="${p.id}"
+                      ${!isAvailable ? "disabled" : ""}
+                    >
+                      ${v.size}
                     </button>
                   `;
                 })
@@ -341,7 +214,94 @@ function renderDrawer(set) {
 
   container.innerHTML = html;
 
+  attachColorLogic();
+  attachVariantLogic();
+  updateCTA();
   updateTotal();
+}
+
+// ================= CTA =================
+
+function updateCTA() {
+  const cta = document.querySelector(".drawer-cta");
+  if (!cta) return;
+
+  cta.textContent = "Add Full Look";
+}
+
+// ================= VARIANT =================
+
+function attachVariantLogic() {
+  document.querySelectorAll(".variant-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.disabled) return;
+
+      const parent = btn.closest(".drawer-item");
+      const productId = btn.dataset.product;
+      const variantId = btn.dataset.variant;
+
+      parent
+        .querySelectorAll(".variant-btn")
+        .forEach((b) => b.classList.remove("active"));
+
+      btn.classList.add("active");
+
+      const item = state.items.find((i) => i.productId == productId);
+      if (item) item.variantId = variantId;
+    });
+  });
+}
+
+// ================= COLOR =================
+
+function attachColorLogic() {
+  document.querySelectorAll(".color-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const parent = btn.closest(".drawer-item");
+      const productId = btn.dataset.product;
+      const selectedColor = btn.dataset.color;
+
+      parent
+        .querySelectorAll(".color-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const product = window.MATCHING_SETS.flatMap((s) => s.products).find(
+        (p) => p.id == productId,
+      );
+
+      if (!product) return;
+
+      const filtered = product.variants.filter((v) => {
+        const color = v.title.split("/")[0].trim();
+        return color === selectedColor;
+      });
+
+      parent.querySelector(".variant-row").innerHTML = filtered
+        .map(
+          (v, i) => `
+            <button 
+              class="variant-btn ${i === 0 ? "active" : ""}" 
+              data-variant="${v.id}"
+              data-product="${productId}">
+              ${v.title.split("/").pop().trim()}
+            </button>
+          `,
+        )
+        .join("");
+
+      const item = state.items.find((i) => i.productId == productId);
+
+      const firstAvailable = filtered.find((v) => v.available !== false);
+
+      if (item) {
+        item.selectedColor = selectedColor;
+        item.variantId = firstAvailable?.id || null;
+      }
+
+      attachVariantLogic();
+    });
+  });
 }
 
 // ================= TOTAL =================
@@ -350,49 +310,22 @@ function updateTotal() {
   const totalEl = document.querySelector(".total");
   if (!totalEl) return;
 
-  const total = state.items
-    .filter((i) => i.selected)
-    .reduce((sum, i) => sum + i.price, 0);
+  const total = state.items.reduce((sum, i) => sum + i.price, 0);
 
   totalEl.innerText = formatPrice(total);
 }
 
 // ================= ADD TO CART =================
 
-// function addAllToCart() {
-//   const items = state.items
-//     .filter((i) => i.selected)
-//     .map((i) => ({
-//       id: i.variantId,
-//       quantity: 1,
-//     }));
-
-//   console.log("CART ITEMS: ", items);
-
-//   // enable when ready
-//   fetch("/cart/add.js", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ items }),
-//   });
-// }
-
 async function addAllToCart() {
-  const items = state.items
-    .filter((i) => i.selected)
-    .map((i) => ({
-      id: i.variantId,
-      quantity: 1,
-    }));
-
-  console.log("CART ITEMS:", items);
-
-  if (!items.length) return;
+  const items = state.items.map((i) => ({
+    id: i.variantId,
+    quantity: 1,
+  }));
 
   const cta = document.querySelector(".drawer-cta");
 
   try {
-    // loading state
     if (cta) {
       cta.textContent = "Adding...";
       cta.disabled = true;
@@ -407,58 +340,37 @@ async function addAllToCart() {
       body: JSON.stringify({ items }),
     });
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.description || "Could not add to cart");
-    }
+    if (!res.ok) throw new Error("Cart error");
 
-    const data = await res.json();
-    console.log("Added to cart:", data);
-
-    // update cart count (reuse your existing function)
-    if (typeof updateCartCount === "function") {
-      await updateCartCount();
-    }
-
-    // update cart drawer (same as your quick add)
     const cartDrawer = document.querySelector("cart-drawer");
 
     if (cartDrawer) {
-      const drawerRes = await fetch("/?section_id=cart-drawer");
-      const html = await drawerRes.text();
+      const html = await fetch("/?section_id=cart-drawer").then((r) =>
+        r.text(),
+      );
 
       const temp = document.createElement("div");
       temp.innerHTML = html;
 
       const newDrawer = temp.querySelector("cart-drawer");
-
-      if (newDrawer) {
-        cartDrawer.innerHTML = newDrawer.innerHTML;
-      }
+      if (newDrawer) cartDrawer.innerHTML = newDrawer.innerHTML;
 
       cartDrawer.open();
     }
 
-    // close matching drawer
     closeDrawer();
 
-    // success feedback
-    if (cta) {
-      cta.textContent = "Added ✓";
-    }
+    if (cta) cta.textContent = "Added ✓";
   } catch (err) {
-    console.error("Cart error:", err);
-
-    if (cta) {
-      cta.textContent = "Error";
-    }
+    console.error(err);
+    if (cta) cta.textContent = "Error";
   } finally {
-    if (cta) {
-      setTimeout(() => {
-        cta.textContent = "Add full look";
+    setTimeout(() => {
+      if (cta) {
+        cta.textContent = "Add Full Look";
         cta.disabled = false;
-      }, 1500);
-    }
+      }
+    }, 1500);
   }
 }
 

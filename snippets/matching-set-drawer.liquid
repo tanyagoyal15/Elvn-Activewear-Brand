@@ -19,6 +19,10 @@
           <span>Total</span>
           <span class="total"></span>
         </div>
+
+        <div class="discount-note">
+            Get 10% off when you buy the full set
+        </div>
   
         <button class="drawer-cta">
           Add full look
@@ -252,5 +256,35 @@
   
   .drawer-cta:hover {
     opacity: 0.85;
+  }
+
+  .color-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .color-btn {
+    border: 1px solid #ddd;
+    padding: 4px 8px;
+    font-size: 11px;
+    background: white;
+    cursor: pointer;
+  }
+  
+  .color-btn.active {
+    border: 1px solid black;
+  }
+
+  .variant-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border: 1px solid #e6e6e6;
+  }
+
+  .discount-note {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 8px;
   }
   </style>
