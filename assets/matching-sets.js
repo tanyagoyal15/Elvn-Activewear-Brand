@@ -28,11 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------------- MINI CARD CLOSE ----------------
   document.addEventListener("click", (e) => {
-    const card = document.getElementById("matching-mini-card");
-    if (!card) return;
-
-    if (!e.target.closest(".mini-card")) {
-      card.classList.remove("show");
+    if (!e.target.closest(".mini-card") && !e.target.closest(".hotspot")) {
+      document.querySelectorAll(".mini-card.show").forEach((card) => {
+        card.classList.remove("show");
+      });
     }
   });
 
@@ -48,6 +47,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const cta = drawer.querySelector(".drawer-cta");
     if (cta) cta.addEventListener("click", addAllToCart);
   }
+
+  document.querySelectorAll(".set-image img").forEach((img) => {
+    if (img.complete) {
+      img.closest(".set-image")?.classList.add("loaded");
+    } else {
+      img.addEventListener("load", () => {
+        img.closest(".set-image")?.classList.add("loaded");
+      });
+    }
+  });
+
+  document.querySelectorAll(".matching-set-card img").forEach((img) => {
+    const card = img.closest(".matching-set-card");
+
+    if (img.complete) {
+      card?.classList.add("loaded");
+    } else {
+      img.addEventListener("load", () => {
+        card?.classList.add("loaded");
+      });
+    }
+  });
 });
 
 // ================= MINI CARD =================
@@ -56,42 +77,64 @@ function showMiniCard(set, type, anchor) {
   const product =
     type === "top" ? set.products[0] : set.products[1] || set.products[0];
 
-  const miniCard = document.getElementById("matching-mini-card");
-  if (!product || !miniCard) return;
+  if (!product) return;
 
+  // get local mini card
+  const container = anchor.closest(".set-image");
+  const miniCard = container.querySelector(".mini-card");
+
+  if (!miniCard) return;
+
+  // close others
+  document.querySelectorAll(".mini-card.show").forEach((card) => {
+    card.classList.remove("show");
+  });
+
+  // content
   miniCard.innerHTML = `
-    <div class="row">
-      <img src="${product.featured_image || set.image}" />
-      <div>
-        <div style="font-size:13px;">${product.title}</div>
-        <div style="font-size:12px; opacity:0.7;">
-          ${formatPrice(product.price)}
-        </div>
+    <div class="mini-card-inner">
+      <div class="mini-left">
+        <img src="${product.featured_image || set.image}" />
       </div>
-    </div>
 
-    <div class="actions">
-      <button class="mini-view">View Set</button>
+      <div class="mini-right">
+        <div class="mini-title">${product.title}</div>
+        <div class="mini-price">${formatPrice(product.price)}</div>
+
+        <button class="mini-view">View Set</button>
+      </div>
     </div>
   `;
 
+  // position RELATIVE TO IMAGE
   const rect = anchor.getBoundingClientRect();
-  const cardWidth = 220;
-  const offsetY = 90;
+  const parentRect = container.getBoundingClientRect();
 
-  let left = rect.left - cardWidth / 2;
+  const CARD_WIDTH = 240; // match your CSS width
+  const OFFSET = 12; // safe padding from edges
 
-  if (left + cardWidth > window.innerWidth - 10) {
-    left = window.innerWidth - cardWidth - 10;
+  // position vertically (slightly below hotspot)
+  let top = rect.top - parentRect.top + 16;
+
+  // center horizontally around hotspot
+  let left = rect.left - parentRect.left - CARD_WIDTH / 2;
+
+  // LEFT EDGE FIX
+  if (left < OFFSET) {
+    left = OFFSET;
   }
-  if (left < 10) left = 10;
 
-  miniCard.style.top = rect.top - offsetY + "px";
-  miniCard.style.left = left + "px";
+  // RIGHT EDGE FIX
+  if (left + CARD_WIDTH > parentRect.width - OFFSET) {
+    left = parentRect.width - CARD_WIDTH - OFFSET;
+  }
 
-  miniCard.classList.remove("show");
-  requestAnimationFrame(() => miniCard.classList.add("show"));
+  miniCard.style.top = `${top}px`;
+  miniCard.style.left = `${left}px`;
 
+  miniCard.classList.add("show");
+
+  // CTA click
   miniCard.querySelector(".mini-view").onclick = () => {
     miniCard.classList.remove("show");
     openDrawer(set);
