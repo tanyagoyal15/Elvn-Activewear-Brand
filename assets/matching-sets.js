@@ -65,7 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  document.addEventListener("dispatch:cart-drawer:refresh", () => {
+  // on:line-item:change fires after every add/remove/qty change in the cart drawer
+  document.addEventListener("on:line-item:change", () => {
     debouncedValidate();
   });
 
@@ -444,25 +445,32 @@ async function removeDiscountCode() {
 async function validateSetDiscounts() {
   const cart = await fetch("/cart.js").then((r) => r.json());
 
+  // Empty cart — remove any stale discount and stop
+  if (cart.item_count === 0) {
+    await removeDiscountCode();
+    return;
+  }
+
   // Numeric product IDs currently in the cart
   const cartProductIds = new Set(cart.items.map((i) => String(i.product_id)));
 
-  // Check every defined set — a set is complete when both its products are present
+  // A set is complete when BOTH its products are present in the cart
   const hasCompleteSet = (window.MATCHING_SETS || []).some((set) => {
     if (!set.products || set.products.length < 2) return false;
     return set.products.every((p) => cartProductIds.has(String(p.id)));
   });
 
-  const discountCode = getDiscountCode();
-  const alreadyApplied = cart.discount_codes?.some(
-    (d) => d.code.toUpperCase() === discountCode.toUpperCase() && d.applicable,
-  );
-
-  if (hasCompleteSet && !alreadyApplied) {
-    await applyDiscountCode(discountCode);
-  } else if (!hasCompleteSet && alreadyApplied) {
+  if (hasCompleteSet) {
+    await applyDiscountCode(getDiscountCode());
+  } else {
+    // Always remove — cleans up stale codes from previous sessions too
     await removeDiscountCode();
-    showSetDiscountWarning("Matching set incomplete — set discount removed.");
+    const hadDiscount = cart.discount_codes?.some(
+      (d) => d.code.toUpperCase() === getDiscountCode().toUpperCase(),
+    );
+    if (hadDiscount) {
+      showSetDiscountWarning("Matching set incomplete — set discount removed.");
+    }
   }
 }
 
