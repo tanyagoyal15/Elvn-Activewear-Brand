@@ -48,6 +48,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cta) cta.addEventListener("click", addAllToCart);
   }
 
+  // Validate whenever the cart drawer opens (catches items added from
+  // product pages or quick-add) and whenever the cart refreshes (catches
+  // item removals and quantity changes inside the cart drawer).
+  // Skipped when we open it ourselves after "Add Full Look".
+  const cartDrawer = document.querySelector("cart-drawer");
+  if (cartDrawer) {
+    const originalOpen = cartDrawer.open?.bind(cartDrawer);
+    if (originalOpen) {
+      cartDrawer.open = function (...args) {
+        if (!window._matchingSetOpening) {
+          debouncedValidate();
+        }
+        return originalOpen(...args);
+      };
+    }
+  }
+
+  document.addEventListener("dispatch:cart-drawer:refresh", () => {
+    debouncedValidate();
+  });
+
   document.querySelectorAll(".set-image img").forEach((img) => {
     if (img.complete) {
       img.closest(".set-image")?.classList.add("loaded");
@@ -145,10 +166,18 @@ function showMiniCard(set, type, anchor) {
 
 let state = {
   items: [],
+  currentSet: null,
 };
 
+let _validateTimer = null;
+function debouncedValidate() {
+  clearTimeout(_validateTimer);
+  _validateTimer = setTimeout(validateSetDiscounts, 600);
+}
+
 function initState(set) {
-  state.items = set.products.map((p) => {
+  state.currentSet = set;
+  state.items = set.products.map((p, index) => {
     const firstVariant = p.variants[0];
     const color = firstVariant.title.split("/")[0].trim();
 
@@ -157,6 +186,7 @@ function initState(set) {
       variantId: firstVariant.id,
       selectedColor: color,
       price: p.price,
+      role: index === 0 ? "top" : "bottom",
     };
   });
 }
@@ -360,7 +390,105 @@ function updateTotal() {
 
 // ================= ADD TO CART =================
 
+// ================= DISCOUNT CODE HELPERS =================
+
+// Single global code for ALL matching sets.
+// Configure it in Shopify admin → Discounts → ELVNSET10
+// Set "Applies to" → the "Matching Set Products" collection.
+// When you add a new set, just add its products to that collection — no code change needed.
+const MATCHING_SET_DISCOUNT_CODE = "ELVNSET10";
+
+function getDiscountCode() {
+  return MATCHING_SET_DISCOUNT_CODE;
+}
+
+async function applyDiscountCode(code) {
+  if (!code) return;
+  const cartUpdateUrl = window.theme?.routes?.cartUpdate || "/cart/update.js";
+  const res = await fetch(cartUpdateUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ discount: code }),
+  });
+  const data = await res.json();
+  const applied = data.discount_codes?.find(
+    (d) => d.code.toUpperCase() === code.toUpperCase() && d.applicable,
+  );
+  if (!applied) {
+    console.warn(
+      "[MatchingSet] Discount code not applied — check that:",
+      "\n 1. Code '" + code + "' exists in Shopify admin",
+      "\n 2. Products are in the 'Matching Set Products' collection",
+    );
+  }
+}
+
+async function removeDiscountCode() {
+  const cartUpdateUrl = window.theme?.routes?.cartUpdate || "/cart/update.js";
+  await fetch(cartUpdateUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ discount: "" }),
+  });
+}
+
+// ================= CART VALIDATION =================
+
+// After any cart change:
+//   - If BOTH products of any matching set are in the cart → apply discount
+//   - If NO complete set pair exists              → remove discount
+//
+// Works regardless of how items were added (set drawer, product page, quick-add).
+// NOTE: extra items of the same product also receive the discount — unavoidable
+// without Shopify Functions (per-line-item discounts are not possible in themes).
+async function validateSetDiscounts() {
+  const cart = await fetch("/cart.js").then((r) => r.json());
+
+  // Numeric product IDs currently in the cart
+  const cartProductIds = new Set(cart.items.map((i) => String(i.product_id)));
+
+  // Check every defined set — a set is complete when both its products are present
+  const hasCompleteSet = (window.MATCHING_SETS || []).some((set) => {
+    if (!set.products || set.products.length < 2) return false;
+    return set.products.every((p) => cartProductIds.has(String(p.id)));
+  });
+
+  const discountCode = getDiscountCode();
+  const alreadyApplied = cart.discount_codes?.some(
+    (d) => d.code.toUpperCase() === discountCode.toUpperCase() && d.applicable,
+  );
+
+  if (hasCompleteSet && !alreadyApplied) {
+    await applyDiscountCode(discountCode);
+  } else if (!hasCompleteSet && alreadyApplied) {
+    await removeDiscountCode();
+    showSetDiscountWarning("Matching set incomplete — set discount removed.");
+  }
+}
+
+function showSetDiscountWarning(msg) {
+  let banner = document.getElementById("set-discount-warning");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "set-discount-warning";
+    banner.style.cssText =
+      "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);" +
+      "background:#111;color:#fff;padding:12px 20px;border-radius:8px;" +
+      "font-size:13px;z-index:99999;max-width:340px;text-align:center;";
+    document.body.appendChild(banner);
+  }
+  banner.textContent = msg || "Set discount removed — the matching set is no longer complete.";
+  banner.style.display = "block";
+  setTimeout(() => {
+    if (banner) banner.style.display = "none";
+  }, 5000);
+}
+
+// ================= ADD TO CART =================
+
 async function addAllToCart() {
+  const set = state.currentSet;
+
   const items = state.items.map((i) => ({
     id: i.variantId,
     quantity: 1,
@@ -385,6 +513,9 @@ async function addAllToCart() {
 
     if (!res.ok) throw new Error("Cart error");
 
+    // Apply the single global matching set discount code
+    await applyDiscountCode(getDiscountCode());
+
     const cartDrawer = document.querySelector("cart-drawer");
 
     if (cartDrawer) {
@@ -398,7 +529,10 @@ async function addAllToCart() {
       const newDrawer = temp.querySelector("cart-drawer");
       if (newDrawer) cartDrawer.innerHTML = newDrawer.innerHTML;
 
+      // Flag prevents our own open() call from triggering a redundant validation fetch
+      window._matchingSetOpening = true;
       cartDrawer.open();
+      setTimeout(() => { window._matchingSetOpening = false; }, 100);
     }
 
     closeDrawer();

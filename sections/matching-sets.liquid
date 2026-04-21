@@ -242,7 +242,7 @@
       {% for set in sets %}
         {
           id: "{{ forloop.index }}",
-          handle: "{{ set.handle }}",
+          handle: "{{ set.system.handle }}",
           title: "{{ set.title }}",
           image: "{{ set.image | image_url }}",
           hotspot_top_x: {{ set.hotspot_top_x }},
@@ -259,7 +259,8 @@
                   {% for variant in product.variants %}
                     {
                       id: "{{ variant.id }}",
-                      title: "{{ variant.title }}"
+                      title: "{{ variant.title }}",
+                      available: {{ variant.available }}
                     }{% unless forloop.last %},{% endunless %}
                   {% endfor %}
                 ]
