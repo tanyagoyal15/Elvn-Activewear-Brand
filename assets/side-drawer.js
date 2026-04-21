@@ -18,6 +18,7 @@ function removeTrapFocus(elementToFocus = null) {
  * @param {Element} [elementToFocus=container] - Initial element to focus when trap is applied.
  */
 function trapFocus(container, elementToFocus = container) {
+  if (!container) return;
   const focusableEls = Array.from(
     container.querySelectorAll('summary, a[href], area[href], button:not([disabled]), input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), object, iframe, audio[controls], video[controls], [tabindex]:not([tabindex^="-"])')
   );

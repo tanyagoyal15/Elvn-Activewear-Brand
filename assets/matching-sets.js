@@ -48,6 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cta) cta.addEventListener("click", addAllToCart);
   }
 
+  // Update the cart notice whenever the drawer opens or items change
+  document.addEventListener("dispatch:cart-drawer:open", debouncedValidate);
+  document.addEventListener("on:line-item:change", debouncedValidate);
+
   document.querySelectorAll(".set-image img").forEach((img) => {
     if (img.complete) {
       img.closest(".set-image")?.classList.add("loaded");
@@ -145,10 +149,20 @@ function showMiniCard(set, type, anchor) {
 
 let state = {
   items: [],
+  currentSet: null,
 };
 
+// Discount is applied server-side by the Shopify Function at checkout.
+// Theme only needs to show/hide the cart notification.
+let _validateTimer = null;
+function debouncedValidate() {
+  clearTimeout(_validateTimer);
+  _validateTimer = setTimeout(updateSetDiscountNotice, 400);
+}
+
 function initState(set) {
-  state.items = set.products.map((p) => {
+  state.currentSet = set;
+  state.items = set.products.map((p, index) => {
     const firstVariant = p.variants[0];
     const color = firstVariant.title.split("/")[0].trim();
 
@@ -157,6 +171,7 @@ function initState(set) {
       variantId: firstVariant.id,
       selectedColor: color,
       price: p.price,
+      role: index === 0 ? "top" : "bottom",
     };
   });
 }
@@ -356,6 +371,37 @@ function updateTotal() {
   const total = state.items.reduce((sum, i) => sum + i.price, 0);
 
   totalEl.innerText = formatPrice(total);
+}
+
+// ================= CART NOTICE (UI only) =================
+// Discount is applied server-side by the Shopify Function at checkout.
+// Theme only shows/hides an informational notice in the cart drawer.
+
+function normalizeId(id) {
+  const str = String(id);
+  const m = str.match(/(\d+)$/);
+  return m ? m[1] : str;
+}
+
+async function updateSetDiscountNotice() {
+  try {
+    const cart = await fetch("/cart.js").then((r) => r.json());
+    const cartProductIds = new Set(
+      cart.items.map((i) => normalizeId(i.product_id)),
+    );
+
+    const hasCompleteSet = (window.MATCHING_SETS || []).some((set) => {
+      if (!set.products || set.products.length < 2) return false;
+      return set.products.every((p) =>
+        cartProductIds.has(normalizeId(p.id)),
+      );
+    });
+
+    const notice = document.getElementById("set-discount-notice");
+    if (notice) notice.style.display = hasCompleteSet ? "block" : "none";
+  } catch {
+    // Non-critical — ignore errors
+  }
 }
 
 // ================= ADD TO CART =================
