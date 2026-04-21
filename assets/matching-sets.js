@@ -48,27 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cta) cta.addEventListener("click", addAllToCart);
   }
 
-  // Validate whenever the cart drawer opens (catches items added from
-  // product pages or quick-add) and whenever the cart refreshes (catches
-  // item removals and quantity changes inside the cart drawer).
-  // Skipped when we open it ourselves after "Add Full Look".
-  const cartDrawer = document.querySelector("cart-drawer");
-  if (cartDrawer) {
-    const originalOpen = cartDrawer.open?.bind(cartDrawer);
-    if (originalOpen) {
-      cartDrawer.open = function (...args) {
-        if (!window._matchingSetOpening) {
-          debouncedValidate();
-        }
-        return originalOpen(...args);
-      };
-    }
-  }
-
-  // on:line-item:change fires after every add/remove/qty change in the cart drawer
-  document.addEventListener("on:line-item:change", () => {
-    debouncedValidate();
-  });
+  // Update the cart notice whenever the drawer opens or items change
+  document.addEventListener("dispatch:cart-drawer:open", debouncedValidate);
+  document.addEventListener("on:line-item:change", debouncedValidate);
 
   document.querySelectorAll(".set-image img").forEach((img) => {
     if (img.complete) {
@@ -170,10 +152,12 @@ let state = {
   currentSet: null,
 };
 
+// Discount is applied server-side by the Shopify Function at checkout.
+// Theme only needs to show/hide the cart notification.
 let _validateTimer = null;
 function debouncedValidate() {
   clearTimeout(_validateTimer);
-  _validateTimer = setTimeout(validateSetDiscounts, 600);
+  _validateTimer = setTimeout(updateSetDiscountNotice, 400);
 }
 
 function initState(set) {
@@ -389,114 +373,40 @@ function updateTotal() {
   totalEl.innerText = formatPrice(total);
 }
 
-// ================= ADD TO CART =================
+// ================= CART NOTICE (UI only) =================
+// Discount is applied server-side by the Shopify Function at checkout.
+// Theme only shows/hides an informational notice in the cart drawer.
 
-// ================= DISCOUNT CODE HELPERS =================
-
-// Single global code for ALL matching sets.
-// Configure it in Shopify admin → Discounts → ELVNSET10
-// Set "Applies to" → the "Matching Set Products" collection.
-// When you add a new set, just add its products to that collection — no code change needed.
-const MATCHING_SET_DISCOUNT_CODE = "ELVNSET10";
-
-function getDiscountCode() {
-  return MATCHING_SET_DISCOUNT_CODE;
+function normalizeId(id) {
+  const str = String(id);
+  const m = str.match(/(\d+)$/);
+  return m ? m[1] : str;
 }
 
-async function applyDiscountCode(code) {
-  if (!code) return;
-  const cartUpdateUrl = window.theme?.routes?.cartUpdate || "/cart/update.js";
-  const res = await fetch(cartUpdateUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ discount: code }),
-  });
-  const data = await res.json();
-  const applied = data.discount_codes?.find(
-    (d) => d.code.toUpperCase() === code.toUpperCase() && d.applicable,
-  );
-  if (!applied) {
-    console.warn(
-      "[MatchingSet] Discount code not applied — check that:",
-      "\n 1. Code '" + code + "' exists in Shopify admin",
-      "\n 2. Products are in the 'Matching Set Products' collection",
+async function updateSetDiscountNotice() {
+  try {
+    const cart = await fetch("/cart.js").then((r) => r.json());
+    const cartProductIds = new Set(
+      cart.items.map((i) => normalizeId(i.product_id)),
     );
+
+    const hasCompleteSet = (window.MATCHING_SETS || []).some((set) => {
+      if (!set.products || set.products.length < 2) return false;
+      return set.products.every((p) =>
+        cartProductIds.has(normalizeId(p.id)),
+      );
+    });
+
+    const notice = document.getElementById("set-discount-notice");
+    if (notice) notice.style.display = hasCompleteSet ? "block" : "none";
+  } catch {
+    // Non-critical — ignore errors
   }
-}
-
-async function removeDiscountCode() {
-  const cartUpdateUrl = window.theme?.routes?.cartUpdate || "/cart/update.js";
-  await fetch(cartUpdateUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ discount: "" }),
-  });
-}
-
-// ================= CART VALIDATION =================
-
-// After any cart change:
-//   - If BOTH products of any matching set are in the cart → apply discount
-//   - If NO complete set pair exists              → remove discount
-//
-// Works regardless of how items were added (set drawer, product page, quick-add).
-// NOTE: extra items of the same product also receive the discount — unavoidable
-// without Shopify Functions (per-line-item discounts are not possible in themes).
-async function validateSetDiscounts() {
-  const cart = await fetch("/cart.js").then((r) => r.json());
-
-  // Empty cart — remove any stale discount and stop
-  if (cart.item_count === 0) {
-    await removeDiscountCode();
-    return;
-  }
-
-  // Numeric product IDs currently in the cart
-  const cartProductIds = new Set(cart.items.map((i) => String(i.product_id)));
-
-  // A set is complete when BOTH its products are present in the cart
-  const hasCompleteSet = (window.MATCHING_SETS || []).some((set) => {
-    if (!set.products || set.products.length < 2) return false;
-    return set.products.every((p) => cartProductIds.has(String(p.id)));
-  });
-
-  if (hasCompleteSet) {
-    await applyDiscountCode(getDiscountCode());
-  } else {
-    // Always remove — cleans up stale codes from previous sessions too
-    await removeDiscountCode();
-    const hadDiscount = cart.discount_codes?.some(
-      (d) => d.code.toUpperCase() === getDiscountCode().toUpperCase(),
-    );
-    if (hadDiscount) {
-      showSetDiscountWarning("Matching set incomplete — set discount removed.");
-    }
-  }
-}
-
-function showSetDiscountWarning(msg) {
-  let banner = document.getElementById("set-discount-warning");
-  if (!banner) {
-    banner = document.createElement("div");
-    banner.id = "set-discount-warning";
-    banner.style.cssText =
-      "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);" +
-      "background:#111;color:#fff;padding:12px 20px;border-radius:8px;" +
-      "font-size:13px;z-index:99999;max-width:340px;text-align:center;";
-    document.body.appendChild(banner);
-  }
-  banner.textContent = msg || "Set discount removed — the matching set is no longer complete.";
-  banner.style.display = "block";
-  setTimeout(() => {
-    if (banner) banner.style.display = "none";
-  }, 5000);
 }
 
 // ================= ADD TO CART =================
 
 async function addAllToCart() {
-  const set = state.currentSet;
-
   const items = state.items.map((i) => ({
     id: i.variantId,
     quantity: 1,
@@ -521,9 +431,6 @@ async function addAllToCart() {
 
     if (!res.ok) throw new Error("Cart error");
 
-    // Apply the single global matching set discount code
-    await applyDiscountCode(getDiscountCode());
-
     const cartDrawer = document.querySelector("cart-drawer");
 
     if (cartDrawer) {
@@ -537,10 +444,7 @@ async function addAllToCart() {
       const newDrawer = temp.querySelector("cart-drawer");
       if (newDrawer) cartDrawer.innerHTML = newDrawer.innerHTML;
 
-      // Flag prevents our own open() call from triggering a redundant validation fetch
-      window._matchingSetOpening = true;
       cartDrawer.open();
-      setTimeout(() => { window._matchingSetOpening = false; }, 100);
     }
 
     closeDrawer();

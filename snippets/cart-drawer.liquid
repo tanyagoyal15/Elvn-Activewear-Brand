@@ -114,6 +114,9 @@
   {% endif %}
 
   <footer class="drawer__footer relative custom-case">
+    <div id="set-discount-notice" style="display:none;background:#f5f5f0;border-left:3px solid #111;padding:10px 14px;font-size:12px;margin-bottom:12px;color:#111;">
+      ✓ Matching set discount (10%) will be applied at checkout
+    </div>
     {%- if cart != empty -%}
       {%- if section.settings.show_order_note or show_gift_wrapping -%}
         {% render 'cart-actions', show_gift_wrapping: show_gift_wrapping, in_drawer: true %}
