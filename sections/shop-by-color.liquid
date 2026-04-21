@@ -1,0 +1,161 @@
+{%- comment -%}
+  Shop by Color
+  Primary color circles from a nav menu → click → products from that collection.
+  Hex color comes from collection metafield custom.color (color type).
+{%- endcomment -%}
+
+<link rel="stylesheet" href="{{ 'shop-by-color.css' | asset_url }}" media="print" onload="this.media='all'">
+<script src="{{ 'shop-by-color.js' | asset_url }}" defer></script>
+
+{%- assign color_menu = linklists[section.settings.color_menu] -%}
+
+<section
+  class="shop-by-color section-spacing color-scheme color-scheme--{{ section.settings.color_scheme }}"
+  id="shop-by-color-{{ section.id }}"
+  data-section="{{ section.id }}">
+
+  <div class="container">
+
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="shop-by-color__header mb-10 md:mb-14{% if section.settings.text_alignment == 'center' %} text-center{% endif %}">
+        {%- if section.settings.subheading != blank -%}
+          <p class="subheading mb-2">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="h2 mb-0">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if color_menu == blank or color_menu.links.size == 0 -%}
+      <p class="text-sm opacity-50">Select a color navigation menu in section settings.</p>
+    {%- else -%}
+
+      {%- comment -%} ── COLOR CIRCLE ROW ── {%- endcomment -%}
+      <div class="shop-by-color__colors" role="list" aria-label="Shop by color">
+        {%- for link in color_menu.links -%}
+          {%- assign _coll = link.object -%}
+          {%- assign _hex  = _coll.metafields.custom.color | default: '#cccccc' -%}
+          <button
+            class="shop-by-color__color-btn"
+            data-color="{{ forloop.index0 }}"
+            type="button"
+            aria-pressed="false"
+            role="listitem">
+            <span class="shop-by-color__circle" style="background: {{ _hex }};"></span>
+            <span class="shop-by-color__label">{{ link.title | escape }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} ── PRODUCT PANELS (one per color) ── {%- endcomment -%}
+      {%- for link in color_menu.links -%}
+        {%- assign _coll = link.object -%}
+        <div
+          class="shop-by-color__panel"
+          data-color-panel="{{ forloop.index0 }}"
+          aria-hidden="true">
+
+          {%- if _coll.products_count > 0 -%}
+            <div class="shop-by-color__products">
+              {%- for product in _coll.products limit: 6 -%}
+                {%- render 'product-card', product: product -%}
+              {%- endfor -%}
+            </div>
+          {%- else -%}
+            <div class="shop-by-color__products shop-by-color__products--placeholder">
+              {%- for i in (1..4) -%}
+                <div class="card card--standard">
+                  <div class="shop-by-color__placeholder-img">
+                    {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg w-full h-full' }}
+                  </div>
+                </div>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+
+          <div class="shop-by-color__cta mt-8{% if section.settings.text_alignment == 'center' %} text-center{% endif %}">
+            <a href="{{ link.url }}" class="btn btn--secondary">
+              {{- section.settings.cta_text | replace: '[color]', link.title -}}
+            </a>
+          </div>
+
+        </div>
+      {%- endfor -%}
+
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shop by Color",
+  "class": "cc-shop-by-color",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Navigation menu"
+    },
+    {
+      "type": "link_list",
+      "id": "color_menu",
+      "label": "Color menu",
+      "info": "Select your color navigation menu. Each top-level link becomes one color circle. The link should point to a collection containing all products in that color family."
+    },
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Explore"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by Color"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "start",  "label": "Left"   },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "header",
+      "content": "CTA"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "View-all button text",
+      "info": "Use [color] as a placeholder. e.g. 'Shop all [color]' becomes 'Shop all Black'",
+      "default": "Shop all [color]"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    }
+  ],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "Shop by Color"
+    }
+  ]
+}
+{% endschema %}

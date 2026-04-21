@@ -1,0 +1,138 @@
+/* ─── Shop by Color ──────────────────────────────────────────── */
+
+/* ── Color circle row ── */
+
+.shop-by-color__colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 40px;
+}
+
+@media screen and (min-width: 768px) {
+  .shop-by-color__colors {
+    gap: 16px 28px;
+    margin-bottom: 48px;
+  }
+}
+
+.shop-by-color__color-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+  color: inherit;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.shop-by-color__color-btn:hover {
+  transform: translateY(-2px);
+}
+
+.shop-by-color__circle {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+@media screen and (min-width: 768px) {
+  .shop-by-color__circle {
+    width: 72px;
+    height: 72px;
+  }
+}
+
+.shop-by-color__color-btn[aria-pressed="true"] .shop-by-color__circle {
+  border-color: currentColor;
+  box-shadow: 0 0 0 3px currentColor;
+  transform: scale(1.1);
+}
+
+.shop-by-color__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Product panel ── */
+
+.shop-by-color__panel {
+  display: none;
+}
+
+.shop-by-color__panel.is-visible {
+  display: block;
+  animation: sbc-fade-in 0.25s ease forwards;
+}
+
+@keyframes sbc-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* ── Product grid ── */
+
+.shop-by-color__products {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 46%;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.shop-by-color__products::-webkit-scrollbar {
+  display: none;
+}
+
+.shop-by-color__products > * {
+  scroll-snap-align: start;
+}
+
+@media screen and (min-width: 640px) {
+  .shop-by-color__products {
+    grid-auto-columns: 32%;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .shop-by-color__products {
+    grid-auto-columns: minmax(0, 1fr);
+    overflow-x: visible;
+  }
+}
+
+/* ── Placeholder ── */
+
+.shop-by-color__placeholder-img {
+  aspect-ratio: 3/4;
+  background: #f0f0ea;
+  overflow: hidden;
+}
+
+.shop-by-color__placeholder-img svg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.3;
+}
+
+/* ── CTA ── */
+
+.shop-by-color__cta.text-center {
+  display: flex;
+  justify-content: center;
+}
