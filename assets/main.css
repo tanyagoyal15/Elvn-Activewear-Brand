@@ -4863,6 +4863,23 @@ details-disclosure + details-disclosure .disclosure--row {
     display: inline-block;
     margin: 0.4rem 0;
   }
+
+  /* color swatch dot in nav */
+  .child-nav__item--has-swatch,
+  .nav-item--has-swatch {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-color-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.12);
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
   .main-nav__promo .main-nav__promo-img {
     position: absolute;
     top: 0;

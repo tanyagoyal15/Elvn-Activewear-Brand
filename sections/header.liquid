@@ -397,7 +397,11 @@
                                       -%}
 
                                     {%- elsif child_link.links == blank -%}
-                                      <a class="main-nav__item child-nav__item" href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
+                                      {%- assign _nav_color = child_link.object.metafields.custom.color -%}
+                                      <a class="main-nav__item child-nav__item{% if _nav_color != blank %} child-nav__item--has-swatch{% endif %}" href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
+                                        {%- if _nav_color != blank -%}
+                                          <span class="nav-color-swatch" style="background:{{ _nav_color }};"></span>
+                                        {%- endif -%}
                                         {{- child_link.title | escape -}}
                                       </a>
 
@@ -442,8 +446,58 @@
                                         </summary>
                                         <ul class="main-nav__grandchild{% if mega_menu_block %} mega-nav__list{% endif %}">
                                           {%- for grandchild_link in child_link.links -%}
+                                            {%- liquid
+                                              assign _gc_color = grandchild_link.object.metafields.custom.color
+                                              if _gc_color == blank
+                                                assign _gc_title = grandchild_link.title | downcase | strip
+                                                if _gc_title == 'black'
+                                                  assign _gc_color = '#111111'
+                                                elsif _gc_title == 'white'
+                                                  assign _gc_color = '#f5f0e8'
+                                                elsif _gc_title == 'purple'
+                                                  assign _gc_color = '#9333ea'
+                                                elsif _gc_title == 'pink'
+                                                  assign _gc_color = '#f472b6'
+                                                elsif _gc_title == 'red'
+                                                  assign _gc_color = '#ef4444'
+                                                elsif _gc_title == 'butter yellow' or _gc_title == 'yellow'
+                                                  assign _gc_color = '#fcd34d'
+                                                elsif _gc_title == 'green'
+                                                  assign _gc_color = '#22c55e'
+                                                elsif _gc_title == 'brown'
+                                                  assign _gc_color = '#92400e'
+                                                elsif _gc_title == 'blue'
+                                                  assign _gc_color = '#3b82f6'
+                                                elsif _gc_title == 'beige'
+                                                  assign _gc_color = '#d2b896'
+                                                elsif _gc_title == 'orange'
+                                                  assign _gc_color = '#f97316'
+                                                elsif _gc_title == 'grey' or _gc_title == 'gray'
+                                                  assign _gc_color = '#9ca3af'
+                                                elsif _gc_title == 'navy'
+                                                  assign _gc_color = '#1e3a5f'
+                                                elsif _gc_title == 'maroon' or _gc_title == 'burgundy'
+                                                  assign _gc_color = '#7f1d1d'
+                                                elsif _gc_title == 'lavender'
+                                                  assign _gc_color = '#c4b5fd'
+                                                elsif _gc_title == 'mint'
+                                                  assign _gc_color = '#6ee7b7'
+                                                elsif _gc_title == 'coral'
+                                                  assign _gc_color = '#fb7185'
+                                                elsif _gc_title == 'olive'
+                                                  assign _gc_color = '#6b7a3e'
+                                                elsif _gc_title == 'teal'
+                                                  assign _gc_color = '#14b8a6'
+                                                elsif _gc_title == 'cream' or _gc_title == 'ivory'
+                                                  assign _gc_color = '#fbfaf2'
+                                                endif
+                                              endif
+                                            -%}
                                             <li>
-                                              <a class="main-nav__item{% if mega_menu_block %} mega-nav__item{% endif %}" href="{{ grandchild_link.url }}"{% if grandchild_link.current %} aria-current="page"{% endif %}>
+                                              <a class="main-nav__item{% if mega_menu_block %} mega-nav__item{% endif %}{% if _gc_color != blank %} nav-item--has-swatch{% endif %}" href="{{ grandchild_link.url }}"{% if grandchild_link.current %} aria-current="page"{% endif %}>
+                                                {%- if _gc_color != blank -%}
+                                                  <span class="nav-color-swatch" style="background:{{ _gc_color }};"></span>
+                                                {%- endif -%}
                                                 {{- grandchild_link.title | escape -}}
                                               </a>
                                             </li>

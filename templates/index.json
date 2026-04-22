@@ -746,6 +746,18 @@
       "type": "matching-sets",
       "name": "Matching sets",
       "settings": {}
+    },
+    "shop_by_color_main": {
+      "type": "shop-by-color",
+      "name": "Shop by Color",
+      "settings": {
+        "color_menu": "shop-by-color",
+        "subheading": "Explore",
+        "heading": "Shop by Color",
+        "text_alignment": "start",
+        "cta_text": "Shop [color]",
+        "color_scheme": "scheme-1"
+      }
     }
   },
   "order": [
@@ -755,6 +767,7 @@
     // "image_banner_aArKYQ",
     "custom_grid_ndWCGY",
     "matching-sets",
+    "shop_by_color_main",
     "collection_list_irDAQm",
     "custom_grid_6Bbn4c",
     "image_banner_ygfrVG",
