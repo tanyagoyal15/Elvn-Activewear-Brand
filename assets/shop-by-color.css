@@ -8,13 +8,14 @@
   grid-auto-columns: 72vw;
   gap: 14px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  overflow-y: visible;
+  scroll-snap-type: x proximity;       /* proximity is less aggressive than mandatory */
+  overscroll-behavior-x: contain;      /* stops page from scrolling when carousel ends */
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 6px;
-  /* hide scrollbar */
+  padding-bottom: 4px;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  /* bleed slightly past container on mobile */
+  /* bleed past container edges on mobile so peeking card is visible */
   margin-left: -16px;
   margin-right: -16px;
   padding-left: 16px;
@@ -27,7 +28,7 @@
 
 @media screen and (min-width: 640px) {
   .shop-by-color__track {
-    grid-auto-columns: 44vw;
+    grid-auto-columns: 42vw;
     margin-left: 0;
     margin-right: 0;
     padding-left: 0;
@@ -37,14 +38,20 @@
 
 @media screen and (min-width: 990px) {
   .shop-by-color__track {
-    grid-auto-columns: calc((100% - 14px * 3) / 4);
+    /* switch to a normal wrapping grid — no horizontal scroll on desktop */
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, 1fr);
     overflow-x: visible;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    overscroll-behavior-x: auto;
   }
 }
 
 @media screen and (min-width: 1280px) {
   .shop-by-color__track {
-    grid-auto-columns: calc((100% - 14px * 4) / 5);
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
@@ -59,7 +66,8 @@
   text-decoration: none;
   color: inherit;
   aspect-ratio: 3 / 4;
-  background: #f0f0ea;
+  background: #e8e6e0;
+  min-height: 0;           /* prevents grid blowout */
 }
 
 .sbc-card:hover .sbc-card__img {
@@ -85,10 +93,6 @@
   transition: transform 0.5s ease;
 }
 
-.sbc-card__img--color {
-  /* solid color fallback when no image */
-}
-
 /* ── Gradient overlay ── */
 
 .sbc-card::after {
@@ -97,14 +101,14 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    transparent 30%,
-    rgba(0, 0, 0, 0.20) 60%,
-    rgba(0, 0, 0, 0.72) 100%
+    transparent 35%,
+    rgba(0, 0, 0, 0.18) 60%,
+    rgba(0, 0, 0, 0.70) 100%
   );
   pointer-events: none;
 }
 
-/* ── Card body (sits above overlay) ── */
+/* ── Card body ── */
 
 .sbc-card__body {
   position: absolute;
@@ -112,39 +116,45 @@
   left: 0;
   right: 0;
   z-index: 1;
-  padding: 20px 18px 22px;
+  padding: 18px 16px 20px;
   color: #fff;
 }
 
 .sbc-card__dot {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   border: 1.5px solid rgba(255, 255, 255, 0.7);
-  margin-bottom: 8px;
+  margin-bottom: 7px;
   vertical-align: middle;
 }
 
 .sbc-card__name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  margin: 0 0 6px;
+  margin: 0 0 5px;
   line-height: 1.2;
 }
 
 .sbc-card__desc {
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.5;
   opacity: 0.85;
-  margin: 0 0 10px;
+  margin: 0 0 9px;
 }
 
 .sbc-card__cta {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.9;
+}
+
+/* ── Placeholder message (no menu selected) ── */
+
+.shop-by-color .text-sm.opacity-50 {
+  padding: 12px 0;
 }

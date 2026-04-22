@@ -28,7 +28,9 @@
 
     {%- if color_menu == blank or color_menu.links.size == 0 -%}
 
-      <p class="text-sm opacity-50">Select a color navigation menu in section settings to display color cards here.</p>
+      {%- if request.design_mode -%}
+        <p class="text-sm opacity-50">Select a color navigation menu in section settings to display color cards here.</p>
+      {%- endif -%}
 
     {%- else -%}
 
