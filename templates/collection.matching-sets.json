@@ -9,24 +9,6 @@
  */
 {
   "sections": {
-    "collection-banner": {
-      "type": "main-collection-banner",
-      "settings": {
-        "style": "text",
-        "heading_marquee_speed": 15,
-        "heading_size": "h2",
-        "heading_case": "uppercase",
-        "text_align": "text-center",
-        "color_scheme": "scheme-1",
-        "color_scheme_overlay": "scheme-3",
-        "show_collection_description": true,
-        "image": "{{ collection.image }}",
-        "fixed_height_desktop": 420,
-        "fixed_height_mobile": 280,
-        "tint_color": "#111111",
-        "tint_opacity": 20
-      }
-    },
     "matching-sets-grid": {
       "type": "matching-sets",
       "settings": {
@@ -41,5 +23,5 @@
       }
     }
   },
-  "order": ["collection-banner", "matching-sets-grid"]
+  "order": ["matching-sets-grid"]
 }
