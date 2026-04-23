@@ -16,18 +16,7 @@
 <html class="no-js{% if settings.enable_custom_scrollbars %} custom-scrollbars{% endif %}" lang="{{ request.locale.iso_code }}" dir="{% if rtl %}rtl{% else %}ltr{% endif %}">
 <head>
   {%- render 'doc-head-core' -%}
-  <meta name="google-site-verification" content="8utgN4bRt_8lcTfyY1COifuwbfjWg3Z6GUcomDtsRbI" />
   {%- render 'doc-head-social' -%}
-
-  {%- comment -%}
-    Elvn brand font — uncomment below and update --elvn-heading-font in elvn-base.css
-    to switch all section headings in one place.
-    Example options:
-      Cormorant Garamond (luxury serif):
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
-      Raleway (minimal geometric sans):
-        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
-  {%- endcomment -%}
 
   {%- style -%}
     {{- settings.body_font | font_face: font_display: 'fallback' -}}
@@ -42,9 +31,6 @@
   {%- endstyle -%}
 
   {{ 'main.css' | asset_url | stylesheet_tag: preload: true }}
-  {{ 'elvn-base.css' | asset_url | stylesheet_tag }}
-  {{ 'elvn-quick-add.css' | asset_url | stylesheet_tag }}
-  <script src="{{ 'elvn-quick-add.js' | asset_url }}" defer></script>
 
   {%- unless settings.body_font.system? -%}
     <link rel="preload" href="{{ settings.body_font | font_url }}" as="font" type="font/woff2" crossorigin fetchpriority="high">
@@ -194,8 +180,6 @@
       render 'quick-add-drawer'
     endif
   -%}
-  
-    {% render 'matching-set-drawer' %}
 
   <div class="overlay fixed top-0 right-0 bottom-0 left-0 js-overlay"></div>
 </body>

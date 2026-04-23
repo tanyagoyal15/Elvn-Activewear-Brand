@@ -15,8 +15,6 @@
 -%}
 
 {%- if section.settings.enable_search and settings.enable_predictive_search -%}
-  <link rel="stylesheet" href="{{ 'mobile-header.css' | asset_url }}" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="{{ 'mobile-header.css' | asset_url }}"></noscript>
   <link rel="stylesheet" href="{{ 'predictive-search.css' | asset_url }}" media="print" onload="this.media='all'">
   <script src="{{ 'predictive-search.js' | asset_url }}" defer></script>
   <script src="{{ 'tabs.js' | asset_url }}" defer></script>
@@ -165,97 +163,8 @@
               {%- endif -%}
             </div>
 
-            <nav aria-label="{{ 'accessibility.main_navigation' | t }}" class="header-nav-menu">
-              {% comment %} MOBILE MENU {% endcomment %}
-              <div class="mobile-tabs lg:hidden">
-
-                <!-- TABS -->
-                <div class="mobile-tabs__list flex border-b">
-                  {% for link in section.settings.menu.links %}
-                    <button 
-                      class="mobile-tab {% if forloop.first %}active{% endif %}" 
-                      data-tab="{{ forloop.index }}">
-                      {{ link.title }}
-                    </button>
-                  {% endfor %}
-                </div>
-              
-                <!-- TAB CONTENT -->
-                <div class="mobile-tab-content-footer-menu">
-                  <div class="mobile-tabs__content">
-              
-                    {% for link in section.settings.menu.links %}
-                      <div 
-                        class="mobile-tab-panel {% unless forloop.first %}hidden{% endunless %}" 
-                        data-panel="{{ forloop.index }}">
-                
-                        {% if link.links != blank %}
-                
-                          {% if link.title == 'Activities' %}
-                
-                            <!-- ACTIVITIES GRID -->
-                            <div class="mobile-grid">
-                              {% for child_link in link.links %}
-                                {% assign collection = child_link.object %}
-                
-                                <a href="{{ child_link.url }}" class="mobile-card">
-                                  {% if collection.featured_image %}
-                                    <div class="mobile-card__image">
-                                      <img 
-                                        width="100%"
-                                        height="100%"
-                                        src="{{ collection.featured_image | image_url: width: 600 }}" 
-                                        alt="{{ child_link.title }}"
-                                      />
-                                      <div class="mobile-card__overlay">
-                                        {{ child_link.title }}
-                                      </div>
-                                    </div>
-                                  {% endif %}
-                                </a>
-                
-                              {% endfor %}
-                            </div>
-                
-                          {% else %}
-                
-                            <!-- NORMAL MENU -->
-                            <ul class="mobile-tab-links">
-                              {% for child_link in link.links %}
-                                {% render 'nav-item', link: child_link, level: 1 %}
-                              {% endfor %}
-                            </ul>
-                
-                          {% endif %}
-                
-                        {% else %}
-                          <a href="{{ link.url }}">{{ link.title }}</a>
-                        {% endif %}
-                
-                      </div>
-                    {% endfor %}
-                
-                  </div>
-                
-                  <div class="mobile-extra-menu">
-    
-                    {% if section.settings.mobile_footer_menu != blank %}
-                      <ul>
-                  
-                        {% for child_link in section.settings.mobile_footer_menu.links %}
-                          {% render 'nav-item', link: child_link, level: 1 %}
-                        {% endfor %}
-                  
-                      </ul>
-                    {% endif %}
-                  
-                  </div>
-                </div>
-              
-              </div>
-
-              {% comment %} MAIN MENU {% endcomment %}
-              <ul class="main-nav hidden">
+            <nav aria-label="{{ 'accessibility.main_navigation' | t }}">
+              <ul class="main-nav">
                 {%- for link in section.settings.menu.links -%}
                   {%- liquid
                     assign mega_menu_block = false
@@ -273,7 +182,7 @@
                         {{- link.title | escape -}}
                       </a>
                     {%- else -%}
-                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}" {% if link.current %} aria-current="page"{% endif %}>
+                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>
                         {{- link.title | escape -}}
                       </a>
                       <details>
@@ -383,7 +292,7 @@
                                     endif
                                   endif
                                 -%}
-                                {% comment %} {%- for child_link in link.links -%}
+                                {%- for child_link in link.links -%}
                                   <li style="--column-index: {{ forloop.index0 }}">
                                     {%- if mega_menu_block and mega_menu_block.type == 'mega-menu-coll-cards' and child_link.type == 'collection_link' -%}
                                       {%- render 'collection-card',
@@ -397,11 +306,7 @@
                                       -%}
 
                                     {%- elsif child_link.links == blank -%}
-                                      {%- assign _nav_color = child_link.object.metafields.custom.color -%}
-                                      <a class="main-nav__item child-nav__item{% if _nav_color != blank %} child-nav__item--has-swatch{% endif %}" href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
-                                        {%- if _nav_color != blank -%}
-                                          <span class="nav-color-swatch" style="background:{{ _nav_color }};"></span>
-                                        {%- endif -%}
+                                      <a class="main-nav__item child-nav__item" href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
                                         {{- child_link.title | escape -}}
                                       </a>
 
@@ -439,65 +344,14 @@
                                         {% endif -%}
                                         <span class="{% if mega_menu_block %}main-nav__heading{% endif %}" role="heading" aria-level="2">{{- child_link.title | escape -}}</span>
                                       </a>
-                                      
                                       <details open>
                                         <summary class="main-nav__summary js-toggle" aria-label="{{ 'accessibility.toggle_submenu' | t: title: child_link.title }}">
                                           {%- render 'icon-chevron-right' -%}
                                         </summary>
                                         <ul class="main-nav__grandchild{% if mega_menu_block %} mega-nav__list{% endif %}">
                                           {%- for grandchild_link in child_link.links -%}
-                                            {%- liquid
-                                              assign _gc_color = grandchild_link.object.metafields.custom.color
-                                              if _gc_color == blank
-                                                assign _gc_title = grandchild_link.title | downcase | strip
-                                                if _gc_title == 'black'
-                                                  assign _gc_color = '#111111'
-                                                elsif _gc_title == 'white'
-                                                  assign _gc_color = '#f5f0e8'
-                                                elsif _gc_title == 'purple'
-                                                  assign _gc_color = '#9333ea'
-                                                elsif _gc_title == 'pink'
-                                                  assign _gc_color = '#f472b6'
-                                                elsif _gc_title == 'red'
-                                                  assign _gc_color = '#ef4444'
-                                                elsif _gc_title == 'butter yellow' or _gc_title == 'yellow'
-                                                  assign _gc_color = '#fcd34d'
-                                                elsif _gc_title == 'green'
-                                                  assign _gc_color = '#22c55e'
-                                                elsif _gc_title == 'brown'
-                                                  assign _gc_color = '#92400e'
-                                                elsif _gc_title == 'blue'
-                                                  assign _gc_color = '#3b82f6'
-                                                elsif _gc_title == 'beige'
-                                                  assign _gc_color = '#d2b896'
-                                                elsif _gc_title == 'orange'
-                                                  assign _gc_color = '#f97316'
-                                                elsif _gc_title == 'grey' or _gc_title == 'gray'
-                                                  assign _gc_color = '#9ca3af'
-                                                elsif _gc_title == 'navy'
-                                                  assign _gc_color = '#1e3a5f'
-                                                elsif _gc_title == 'maroon' or _gc_title == 'burgundy'
-                                                  assign _gc_color = '#7f1d1d'
-                                                elsif _gc_title == 'lavender'
-                                                  assign _gc_color = '#c4b5fd'
-                                                elsif _gc_title == 'mint'
-                                                  assign _gc_color = '#6ee7b7'
-                                                elsif _gc_title == 'coral'
-                                                  assign _gc_color = '#fb7185'
-                                                elsif _gc_title == 'olive'
-                                                  assign _gc_color = '#6b7a3e'
-                                                elsif _gc_title == 'teal'
-                                                  assign _gc_color = '#14b8a6'
-                                                elsif _gc_title == 'cream' or _gc_title == 'ivory'
-                                                  assign _gc_color = '#fbfaf2'
-                                                endif
-                                              endif
-                                            -%}
                                             <li>
-                                              <a class="main-nav__item{% if mega_menu_block %} mega-nav__item{% endif %}{% if _gc_color != blank %} nav-item--has-swatch{% endif %}" href="{{ grandchild_link.url }}"{% if grandchild_link.current %} aria-current="page"{% endif %}>
-                                                {%- if _gc_color != blank -%}
-                                                  <span class="nav-color-swatch" style="background:{{ _gc_color }};"></span>
-                                                {%- endif -%}
+                                              <a class="main-nav__item{% if mega_menu_block %} mega-nav__item{% endif %}" href="{{ grandchild_link.url }}"{% if grandchild_link.current %} aria-current="page"{% endif %}>
                                                 {{- grandchild_link.title | escape -}}
                                               </a>
                                             </li>
@@ -506,42 +360,7 @@
                                       </details>
                                     {%- endif -%}
                                   </li>
-                                {%- endfor -%} {% endcomment %}
-
-                                <!-- LEFT COLUMN -->
-                                <div class="mega-column mega-column--flat">
-                                  {% comment %} <div>Menu</div> {% endcomment %}
-                                  {% for child_link in link.links %}
-                                    {% if child_link.links == blank %}
-                                      <a class="main-nav__item child-nav__item" href="{{ child_link.url }}">
-                                        {{ child_link.title }}
-                                      </a>
-                                    {% endif %}
-                                  {% endfor %}
-                                </div>
-
-                                <!-- SUBMENU COLUMNS -->
-                                {% for child_link in link.links %}
-                                  {% comment %} <div>Submenu</div> {% endcomment %}
-                                  {% if child_link.links != blank %}
-                                    <div class="mega-column">
-                                      <span class="main-nav__heading">
-                                        {{ child_link.title }}
-                                      </span>
-
-                                      <ul>
-                                        {% for grandchild_link in child_link.links %}
-                                          <li>
-                                            <a class="child-nav__item" href="{{ grandchild_link.url }}">
-                                              {{ grandchild_link.title }}
-                                            </a>
-                                          </li>
-                                        {% endfor %}
-                                      </ul>
-                                    </div>
-                                  {% endif %}
-                                {% endfor %}
-
+                                {%- endfor -%}
                               {%- endif -%}
                             </ul>
                             {%- if mega_menu_block -%}
@@ -595,10 +414,6 @@
     {%- endif -%}
 
     <div class="header__icons flex-1 flex justify-end items-center">
-      <a class="header__icon text-current" href="https://wa.me/919892836850" target="_blank" rel="noopener">
-        {% render 'icon-whatsapp' %}
-        <span class="visually-hidden">WhatsApp</span>
-      </a>
       {%- if section.settings.enable_localization -%}
         {% if show_country or show_language %}
           <button class="localization-options localization-options--header text-current js-toggle-localization" data-localization-trigger="localization-drawer-header">
@@ -712,7 +527,6 @@
 
 {% render 'structured-data-header' %}
 
-
 <script>
   // From set-dimensions.js
   requestAnimationFrame(() => {
@@ -730,277 +544,6 @@
   });
 </script>
 
-<script>
-  (function () {
-    'use strict';
-  
-    const MOBILE_BREAKPOINT = 990;
-  
-    function isMobile() {
-      return window.innerWidth < MOBILE_BREAKPOINT;
-    }
-  
-    function initTabs() {
-      const tabs = document.querySelectorAll(".mobile-tab");
-      const panels = document.querySelectorAll(".mobile-tab-panel");
-  
-      if (!tabs.length || !panels.length) return;
-  
-      panels[0]?.classList.add("is-active");
-  
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          const target = tab.dataset.tab;
-  
-          tabs.forEach(t => t.classList.remove("active"));
-          tab.classList.add("active");
-  
-          panels.forEach(panel => {
-            if (panel.dataset.panel === target) {
-              panel.classList.remove("hidden");
-  
-              requestAnimationFrame(() => {
-                panel.classList.add("is-active");
-              });
-  
-            } else {
-              panel.classList.remove("is-active");
-              panel.classList.add("hidden");
-            }
-          });
-        });
-      });
-    }
-  
-    function initMobileAccordion() {
-      if (!isMobile()) return;
-
-      const accordions = document.querySelectorAll(".mobile-accordion");
-
-      accordions.forEach(details => {
-        details.addEventListener("toggle", () => {
-          if (!details.open) return;
-
-          const activePanel = details.closest(".mobile-tab-panel");
-
-          if (!activePanel) return;
-
-          activePanel.querySelectorAll("details").forEach(d => {
-            if (d !== details) d.removeAttribute("open");
-          });
-        });
-      });
-    }
-  
-    document.addEventListener("DOMContentLoaded", () => {
-      initTabs();
-      initMobileAccordion();
-    });
-  
-  })();
-</script>
-
-<style>
-  @media (max-width: 767.98px) {
-    .mobile-tabs {
-      height: 80vh;
-    }
-    .header-nav-menu {
-      padding-top: 0px !important;
-    }
-
-    .mobile-tabs__list {
-      display: flex;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .mobile-tab {
-      font-size: 12px;
-      color : #000;
-      text-transform: uppercase;
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      font-weight: 500;
-      border-bottom: 2px solid transparent;
-    }
-    
-    .mobile-tab.active {
-      font-weight: 700;
-      border-bottom: 2px solid black;
-    }
-    
-    .mobile-tab-panel.hidden {
-      display: none;
-    }
-
-    .mobile-tab-links {
-      margin-top: 20px;
-    }
-    
-    .mobile-tab-links li {
-      font-size: 12px;
-      margin-bottom: 12px;
-    }
-
-    .mobile-tabs details summary .icon svg {
-      transition: transform 0.25s ease;
-    }
-    
-    .mobile-tabs details[open] summary .icon svg {
-      transform: rotate(180deg);
-    }
-
-    .mobile-submenu {
-      padding-left: 16px;
-      margin-top: 8px;
-    }
-    
-    .mobile-submenu li {
-      {% comment %} padding: 8px 0; {% endcomment %}
-    }
-    
-    .mobile-tab-links > li > details > summary {
-      cursor: pointer;
-    }
-
-    {% comment %} .mobile-tab details .mobile-submenu {
-      display: none;
-    }
-    
-    .mobile-tab details.is-open .mobile-submenu {
-      display: block;
-    } {% endcomment %}
-
-    .mobile-tab-panel {
-      opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .mobile-tab-panel.is-active {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .mobile-grid {
-      display: grid;
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .mobile-card__image {
-      position: relative;
-      width: 100%
-    }
-
-    .mobile-card__image img {
-      aspect-ratio: 4 / 1;
-      object-fit: cover;
-    }
-
-    .mobile-card__overlay {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      font-size: 14px;
-      margin-top: 4px;
-      opacity: 0.9;
-      text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-      letter-spacing: 0.4px;
-      color: #fff;
-      font-weight: bold;
-      text-transform: uppercase;
-      text-align: center;
-    }
-
-    .mobile-extra-menu {
-      margin-top: 32px;
-      padding: 20px 0 10px;
-      border-top: 1px solid #eee;
-      margin-top: auto;
-    }
-    
-    .mobile-extra-menu ul li {
-      padding: 6px 0;
-    }
-    
-    .mobile-extra-menu a {
-      font-size: 12px;
-      opacity: 0.7;
-      letter-spacing: 0.5px;
-    }
-    
-    .mobile-social {
-      display: flex;
-      gap: 16px;
-      margin-top: 16px;
-    }
-    
-    .mobile-social a {
-      font-size: 12px;
-      opacity: 0.6;
-    }
-
-    .mobile-tab-content-footer-menu {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      flex: 1;
-    }
-
-    .mobile-tabs__content {
-      flex: 1;
-    }
-
-    .main-menu__mobile-nav-header {
-      padding: 0;
-    }
-
-    .mobile-tab-links .icon svg {
-      width: 16px;
-      height: 16px;
-    }
-  }
-
-  .mega-menu-columns {
-    display: flex;
-    gap: 60px;
-  }
-  
-  .mega-column {
-    display: flex;
-    flex-direction: column;
-    min-width: 140px;
-  }
-
-  .mega-column--flat {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .mega-column--flat .main-nav__item {
-    display: block !important;
-    cursor: pointer;
-    width: 100%;
-  }
-  
-  .mega-column--flat a {
-    display: block;
-    margin-bottom: 12px;
-  }
-  
-  .main-nav__heading {
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-
-  .main-nav a {
-    cursor: pointer;
-  }
-</style>
-  
 {% schema %}
 {
   "name": "Header",
@@ -1101,11 +644,6 @@
       "id": "menu",
       "label": "Main menu",
       "default": "main-menu"
-    },
-    {
-      "type": "link_list",
-      "id": "mobile_footer_menu",
-      "label": "Mobile Footer Menu"
     },
     {
       "type": "checkbox",

@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "background_video_EjnfpG": {
@@ -30,7 +39,11 @@
           }
         }
       },
-      "block_order": ["subheading_U9xaeX", "heading_mmfgtc", "button_CAc3kp"],
+      "block_order": [
+        "subheading_U9xaeX",
+        "heading_mmfgtc",
+        "button_CAc3kp"
+      ],
       "name": "Background video",
       "settings": {
         "video_shopify": "shopify://files/videos/banner final.mp4",
@@ -98,7 +111,9 @@
           }
         }
       },
-      "block_order": ["slide_CdYnnD"],
+      "block_order": [
+        "slide_CdYnnD"
+      ],
       "disabled": true,
       "name": "Slideshow",
       "settings": {
@@ -135,19 +150,15 @@
         "heading_Y8TcLN": {
           "type": "heading",
           "settings": {
-            "heading": "New Releases",
+            "heading": "Just Dropped",
             "heading_size": "h3",
             "heading_h1": true
           }
-        },
-        "subheading_newrel": {
-          "type": "subheading",
-          "settings": {
-            "text": "Fresh drops, straight from the studio"
-          }
         }
       },
-      "block_order": ["heading_Y8TcLN", "subheading_newrel"],
+      "block_order": [
+        "heading_Y8TcLN"
+      ],
       "name": "Featured collection",
       "settings": {
         "collection": "just-dropped",
@@ -164,7 +175,7 @@
         "text_width_override": true,
         "text_max_width": 900,
         "text_column_to_edge": true,
-        "mob_center_text": false,
+        "mob_center_text": true,
         "full_width": true,
         "color_scheme": "scheme-1",
         "background_mode": "default",
@@ -176,71 +187,6 @@
         "remove_top_padding": false,
         "section_height": "small",
         "section_join_mode": "tight"
-      }
-    },
-    "custom_grid_ndWCGY": {
-      "type": "custom-grid",
-      "blocks": {
-        "grid_item_VDEW9P": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/PURPLELEGGINGS.jpg",
-            "title": "Yoga",
-            "link": "shopify://collections/yoga-pilates",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        },
-        "grid_item_BxgKEM": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/134_9abf475b-3d2f-4592-8c31-a99e8b7a6370.png",
-            "title": "Gym",
-            "link": "shopify://collections/gym",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        },
-        "grid_item_cRCdJK": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/DRU0537.jpg",
-            "title": "Court",
-            "link": "shopify://collections/court",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        },
-        "grid_item_BdHkHC": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/DRU0929.jpg",
-            "title": "Lifestyle",
-            "link": "shopify://collections/lifestyle",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        }
-      },
-      "block_order": [
-        "grid_item_VDEW9P",
-        "grid_item_BxgKEM",
-        "grid_item_cRCdJK",
-        "grid_item_BdHkHC"
-      ],
-      "name": "Custom Grid",
-      "settings": {
-        "grid_type": "4",
-        "layout_style": "uniform",
-        "full_width": true,
-        "gap": 12,
-        "aspect_ratio": "portrait",
-        "section_heading": "Shop by Activity",
-        "section_subheading": "Discover styles for your every move"
       }
     },
     "collection_list_irDAQm": {
@@ -329,7 +275,6 @@
         "collection_mMwtkg",
         "collection_ptfmBP"
       ],
-      "disabled": true,
       "name": "Collection list",
       "settings": {
         "title": "Shop the Essentials",
@@ -343,101 +288,12 @@
         "card_compact": true,
         "grid_offset": false,
         "color_scheme": "",
-        "remove_top_padding": false,
+        "remove_top_padding": true,
         "replace_color_scheme_bg": false,
         "bg_color": "",
         "bg_gradient": "",
         "card_inherit_color_scheme": true,
         "card_color_scheme": ""
-      }
-    },
-    "custom_grid_6Bbn4c": {
-      "type": "custom-grid",
-      "blocks": {
-        "grid_item_bXnRVE": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/LINEN_BRA_2.jpg",
-            "title": "Sports Bra",
-            "link": "shopify://collections/sports-bra",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        },
-        "grid_item_cpU43t": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/Elvn_lookBook_0393_0e8d5822-ed87-4d4c-8431-c1d5bae636c1.jpg",
-            "title": "Tshirts / Top",
-            "link": "",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        },
-        "grid_item_iNCJGp": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/214.png",
-            "title": "Leggings",
-            "link": "",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        },
-        "grid_item_XL3LjG": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/Elvn_lookBook_0365.jpg",
-            "title": "Flared Pants",
-            "link": "",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        },
-        "grid_item_LPCz4q": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/19._LINEN_SHORTS_2.jpg",
-            "title": "Shorts",
-            "link": "",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        },
-        "grid_item_PWUtbh": {
-          "type": "grid_item",
-          "settings": {
-            "image": "shopify://shop_images/244.png",
-            "title": "Skirts",
-            "link": "shopify://collections/skirts",
-            "overlay_position": "center",
-            "dark_overlay": false,
-            "span": "1"
-          }
-        }
-      },
-      "block_order": [
-        "grid_item_bXnRVE",
-        "grid_item_cpU43t",
-        "grid_item_iNCJGp",
-        "grid_item_XL3LjG",
-        "grid_item_LPCz4q",
-        "grid_item_PWUtbh"
-      ],
-      "name": "Custom Grid",
-      "settings": {
-        "grid_type": "6",
-        "layout_style": "uniform",
-        "full_width": true,
-        "gap": 12,
-        "aspect_ratio": "portrait",
-        "section_heading": "Shop the Essentials",
-        "section_subheading": "The pieces you'll reach for every day"
       }
     },
     "product_list_AYJEk9": {
@@ -452,7 +308,9 @@
           }
         }
       },
-      "block_order": ["heading_UnkcTx"],
+      "block_order": [
+        "heading_UnkcTx"
+      ],
       "name": "Product list",
       "settings": {
         "product_list": [
@@ -470,7 +328,7 @@
           "trueperformance-sports-bra-coffee",
           "trueperformance-top-coffee"
         ],
-        "layout": "carousel",
+        "layout": "grid",
         "carousel_effect": "slide",
         "products_per_row": "2",
         "products_per_row_desktop": "4",
@@ -493,7 +351,7 @@
         "background_gradient_stop_2": "#ffffff",
         "background_gradient_curve": "linear",
         "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
-        "remove_top_padding": false,
+        "remove_top_padding": true,
         "section_height": "small",
         "section_join_mode": "default"
       }
@@ -536,7 +394,6 @@
         "collection_k6YDDA",
         "collection_3YMeEn"
       ],
-      "disabled": true,
       "name": "Collection list",
       "settings": {
         "title": "Move with ELVN",
@@ -550,7 +407,7 @@
         "card_compact": true,
         "grid_offset": false,
         "color_scheme": "scheme-1",
-        "remove_top_padding": false,
+        "remove_top_padding": true,
         "replace_color_scheme_bg": false,
         "bg_color": "",
         "bg_gradient": "",
@@ -614,37 +471,13 @@
         "height": "py-6",
         "color_scheme": ""
       }
-    },
-    "matching-sets": {
-      "type": "matching-sets",
-      "name": "Matching sets",
-      "settings": {
-        "section_heading": "Matching sets",
-        "section_subheading": "Nothing’s more iconic than a matching ALO moment. Set the tone for the season in fresh looks for wellness days and getaways."
-      }
-    },
-    "shop_by_color_main": {
-      "type": "shop-by-color",
-      "name": "Shop by Color",
-      "settings": {
-        "color_menu": "color-menu",
-        "subheading": "Explore",
-        "heading": "Shop by Color",
-        "text_alignment": "start",
-        "cta_text": "Shop [color]",
-        "color_scheme": "scheme-1"
-      }
     }
   },
   "order": [
     "background_video_EjnfpG",
     "slideshow_ThVGPN",
     "rich_text_MC7wKK",
-    "custom_grid_ndWCGY",
-    "matching-sets",
-    "shop_by_color_main",
     "collection_list_irDAQm",
-    "custom_grid_6Bbn4c",
     "product_list_AYJEk9",
     "collection_list_zCg9tm",
     "icons_with_text_eVFhkf"
