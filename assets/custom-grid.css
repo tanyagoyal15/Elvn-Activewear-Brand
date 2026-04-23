@@ -1,29 +1,74 @@
+/* ═══════════════════════════════════════════════════════════════
+   custom-grid.css
+   Matches sections/custom-grid.liquid class structure.
+   Wrapper padding / section-level spacing is handled by
+   elvn-base.css so this file only owns internal layout & visuals.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Wrapper ── */
 .custom-grid-wrapper {
   width: 100%;
-  padding: 40px 56px;
 }
 
-.page-width {
-  max-width: 1200px;
-  margin: 0 auto;
+/* ── Section header: heading left + view-all right ── */
+.cg-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
 }
 
-.custom-grid-heading {
-  margin-bottom: 24px;
+@media (min-width: 1024px) {
+  .cg-header {
+    margin-bottom: 18px;
+  }
 }
 
-.custom-grid-heading h2 {
-  font-size: 28px;
-  font-weight: 500;
+.cg-header__left {
+  flex: 1;
+  min-width: 0;
 }
 
-.custom-grid-heading p {
-  opacity: 0.7;
-  margin-top: 6px;
+.cg-header__right {
+  flex-shrink: 0;
+  padding-bottom: 3px;
 }
 
+/* Font/size/weight/transform all come from elvn-base.css global rules.
+   We only zero the margin here so spacing is controlled by .cg-header gap. */
+.cg-heading {
+  margin: 0 !important;
+}
+
+.cg-subheading {
+  font-size: 13px;
+  color: #666;
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.cg-viewall {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #111;
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  transition: opacity 0.2s ease;
+}
+
+.cg-viewall:hover {
+  opacity: 0.6;
+}
+
+/* ── Grid container ── */
 .custom-grid {
   display: grid;
+  gap: var(--cg-gap, 12px);
 }
 
 .grid-2 {
@@ -42,59 +87,56 @@
   grid-template-columns: repeat(6, 1fr);
 }
 
+/* Asymmetric layouts */
 .asymmetric.grid-3 {
-  /* grid-template-columns: repeat(2, 1fr); */
-
   grid-template-columns: 2fr 1fr;
-  /* grid-auto-rows: 1fr; */
 }
-
 .asymmetric.grid-5 {
   grid-template-columns: repeat(3, 1fr);
 }
-
-.span-2 {
-  grid-column: span 2;
-}
-
-.span-vertical {
-  grid-row: span 2;
-}
-
-.grid-item {
-  position: relative;
-  overflow: hidden;
-  /* aspect-ratio: 4 / 5; */
-}
-
-.grid-item-inner {
-  width: 100%;
-  /* aspect-ratio: 4/5; */
-  /* height: 100%; */
-}
-
 @media (min-width: 769px) {
   .asymmetric.grid-3,
   .asymmetric.grid-5 {
     height: 70vh;
   }
 }
-
 .asymmetric .grid-item.grid-image1 {
   grid-column: 1 / 2;
   grid-row: 1 / 3;
 }
-
 .asymmetric .grid-item.grid-image2 {
   grid-column: 2 / 3;
   grid-row: 1 / 2;
 }
-
 .asymmetric .grid-image3 {
   grid-column: 2 / 3;
   grid-row: 2 / 3;
 }
 
+/* Span helpers (uniform layout) */
+.span-2 {
+  grid-column: span 2;
+}
+.span-vertical {
+  grid-row: span 2;
+}
+
+/* ── Grid item ── */
+.grid-item {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.grid-item-inner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Aspect ratios */
 .aspect-square {
   aspect-ratio: 1 / 1;
 }
@@ -105,131 +147,194 @@
   aspect-ratio: 16 / 9;
 }
 
+/* Image */
 .grid-item img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s ease;
+  transition: transform 0.55s ease;
+  display: block;
 }
-
 .grid-item:hover img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
-.overlay {
+/* Placeholder */
+.grid-item-placeholder {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.grid-item-placeholder svg {
+  width: 48px;
+  height: 48px;
+  opacity: 0.3;
 }
 
+/* ── Overlay gradient ── */
+.grid-item-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(0, 0, 0, 0.15) 65%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Text content on card ── */
 .grid-content {
   position: absolute;
-  color: #fff;
   z-index: 2;
-}
-
-.grid-cta {
-  font-size: 11px;
-  margin-top: 4px;
-  opacity: 0.9;
-  text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.4px;
   color: #fff;
-  font-weight: bold;
-  text-transform: uppercase;
-  text-align: center;
+  box-sizing: border-box;
 }
 
 .grid-content.center {
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  left: 0;
+  right: 0;
   text-align: center;
+  padding: 0 10px 14px;
 }
 
 .grid-content.bottom-left {
-  bottom: 16px;
-  left: 16px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: left;
+  padding: 0 12px 14px;
 }
 
 .grid-content.bottom-right {
-  bottom: 16px;
-  right: 16px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: right;
+  padding: 0 12px 14px;
 }
 
-.grid-content h3 {
-  font-size: 18px;
-  letter-spacing: 1px;
-  text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.4px;
-  color: #fff;
-  font-weight: bold;
+.grid-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  color: #fff;
+  margin: 0;
+  line-height: 1.3;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
 }
 
-@media (max-width: 768px) {
-  .custom-grid-wrapper {
-    width: 100%;
-    padding: 24px 20px;
+@media (min-width: 1024px) {
+  .grid-title {
+    font-size: 13px;
   }
+}
 
+/* ── Circle arrow icon ── */
+.grid-arrow {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: none;
+}
+
+.grid-arrow svg {
+  width: 14px;
+  height: 14px;
+  color: #111;
+  display: block;
+}
+
+.grid-item:hover .grid-arrow {
+  background: #fff;
+  transform: scale(1.08);
+}
+
+@media (min-width: 1024px) {
+  .grid-arrow {
+    width: 34px;
+    height: 34px;
+  }
+  .grid-arrow svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+/* When title is center-aligned, push arrow to center-bottom too */
+.grid-content.center ~ .grid-arrow {
+  right: 12px;
+  bottom: 12px;
+}
+
+/* ── Mobile behaviour ── */
+@media (max-width: 768px) {
+  /* Horizontal scroll — show ~1.8 cards so each one is noticeably larger */
   .custom-grid.mobile-scroll {
     display: flex;
     overflow-x: auto;
-    gap: 12px;
-    padding-bottom: 10px;
     scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
   }
-
+  .custom-grid.mobile-scroll::-webkit-scrollbar {
+    display: none !important;
+  }
   .mobile-scroll .grid-item {
-    /* min-width: 70%;
-    flex: 0 0 auto;
-    scroll-snap-align: start; */
-
-    flex: 0 0 calc((100% - 12px) / 2.3);
+    flex: 0 0 calc((100% - var(--cg-gap, 12px)) / 1.85);
     scroll-snap-align: start;
   }
 
+  /* 2-column grid (2-col desktop, or asymmetric) */
   .custom-grid.mobile-grid-2 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
   }
-
   .custom-grid.mobile-grid-2 .grid-item {
     grid-column: span 1;
     grid-row: span 1;
   }
-
   .custom-grid.asymmetric.grid-3.mobile-grid-2 .grid-image3 {
     grid-column: 1 / -1;
   }
 
-  .grid-item-inner {
-    width: 100%;
-    /* height: auto;  */
-    /* aspect-ratio: 4 / 5; */
-  }
-
-  .grid-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .grid-content h3 {
-    font-size: 14px;
-  }
-
-  .mobile-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
+  /* Reset asymmetric heights on mobile */
   .asymmetric.grid-3,
-  asymmetric.grid-5 {
+  .asymmetric.grid-5 {
     height: auto;
     grid-auto-rows: auto;
+  }
+
+  .grid-title {
+    font-size: 11px;
+  }
+
+  .grid-arrow {
+    width: 26px;
+    height: 26px;
+  }
+  .grid-arrow svg {
+    width: 12px;
+    height: 12px;
   }
 }

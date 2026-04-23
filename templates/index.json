@@ -139,9 +139,15 @@
             "heading_size": "h3",
             "heading_h1": true
           }
+        },
+        "subheading_newrel": {
+          "type": "subheading",
+          "settings": {
+            "text": "Fresh drops, straight from the studio"
+          }
         }
       },
-      "block_order": ["heading_Y8TcLN"],
+      "block_order": ["heading_Y8TcLN", "subheading_newrel"],
       "name": "Featured collection",
       "settings": {
         "collection": "just-dropped",
@@ -158,7 +164,7 @@
         "text_width_override": true,
         "text_max_width": 900,
         "text_column_to_edge": true,
-        "mob_center_text": true,
+        "mob_center_text": false,
         "full_width": true,
         "color_scheme": "scheme-1",
         "background_mode": "default",
@@ -231,10 +237,10 @@
         "grid_type": "4",
         "layout_style": "uniform",
         "full_width": true,
-        "gap": 16,
+        "gap": 12,
         "aspect_ratio": "portrait",
-        "section_heading": "",
-        "section_subheading": ""
+        "section_heading": "Shop by Activity",
+        "section_subheading": "Discover styles for your every move"
       }
     },
     "collection_list_irDAQm": {
@@ -428,10 +434,10 @@
         "grid_type": "6",
         "layout_style": "uniform",
         "full_width": true,
-        "gap": 16,
+        "gap": 12,
         "aspect_ratio": "portrait",
         "section_heading": "Shop the Essentials",
-        "section_subheading": ""
+        "section_subheading": "The pieces you'll reach for every day"
       }
     },
     "product_list_AYJEk9": {
@@ -487,7 +493,7 @@
         "background_gradient_stop_2": "#ffffff",
         "background_gradient_curve": "linear",
         "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
-        "remove_top_padding": true,
+        "remove_top_padding": false,
         "section_height": "small",
         "section_join_mode": "default"
       }
@@ -544,7 +550,7 @@
         "card_compact": true,
         "grid_offset": false,
         "color_scheme": "scheme-1",
-        "remove_top_padding": true,
+        "remove_top_padding": false,
         "replace_color_scheme_bg": false,
         "bg_color": "",
         "bg_gradient": "",
@@ -612,7 +618,10 @@
     "matching-sets": {
       "type": "matching-sets",
       "name": "Matching sets",
-      "settings": {}
+      "settings": {
+        "section_heading": "Matching sets",
+        "section_subheading": "Nothing’s more iconic than a matching ALO moment. Set the tone for the season in fresh looks for wellness days and getaways."
+      }
     },
     "shop_by_color_main": {
       "type": "shop-by-color",

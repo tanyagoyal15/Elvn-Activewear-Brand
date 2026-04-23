@@ -140,7 +140,7 @@ summary::-webkit-details-marker {
   --gutter: var(--gutter-sm, 20px);
   --column-gap: var(--grid-column-gap);
   --row-gap: calc(10 * var(--space-unit));
-  --space-unit: 0.4rem;
+  --space-unit: 0.2rem;
   --quick-buy-width: 100%;
   --fluid-content-border-radius: calc(
     (var(--content-border-radius) / 1.5) * var(--fluid-1-5)
@@ -4876,9 +4876,9 @@ details-disclosure + details-disclosure .disclosure--row {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 1.5px solid rgba(0,0,0,0.12);
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
     flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
   .main-nav__promo .main-nav__promo-img {
     position: absolute;

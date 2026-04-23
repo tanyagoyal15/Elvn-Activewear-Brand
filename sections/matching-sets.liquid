@@ -38,7 +38,13 @@
 
 <div class="matching-sets-wrapper">
     <div class="matching-sets-grid">
-        <div class="matching-sets-title">Matching Sets</div>
+        {% comment %} <div class="matching-sets-title">Matching Sets</div> {% endcomment %}
+        <div class="cg-header__left">
+          <h2 class="h2 cg-heading">{{ section.settings.section_heading | escape }}</h2>
+          {%- if section.settings.section_subheading != blank -%}
+            <p class="cg-subheading">{{ section.settings.section_subheading | escape }}</p>
+          {%- endif -%}
+        </div>
       {% for set in sets %}
         {% render 'matching-set-card',
           set: set,
@@ -289,7 +295,19 @@
 {% schema %}
     {
     "name": "Matching Sets",
-    "settings": [],
+    "settings": [
+      {
+        "type": "text",
+        "id": "section_heading",
+        "label": "Heading",
+        "default": "Shop the Collection"
+      },
+      {
+        "type": "text",
+        "id": "section_subheading",
+        "label": "Subheading / description"
+      },
+    ],
     "presets": [
         {
         "name": "Matching Sets"

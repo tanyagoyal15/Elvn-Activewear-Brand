@@ -124,6 +124,20 @@
       }
     {%- endif -%}
   {%- endif -%}
+
+  {%- if carousel -%}
+  /* Internal spacing only — section padding handled by elvn-base.css */
+  #{{ section.id }} .section__block--heading { margin-top: 0 !important; margin-bottom: 0 !important; }
+  #{{ section.id }} .fc-header { margin-bottom: 12px; }
+  #{{ section.id }} .section__block.mt-12 { margin-top: 0 !important; }
+  /* Zero the mb-12 bottom margin on the carousel wrapper div */
+  #{{ section.id }} .section__block.mb-12 { margin-bottom: 0 !important; }
+  /* Zero the extra padding on the swiper container */
+  #{{ section.id }} .swiper.py-4 { padding-bottom: 0 !important; padding-top: 0 !important; }
+  @media (min-width: 1024px) {
+    #{{ section.id }} .fc-header { margin-bottom: 16px; }
+  }
+  {%- endif -%}
 {%- endstyle -%}
 
 <div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}{% if use_swiper %} overflow-hidden{% endif %}">
@@ -162,6 +176,10 @@
                 color-scheme--{{ color_scheme }}">
       <div class="{{ section.settings.text_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
         <div class="container container--text">
+          {%- if carousel and section.settings.show_view_all -%}
+            <div class="fc-header">
+              <div class="fc-header__content">
+          {%- endif -%}
           {%- for block in section.blocks -%}
             {%- case block.type -%}
               {%- when 'heading' -%}
@@ -220,6 +238,15 @@
                 </div>
             {%- endcase -%}
           {%- endfor -%}
+          {%- if carousel and section.settings.show_view_all -%}
+              </div>
+              <div class="fc-header__viewall">
+                <a href="{{ section.settings.collection.url }}" class="{{ section.settings.view_all_style }}">
+                  {{- section.settings.view_all_text | escape -}}
+                </a>
+              </div>
+            </div>
+          {%- endif -%}
         </div>
 
         <div class="{% if section.settings.full_width == false or carousel == false %}container container--text{% endif %}">
@@ -267,53 +294,31 @@
                 {%- if use_swiper -%}
                     </div>
 
-                    <div class="slider-nav flex {% if section.settings.view_all_style == 'link' %}gap-x-6{% else %}gap-x-2{% endif %} items-center justify-center mt-8">
-                      {% if settings.slider_show_arrows != 'never' %}
+                    {%- if settings.slider_show_arrows != 'never' -%}
+                    <div class="slider-nav flex gap-x-2 items-center justify-center mt-8">
                         <button type="button" class="slider-nav__btn btn--circle-icon has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
                           {% render 'icon-chevron-left' %}
                         </button>
-                      {% endif %}
-
-                      {% if section.settings.show_view_all %}
-                        <span>
-                          <a href="{{ section.settings.collection.url }}" class="{{ section.settings.view_all_style }}">
-                            {{-  section.settings.view_all_text | escape -}}
-                          </a>
-                        </span>
-                      {% endif %}
-
-                      {% if settings.slider_show_arrows != 'never' %}
-                        <button type="button" class="slider-nav__btn btn--circle-icon has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="next" aria-controls="slider-{{ section.id }}" aria-label=""{{ 'general.slider.next' | t }}>
+                        <button type="button" class="slider-nav__btn btn--circle-icon has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
                           {% render 'icon-chevron-right' %}
                         </button>
-                      {% endif %}
                     </div>
+                    {%- endif -%}
                   </product-swiper>
                 {%- else -%}
                       </div>
                     </div> {% # slider %}
 
-                    <div class="slider-nav slider-nav--alt flex {% if section.settings.view_all_style == 'link' %}gap-x-6{% else %}gap-x-2{% endif %} mt-8 items-center justify-center no-js-hidden">
-                      {% if settings.slider_show_arrows != 'never' %}
+                    {%- if settings.slider_show_arrows != 'never' -%}
+                    <div class="slider-nav slider-nav--alt flex gap-x-2 mt-8 items-center justify-center no-js-hidden">
                         <button type="button" class="slider-nav__btn btn--circle-icon has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
                           {% render 'icon-chevron-left' %}
                         </button>
-                      {% endif %}
-
-                      {% if section.settings.show_view_all %}
-                        <span>
-                          <a href="{{ section.settings.collection.url }}" class="{{ section.settings.view_all_style }}">
-                            {{-  section.settings.view_all_text | escape -}}
-                          </a>
-                        </span>
-                      {% endif %}
-
-                      {% if settings.slider_show_arrows != 'never' %}
                         <button type="button" class="slider-nav__btn btn--circle-icon has-ltr-icon{% if settings.slider_show_arrows == 'hover' %} slider-nav--show-on-hover no-hover-hidden{% endif %}" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
                           {% render 'icon-chevron-right' %}
                         </button>
-                      {% endif %}
                     </div>
+                    {%- endif -%}
                   </div>
                 </carousel-slider>
                 {%- endif -%}
