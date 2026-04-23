@@ -450,9 +450,15 @@
             "heading_size": "h3",
             "heading_h1": false
           }
+        },
+        "subheading_performance": {
+          "type": "subheading",
+          "settings": {
+            "text": "Technical pieces built to support every rep, stretch, and stride."
+          }
         }
       },
-      "block_order": ["heading_UnkcTx"],
+      "block_order": ["heading_UnkcTx", "subheading_performance"],
       "name": "Product list",
       "settings": {
         "product_list": [
@@ -484,7 +490,7 @@
         "text_width_override": true,
         "text_max_width": 900,
         "text_column_to_edge": true,
-        "mob_center_text": true,
+        "mob_center_text": false,
         "full_width": true,
         "color_scheme": "",
         "background_mode": "default",
@@ -620,7 +626,7 @@
       "name": "Matching sets",
       "settings": {
         "section_heading": "Matching sets",
-        "section_subheading": "Nothing’s more iconic than a matching ALO moment. Set the tone for the season in fresh looks for wellness days and getaways."
+        "section_subheading": "Coordinated looks made for movement, easy mornings, and everything your day turns into."
       }
     },
     "shop_by_color_main": {
@@ -642,9 +648,9 @@
     "rich_text_MC7wKK",
     "custom_grid_ndWCGY",
     "matching-sets",
-    "shop_by_color_main",
     "collection_list_irDAQm",
     "custom_grid_6Bbn4c",
+    "shop_by_color_main",
     "product_list_AYJEk9",
     "collection_list_zCg9tm",
     "icons_with_text_eVFhkf"

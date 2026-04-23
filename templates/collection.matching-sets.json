@@ -1,0 +1,45 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "collection-banner": {
+      "type": "main-collection-banner",
+      "settings": {
+        "style": "text",
+        "heading_marquee_speed": 15,
+        "heading_size": "h2",
+        "heading_case": "uppercase",
+        "text_align": "text-center",
+        "color_scheme": "scheme-1",
+        "color_scheme_overlay": "scheme-3",
+        "show_collection_description": true,
+        "image": "{{ collection.image }}",
+        "fixed_height_desktop": 420,
+        "fixed_height_mobile": 280,
+        "tint_color": "#111111",
+        "tint_opacity": 20
+      }
+    },
+    "matching-sets-grid": {
+      "type": "matching-sets",
+      "settings": {
+        "display_mode": "collection_grid",
+        "eyebrow": "",
+        "section_heading": "Shop matching sets",
+        "section_subheading": "Browse every coordinated look in one place.",
+        "button_label": "",
+        "sets_to_show": 4,
+        "columns_desktop": 3,
+        "columns_mobile": "2"
+      }
+    }
+  },
+  "order": ["collection-banner", "matching-sets-grid"]
+}

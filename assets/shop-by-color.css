@@ -5,19 +5,19 @@
 .shop-by-color__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 72vw;
+  grid-auto-columns: 42vw;
   gap: 14px;
   overflow-x: auto;
   overflow-y: visible;
-  scroll-snap-type: x proximity;       /* proximity is less aggressive than mandatory */
-  overscroll-behavior-x: contain;      /* stops page from scrolling when carousel ends */
+  scroll-snap-type: x proximity; /* proximity is less aggressive than mandatory */
+  overscroll-behavior-x: contain; /* stops page from scrolling when carousel ends */
   -webkit-overflow-scrolling: touch;
   padding-bottom: 4px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   /* bleed past container edges on mobile so peeking card is visible */
-  margin-left: -16px;
-  margin-right: -16px;
+  /* margin-left: 16px; */
+  /* margin-right: 16px; */
   padding-left: 16px;
   padding-right: 16px;
 }
@@ -60,7 +60,7 @@
   color: inherit;
   aspect-ratio: 3 / 4;
   background: #e8e6e0;
-  min-height: 0;           /* prevents grid blowout */
+  min-height: 0; /* prevents grid blowout */
 }
 
 .sbc-card:hover .sbc-card__img {
@@ -89,14 +89,14 @@
 /* ── Gradient overlay ── */
 
 .sbc-card::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
     transparent 35%,
     rgba(0, 0, 0, 0.18) 60%,
-    rgba(0, 0, 0, 0.70) 100%
+    rgba(0, 0, 0, 0.7) 100%
   );
   pointer-events: none;
 }

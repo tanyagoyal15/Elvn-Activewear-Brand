@@ -157,6 +157,37 @@
   padding-bottom: var(--elvn-section-pad);
 }
 
+/* Product-list header rhythm: match custom-grid and matching-sets spacing. */
+.template-index .cc-product-list .section__block--heading {
+  margin-bottom: 4px !important;
+}
+
+.template-index .cc-product-list .section__block--subheading {
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+}
+
+.template-index .cc-product-list .section__block:has(.slider__grid),
+.template-index .cc-product-list .section__block:has(product-swiper) {
+  margin-top: 0 !important;
+}
+
+/* Homepage product carousel: show 2 cards plus a hint of the next on mobile. */
+@media (max-width: 767.98px) {
+  .template-index .cc-product-list .slider__grid.auto-cols-1 {
+    grid-auto-columns: calc((100% - 12px) / 2.18);
+  }
+
+  .template-index .cc-product-list .container--text {
+    text-align: left !important;
+  }
+
+  .template-index .cc-product-list .reading-width--fixed {
+    margin-inline-start: 0 !important;
+    margin-inline-end: auto !important;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    FEATURED-COLLECTION HEADER
    flex row: heading left + View All right

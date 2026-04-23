@@ -1,11 +1,22 @@
+{%- liquid
+  assign card_image_width = image_width | default: 900
+  assign card_image_height = image_height | default: 1200
+  assign show_card_info = true
+  if show_info == false
+    assign show_card_info = false
+  endif
+-%}
+
 <div class="matching-set-card" data-set="{{ set_index }}">
   
     <div class="set-image">
-      <img 
-        src="{{ set.image | image_url: width: 600 }}" 
-        width="600" 
-        height="800" 
-        class="set-img" 
+      <img
+        src="{{ set.image | image_url: width: card_image_width }}"
+        width="{{ card_image_width }}"
+        height="{{ card_image_height }}"
+        class="set-img"
+        alt="{{ set.title | escape }}"
+        loading="lazy"
       />
   
       {% render 'matching-set-hotspot',
@@ -25,12 +36,14 @@
       <div class="mini-card"></div>
 
     </div>
-  
-    <div class="set-info">
+
+    {%- if show_card_info -%}
+      <div class="set-info">
         <div class="set-title">{{ set.title }}</div>
         <button class="open-drawer" data-set="{{ set_index }}">
-          Shop the set →
+          Shop the set
         </button>
-    </div>
+      </div>
+    {%- endif -%}
   
   </div>
