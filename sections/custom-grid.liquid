@@ -1,0 +1,258 @@
+{{ 'custom-grid.css' | asset_url | stylesheet_tag }}
+
+<div class="custom-grid-wrapper {% unless section.settings.full_width %}page-width{% endunless %}">
+
+  {%- if section.settings.section_heading != blank -%}
+    <div class="cg-header">
+      <div class="cg-header__left">
+        <h2 class="h2 cg-heading">{{ section.settings.section_heading | escape }}</h2>
+        {%- if section.settings.section_subheading != blank -%}
+          <p class="cg-subheading">{{ section.settings.section_subheading | escape }}</p>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.view_all_url != blank -%}
+        <div class="cg-header__right">
+          <a href="{{ section.settings.view_all_url }}" class="cg-viewall">
+            {{ section.settings.view_all_text | default: 'Shop all' | escape }}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- assign max_items = section.settings.grid_type | plus: 0 -%}
+
+  {%- assign mobile_class = '' -%}
+  {%- if section.settings.layout_style == 'uniform' -%}
+    {%- if section.settings.grid_type == '2' -%}
+      {%- assign mobile_class = 'mobile-grid-2' -%}
+    {%- else -%}
+      {%- assign mobile_class = 'mobile-scroll' -%}
+    {%- endif -%}
+  {%- else -%}
+    {%- assign mobile_class = 'mobile-grid-2' -%}
+  {%- endif -%}
+
+  <div
+    class="custom-grid grid-{{ section.settings.grid_type }} {{ section.settings.layout_style }} {{ mobile_class }}"
+    style="--cg-gap: {{ section.settings.gap }}px;"
+  >
+
+    {%- for block in section.blocks limit: max_items -%}
+      {%- assign index = forloop.index -%}
+
+      <a class="grid-item grid-image{{ index }}
+        {%- if section.settings.layout_style == 'asymmetric' -%}
+          {%- if section.settings.grid_type == '3' and index == 2 %} span-2 span-vertical{%- endif -%}
+          {%- if section.settings.grid_type == '5' and index == 2 %} span-2 span-vertical{%- endif -%}
+        {%- else -%}
+          {%- if block.settings.span == '2' %} span-2{%- endif -%}
+          {%- if block.settings.span == 'vertical' %} span-vertical{%- endif -%}
+        {%- endif -%}
+        " href="{{ block.settings.link | default: '#' }}" {{ block.shopify_attributes }}>
+
+        <div class="grid-item-inner aspect-{{ section.settings.aspect_ratio }}">
+
+          {%- if block.settings.image != blank -%}
+            <img
+              src="{{ block.settings.image | image_url: width: 800 }}"
+              srcset="
+                {{ block.settings.image | image_url: width: 400 }} 400w,
+                {{ block.settings.image | image_url: width: 800 }} 800w,
+                {{ block.settings.image | image_url: width: 1200 }} 1200w
+              "
+              sizes="(max-width: 767px) 50vw, 25vw"
+              alt="{{ block.settings.title | escape }}"
+              loading="lazy"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+            >
+          {%- else -%}
+            <div class="grid-item-placeholder">{{ 'image' | placeholder_svg_tag }}</div>
+          {%- endif -%}
+
+          <div class="grid-item-overlay"></div>
+
+          {%- if block.settings.title != blank -%}
+            <div class="grid-content {{ block.settings.overlay_position }}">
+              <p class="grid-title">{{ block.settings.title | escape }}</p>
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.show_arrow -%}
+            <div class="grid-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </div>
+          {%- endif -%}
+
+        </div>
+
+      </a>
+
+    {%- endfor -%}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Custom Grid",
+  "tag": "section",
+  "class": "section-custom-grid",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Heading",
+      "default": "Shop the Collection"
+    },
+    {
+      "type": "text",
+      "id": "section_subheading",
+      "label": "Subheading / description"
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "View all link"
+    },
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "View all text",
+      "default": "Shop all"
+    },
+    {
+      "type": "header",
+      "content": "Grid settings"
+    },
+    {
+      "type": "select",
+      "id": "grid_type",
+      "label": "Columns (desktop)",
+      "options": [
+        { "value": "2", "label": "2 Columns" },
+        { "value": "3", "label": "3 Columns" },
+        { "value": "4", "label": "4 Columns" },
+        { "value": "5", "label": "5 Columns" },
+        { "value": "6", "label": "6 Columns" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "layout_style",
+      "label": "Layout style",
+      "options": [
+        { "value": "uniform", "label": "Uniform grid" },
+        { "value": "asymmetric", "label": "Asymmetric (editorial)" }
+      ],
+      "default": "uniform"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "min": 0,
+      "max": 32,
+      "step": 4,
+      "unit": "px",
+      "label": "Gap between cards",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (4:5)" },
+        { "value": "landscape", "label": "Landscape (16:9)" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show arrow icon on cards",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "grid_item",
+      "name": "Grid Item",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Category name",
+          "default": "Category"
+        },
+        {
+          "type": "text",
+          "id": "cta",
+          "label": "CTA text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "overlay_position",
+          "label": "Text position",
+          "options": [
+            { "value": "center", "label": "Center" },
+            { "value": "bottom-left", "label": "Bottom left" },
+            { "value": "bottom-right", "label": "Bottom right" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "select",
+          "id": "span",
+          "label": "Column span (uniform layout only)",
+          "options": [
+            { "value": "1", "label": "Normal" },
+            { "value": "2", "label": "Double width" },
+            { "value": "vertical", "label": "Tall" }
+          ],
+          "default": "1"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Grid",
+      "blocks": [
+        { "type": "grid_item" },
+        { "type": "grid_item" },
+        { "type": "grid_item" },
+        { "type": "grid_item" }
+      ]
+    }
+  ]
+}
+{% endschema %}

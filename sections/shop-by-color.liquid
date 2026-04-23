@@ -1,0 +1,155 @@
+{%- comment -%}
+  Shop by Color — image card carousel
+  Each color = a card with collection image, name, description, CTA.
+  No JS needed — pure HTML/CSS horizontal scroll.
+{%- endcomment -%}
+
+<link rel="stylesheet" href="{{ 'shop-by-color.css' | asset_url }}" media="print" onload="this.media='all'">
+
+{%- assign color_menu = linklists[section.settings.color_menu] -%}
+
+<section
+  class="shop-by-color section-spacing color-scheme color-scheme--{{ section.settings.color_scheme }}"
+  id="shop-by-color-{{ section.id }}"
+  data-section="{{ section.id }}">
+
+  <div class="container">
+
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="shop-by-color__header{% if section.settings.text_alignment == 'center' %} text-center{% endif %} mb-8 md:mb-10">
+        {%- if section.settings.subheading != blank -%}
+          <p class="subheading mb-2">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="h2 mb-0">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if color_menu == blank or color_menu.links.size == 0 -%}
+
+      {%- if request.design_mode -%}
+        <p class="text-sm opacity-50">Select a color navigation menu in section settings to display color cards here.</p>
+      {%- endif -%}
+
+    {%- else -%}
+
+      <div class="shop-by-color__track">
+        {%- for link in color_menu.links -%}
+          {%- assign _coll = link.object -%}
+          {%- assign _hex  = _coll.metafields.custom.color | default: '#888888' -%}
+
+          {%- comment -%} Prefer collection image, fallback to first product image {%- endcomment -%}
+          {%- assign _img = _coll.image -%}
+          {%- if _img == blank -%}
+            {%- for _p in _coll.products limit: 1 -%}
+              {%- assign _img = _p.featured_image -%}
+            {%- endfor -%}
+          {%- endif -%}
+
+          <a class="sbc-card" href="{{ link.url }}" aria-label="{{ link.title | escape }}">
+
+            <div class="sbc-card__media">
+              {%- if _img != blank -%}
+                {%- render 'image',
+                  image: _img,
+                  src_width: 480,
+                  srcset_2x: true,
+                  class: 'sbc-card__img'
+                -%}
+              {%- else -%}
+                <div class="sbc-card__img sbc-card__img--color" style="background-color: {{ _hex }};"></div>
+              {%- endif -%}
+            </div>
+
+            <div class="sbc-card__body">
+              <span class="sbc-card__dot" style="background: {{ _hex }};"></span>
+              <p class="sbc-card__name">{{ link.title | upcase | escape }}</p>
+              {%- if _coll.description != blank -%}
+                <p class="sbc-card__desc">{{ _coll.description | strip_html | truncate: 90 }}</p>
+              {%- endif -%}
+              <span class="sbc-card__cta">{{ section.settings.cta_text | replace: '[color]', link.title }}</span>
+            </div>
+
+          </a>
+
+        {%- endfor -%}
+      </div>
+
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shop by Color",
+  "class": "cc-shop-by-color",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Navigation menu"
+    },
+    {
+      "type": "link_list",
+      "id": "color_menu",
+      "label": "Color menu",
+      "info": "Each top-level link becomes one color card. Link must point to a collection. Set the collection image and description inside Shopify admin."
+    },
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Explore"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by Color"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "start",  "label": "Left"   },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "header",
+      "content": "CTA"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Card link text",
+      "info": "Use [color] as placeholder. e.g. 'Shop [color]' → 'Shop Black'",
+      "default": "Shop [color]"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    }
+  ],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "Shop by Color"
+    }
+  ]
+}
+{% endschema %}

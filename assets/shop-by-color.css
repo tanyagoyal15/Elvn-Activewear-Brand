@@ -1,0 +1,153 @@
+/* ─── Shop by Color ─────────────────────────────────────────── */
+
+/* ── Track (horizontal scroll carousel) ── */
+
+.shop-by-color__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 72vw;
+  gap: 14px;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x proximity;       /* proximity is less aggressive than mandatory */
+  overscroll-behavior-x: contain;      /* stops page from scrolling when carousel ends */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* bleed past container edges on mobile so peeking card is visible */
+  margin-left: -16px;
+  margin-right: -16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.shop-by-color__track::-webkit-scrollbar {
+  display: none;
+}
+
+@media screen and (min-width: 640px) {
+  .shop-by-color__track {
+    grid-auto-columns: 34vw;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .shop-by-color__track {
+    grid-auto-columns: calc((100% - 14px * 3) / 3.5);
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .shop-by-color__track {
+    grid-auto-columns: calc((100% - 14px * 3) / 4.2);
+  }
+}
+
+/* ── Card ── */
+
+.sbc-card {
+  display: block;
+  scroll-snap-align: start;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  aspect-ratio: 3 / 4;
+  background: #e8e6e0;
+  min-height: 0;           /* prevents grid blowout */
+}
+
+.sbc-card:hover .sbc-card__img {
+  transform: scale(1.04);
+}
+
+.sbc-card:hover .sbc-card__cta {
+  text-decoration: underline;
+}
+
+/* ── Card image ── */
+
+.sbc-card__media {
+  position: absolute;
+  inset: 0;
+}
+
+.sbc-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+/* ── Gradient overlay ── */
+
+.sbc-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 35%,
+    rgba(0, 0, 0, 0.18) 60%,
+    rgba(0, 0, 0, 0.70) 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Card body ── */
+
+.sbc-card__body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  padding: 18px 16px 20px;
+  color: #fff;
+}
+
+.sbc-card__dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  margin-bottom: 7px;
+  vertical-align: middle;
+}
+
+.sbc-card__name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin: 0 0 5px;
+  line-height: 1.2;
+}
+
+.sbc-card__desc {
+  font-size: 11px;
+  line-height: 1.5;
+  opacity: 0.85;
+  margin: 0 0 9px;
+}
+
+.sbc-card__cta {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* ── Placeholder message (no menu selected) ── */
+
+.shop-by-color .text-sm.opacity-50 {
+  padding: 12px 0;
+}

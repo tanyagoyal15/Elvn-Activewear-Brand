@@ -1,0 +1,36 @@
+<div class="matching-set-card" data-set="{{ set_index }}">
+  
+    <div class="set-image">
+      <img 
+        src="{{ set.image | image_url: width: 600 }}" 
+        width="600" 
+        height="800" 
+        class="set-img" 
+      />
+  
+      {% render 'matching-set-hotspot',
+        x: set.hotspot_top_x,
+        y: set.hotspot_top_y,
+        type: 'top',
+        set_id: set_index
+      %}
+  
+      {% render 'matching-set-hotspot',
+        x: set.hotspot_bottom_x,
+        y: set.hotspot_bottom_y,
+        type: 'bottom',
+        set_id: set_index
+      %}
+
+      <div class="mini-card"></div>
+
+    </div>
+  
+    <div class="set-info">
+        <div class="set-title">{{ set.title }}</div>
+        <button class="open-drawer" data-set="{{ set_index }}">
+          Shop the set →
+        </button>
+    </div>
+  
+  </div>

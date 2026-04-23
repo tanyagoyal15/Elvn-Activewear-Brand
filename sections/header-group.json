@@ -33,10 +33,7 @@
           }
         }
       },
-      "block_order": [
-        "announcement_KpK7CV",
-        "announcement-2"
-      ],
+      "block_order": ["announcement_KpK7CV", "announcement-2"],
       "settings": {
         "home_page_only": true,
         "enable_close": true,
@@ -47,8 +44,43 @@
     "header": {
       "type": "header",
       "blocks": {
+        "mega_menu_columns_HTqNjK": {
+          "type": "mega-menu-columns",
+          "settings": {
+            "menu_link_title": "Shop By",
+            "show_collection_images": false,
+            "collection_image_source": "featured",
+            "collection_image_ratio": "1",
+            "promo_image_ratio": "1",
+            "image_1": "shopify://shop_images/DRU0181.jpg",
+            "link_1": "shopify://collections/court-muse",
+            "overline_1": "",
+            "heading_1": "Court Muse",
+            "heading_size_1": "h3",
+            "button_label_1": "Shop Now",
+            "button_style_1": "btn btn--primary",
+            "text_position_1": "justify-center items-end",
+            "text_alignment_1": "text-start",
+            "color_scheme_1": "scheme-3",
+            "tint_color_1": "#000000",
+            "tint_opacity_1": 0,
+            "image_2": "shopify://shop_images/287.png",
+            "link_2": "shopify://collections/matchpoint",
+            "overline_2": "",
+            "heading_2": "Match Point",
+            "heading_size_2": "h3",
+            "button_label_2": "Shop Now",
+            "button_style_2": "btn btn--primary",
+            "text_position_2": "justify-center items-end",
+            "text_alignment_2": "text-center",
+            "color_scheme_2": "scheme-3",
+            "tint_color_2": "#000000",
+            "tint_opacity_2": 0
+          }
+        },
         "mega_menu_coll_cards_mdGVfk": {
           "type": "mega-menu-coll-cards",
+          "disabled": true,
           "settings": {
             "menu_link_title": "Activity",
             "card_style": "text-below",
@@ -60,8 +92,9 @@
         },
         "mega_menu_coll_cards_cEWgUE": {
           "type": "mega-menu-coll-cards",
+          "disabled": true,
           "settings": {
-            "menu_link_title": "Category",
+            "menu_link_title": "Shop By Category",
             "card_style": "text-below",
             "card_show_count": false,
             "card_compact": true,
@@ -71,8 +104,9 @@
         },
         "mega_menu_coll_cards_pcDpiY": {
           "type": "mega-menu-coll-cards",
+          "disabled": true,
           "settings": {
-            "menu_link_title": "Collections",
+            "menu_link_title": "Shop By Collections",
             "card_style": "text-below",
             "card_show_count": false,
             "card_compact": true,
@@ -177,7 +211,7 @@
             "color_scheme_1": "scheme-3",
             "tint_color_1": "#000000",
             "tint_opacity_1": 0,
-            "image_2": "shopify://shop_images/67_44f4f5bc-b907-45e0-b2af-5e7b96f2be82.png",
+            // "image_2": "shopify://shop_images/67_44f4f5bc-b907-45e0-b2af-5e7b96f2be82.png",
             "link_2": "",
             "overline_2": "but you’re not everyone!",
             "heading_2": "Everyone agreed on ten,",
@@ -193,6 +227,7 @@
         },
         "mega_menu_coll_cards_Dw4R9G": {
           "type": "mega-menu-coll-cards",
+          "disabled": true,
           "settings": {
             "menu_link_title": "Shop",
             "card_style": "text-below",
@@ -204,6 +239,7 @@
         }
       },
       "block_order": [
+        "mega_menu_columns_HTqNjK",
         "mega_menu_coll_cards_mdGVfk",
         "mega_menu_coll_cards_cEWgUE",
         "mega_menu_coll_cards_pcDpiY",
@@ -212,17 +248,21 @@
         "mega_menu_columns_xJbx4d",
         "mega_menu_coll_cards_Dw4R9G"
       ],
+      "custom_css": [
+        "@media screen and (min-width: 990px) {.logo--position-middle {order: -1; flex: 0 0 auto; margin-right: auto; padding-left: 0; } .header__grid {justify-content: flex-start; } .main-nav > li a[href=\"/apps/return_prime\"], .main-nav > li a[href*=\"return\"] {display: none; } /* Hide the parent li too so no empty space */ .main-nav > li:has(a[href*=\"returns\"]) {display: none; }}"
+      ],
       "settings": {
         "enable_sticky": true,
         "enable_divider_line": false,
-        "logo_position": "left",
+        "logo_position": "middle",
         "logo": "shopify://shop_images/IMG_4723_4cf6a8d2-745e-4637-9223-5e7780a14444.png",
         "logo_width": 85,
         "logo_width_mobile": 75,
         "logo_h1": true,
         "enable_transparency": true,
-        "menu": "main-menu",
-        "parent_opens_child_mobile": false,
+        "menu": "main-menu-1",
+        "mobile_footer_menu": "mobile-footer-menu-1",
+        "parent_opens_child_mobile": true,
         "enable_localization": true,
         "cart_icon": "cart",
         "enable_search": true,
@@ -238,8 +278,5 @@
       }
     }
   },
-  "order": [
-    "announcement-bar",
-    "header"
-  ]
+  "order": ["announcement-bar", "header"]
 }
