@@ -536,8 +536,17 @@
                 id: "{{ product.id }}",
                 title: {{ product.title | json }},
                 price: {{ product.price }},
-                featured_image: "{{ product.featured_image | image_url: width: 180 }}",
+                featured_image: "{{ product.featured_image | image_url: width: 300 }}",
                 url: "{{ product.url }}",
+                type: "{{ product.type | downcase }}",
+                colorImages: {
+                  {% for variant in product.variants %}
+                    {% assign vcolor = variant.title | split: "/" | first | strip %}
+                    {% if variant.featured_image %}
+                      {{ vcolor | json }}: "{{ variant.featured_image | image_url: width: 300 }}",
+                    {% endif %}
+                  {% endfor %}
+                },
                 variants: [
                   {% for variant in product.variants %}
                     {
