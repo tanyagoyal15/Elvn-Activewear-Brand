@@ -222,7 +222,27 @@
                             <!-- NORMAL MENU -->
                             <ul class="mobile-tab-links">
                               {% for child_link in link.links %}
-                                {% render 'nav-item', link: child_link, level: 1 %}
+                                {% if child_link.links != blank and child_link.title == 'Shop By Color' %}
+                                  <li class="nav-level-1">
+                                    <details class="mobile-accordion">
+                                      <summary class="flex justify-between items-center">
+                                        <span>{{ child_link.title }}</span>
+                                        <span class="icon">{% render 'icon-chevron-down' %}</span>
+                                      </summary>
+                                      <ul class="mobile-submenu mobile-color-grid level-2">
+                                        {% for color_link in child_link.links %}
+                                          <li>
+                                            <a class="mobile-color-link" href="{{ color_link.url }}">
+                                              {% render 'color-nav-item', link: color_link, compact: true, show_image: false %}
+                                            </a>
+                                          </li>
+                                        {% endfor %}
+                                      </ul>
+                                    </details>
+                                  </li>
+                                {% else %}
+                                  {% render 'nav-item', link: child_link, level: 1 %}
+                                {% endif %}
                               {% endfor %}
                             </ul>
                 
@@ -509,8 +529,7 @@
                                 {%- endfor -%} {% endcomment %}
 
                                 <!-- LEFT COLUMN -->
-                                <div class="mega-column mega-column--flat">
-                                  {% comment %} <div>Menu</div> {% endcomment %}
+                                <li class="mega-column mega-column--flat">
                                   {% for child_link in link.links %}
                                     {% if child_link.links == blank %}
                                       <a class="main-nav__item child-nav__item" href="{{ child_link.url }}">
@@ -518,27 +537,30 @@
                                       </a>
                                     {% endif %}
                                   {% endfor %}
-                                </div>
+                                </li>
 
                                 <!-- SUBMENU COLUMNS -->
                                 {% for child_link in link.links %}
-                                  {% comment %} <div>Submenu</div> {% endcomment %}
                                   {% if child_link.links != blank %}
-                                    <div class="mega-column">
+                                    <li class="mega-column{% if child_link.title == 'Shop By Color' %} mega-column--colors{% endif %}">
                                       <span class="main-nav__heading">
                                         {{ child_link.title }}
                                       </span>
 
-                                      <ul>
+                                      <ul{% if child_link.title == 'Shop By Color' %} class="color-nav-list"{% endif %}>
                                         {% for grandchild_link in child_link.links %}
                                           <li>
-                                            <a class="child-nav__item" href="{{ grandchild_link.url }}">
-                                              {{ grandchild_link.title }}
+                                            <a class="child-nav__item{% if child_link.title == 'Shop By Color' %} child-nav__item--color{% endif %}" href="{{ grandchild_link.url }}">
+                                              {% if child_link.title == 'Shop By Color' %}
+                                                {% render 'color-nav-item', link: grandchild_link, show_image: false %}
+                                              {% else %}
+                                                {{ grandchild_link.title }}
+                                              {% endif %}
                                             </a>
                                           </li>
                                         {% endfor %}
                                       </ul>
-                                    </div>
+                                    </li>
                                   {% endif %}
                                 {% endfor %}
 
@@ -843,6 +865,27 @@
       margin-bottom: 12px;
     }
 
+    .mobile-color-link {
+      display: block;
+      padding: 8px 0;
+    }
+
+    .mobile-accordion summary .color-nav-item--compact,
+    .mobile-color-link .color-nav-item--compact {
+      padding: 8px 0;
+    }
+
+    .mobile-accordion summary .color-nav-item__title,
+    .mobile-color-link .color-nav-item__title {
+      font-size: 13px;
+    }
+
+    .mobile-accordion summary .color-nav-item__dot,
+    .mobile-color-link .color-nav-item__dot {
+      width: 20px;
+      height: 20px;
+    }
+
     .mobile-tabs details summary .icon svg {
       transition: transform 0.25s ease;
     }
@@ -961,19 +1004,54 @@
       width: 16px;
       height: 16px;
     }
+
+    .mobile-color-grid {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 10px;
+      padding-left: 0 !important;
+    }
+
+    .mobile-color-grid > li {
+      margin: 0;
+    }
+
+    .mobile-color-grid .mobile-color-link {
+      padding: 5px 2px;
+    }
   }
 
   .mega-menu-columns {
     display: flex;
     gap: 60px;
   }
-  
+
+  /* Make child-nav flex when it contains mega-column items */
+  .child-nav:has(> li.mega-column) {
+    display: flex !important;
+    gap: 60px;
+    align-items: flex-start;
+    padding: 28px 0;
+    flex-wrap: nowrap;
+  }
+
+  li.mega-column,
   .mega-column {
     display: flex;
     flex-direction: column;
     min-width: 140px;
+    max-width: none !important;
+    flex: 0 0 auto !important;
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 
+  .mega-column--colors {
+    min-width: 320px;
+  }
+
+  li.mega-column--flat,
   .mega-column--flat {
     display: flex;
     flex-direction: column;
@@ -985,7 +1063,7 @@
     cursor: pointer;
     width: 100%;
   }
-  
+
   .mega-column--flat a {
     display: block;
     margin-bottom: 12px;
@@ -998,6 +1076,87 @@
 
   .main-nav a {
     cursor: pointer;
+  }
+
+  .color-nav-list {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 14px 18px;
+  }
+
+  .child-nav__item--color {
+    display: block;
+    margin: 0 !important;
+  }
+
+  .color-nav-item {
+    display: inline-grid;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .color-nav-item--compact {
+    width: 100%;
+  }
+
+  .color-nav-item__meta {
+    min-width: 0;
+    display: grid;
+    gap: 6px;
+  }
+
+  .color-nav-item__title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .color-nav-item__title {
+    font-size: 13px;
+    line-height: 1.3;
+    color: inherit;
+  }
+
+  .color-nav-item__dot,
+  .color-nav-item__shade {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: var(--color-dot, #ccc);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    transform-origin: left center;
+  }
+
+  .child-nav__item--color:hover .color-nav-item__dot,
+  .child-nav__item--color:focus-visible .color-nav-item__dot,
+  .mobile-color-link:hover .color-nav-item__dot,
+  .mobile-color-link:focus-visible .color-nav-item__dot,
+  .mobile-accordion summary:hover .color-nav-item__dot,
+  .mobile-accordion summary:focus-visible .color-nav-item__dot {
+    transform: scale(1.08);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  }
+
+  .color-nav-item__shades {
+    display: inline-flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .color-nav-item__shade {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--shade-dot, #ccc);
+    opacity: 0.92;
+  }
+
+  .mobile-color-link,
+  .mobile-accordion summary .color-nav-item {
+    width: 100%;
   }
 </style>
   

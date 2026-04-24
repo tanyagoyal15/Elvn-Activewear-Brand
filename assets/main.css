@@ -6908,7 +6908,7 @@ announcement-bar {
       1px
   );
   z-index: 30;
-  font-family: var(--header-font-family);
+  font-family: var(--body-font-family);
   font-size: calc(var(--header-font-size) * 0.1rem);
   font-style: var(--header-font-style);
   font-weight: var(--header-font-weight);

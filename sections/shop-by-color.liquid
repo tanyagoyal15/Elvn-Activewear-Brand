@@ -37,13 +37,27 @@
       <div class="shop-by-color__track">
         {%- for link in color_menu.links -%}
           {%- assign _coll = link.object -%}
-          {%- assign _hex  = _coll.metafields.custom.color | default: '#888888' -%}
+          {%- if _coll == blank -%}{% continue %}{%- endif -%}
+          {%- assign _hex = _coll.metafields.custom.color_hex.value | default: _coll.metafields.custom.color.value | default: '#888888' -%}
+          {%- assign _color_name = _coll.metafields.custom.color_display_name.value | default: _coll.title -%}
 
-          {%- comment -%} Prefer collection image, fallback to first product image {%- endcomment -%}
-          {%- assign _img = _coll.image -%}
+          {%- comment -%} Prefer explicit card image, then collection image, then matching variant image, then first product image. {%- endcomment -%}
+          {%- assign _img = _coll.metafields.custom.color_card_image.value | default: _coll.metafields.custom.card_image.value | default: _coll.image -%}
           {%- if _img == blank -%}
             {%- for _p in _coll.products limit: 1 -%}
-              {%- assign _img = _p.featured_image -%}
+              {%- assign _target_color = _color_name | downcase | strip -%}
+              {%- for _variant in _p.variants -%}
+                {%- assign _match_1 = _variant.option1 | downcase | strip -%}
+                {%- assign _match_2 = _variant.option2 | downcase | strip -%}
+                {%- assign _match_3 = _variant.option3 | downcase | strip -%}
+                {%- if _match_1 == _target_color or _match_2 == _target_color or _match_3 == _target_color -%}
+                  {%- assign _img = _variant.featured_media.preview_image | default: _variant.featured_image -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if _img == blank -%}
+                {%- assign _img = _p.featured_image -%}
+              {%- endif -%}
             {%- endfor -%}
           {%- endif -%}
 
@@ -64,7 +78,7 @@
 
             <div class="sbc-card__body">
               <span class="sbc-card__dot" style="background: {{ _hex }};"></span>
-              <p class="sbc-card__name">{{ link.title | upcase | escape }}</p>
+              <p class="sbc-card__name">{{ _color_name | upcase | escape }}</p>
               {%- if _coll.description != blank -%}
                 <p class="sbc-card__desc">{{ _coll.description | strip_html | truncate: 90 }}</p>
               {%- endif -%}

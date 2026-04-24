@@ -9,15 +9,12 @@
   gap: 14px;
   overflow-x: auto;
   overflow-y: visible;
-  scroll-snap-type: x proximity; /* proximity is less aggressive than mandatory */
-  overscroll-behavior-x: contain; /* stops page from scrolling when carousel ends */
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 4px;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  /* bleed past container edges on mobile so peeking card is visible */
-  /* margin-left: 16px; */
-  /* margin-right: 16px; */
   padding-left: 16px;
   padding-right: 16px;
 }
@@ -60,7 +57,7 @@
   color: inherit;
   aspect-ratio: 3 / 4;
   background: #e8e6e0;
-  min-height: 0; /* prevents grid blowout */
+  min-height: 0;
 }
 
 .sbc-card:hover .sbc-card__img {
@@ -111,23 +108,27 @@
   z-index: 1;
   padding: 18px 16px 20px;
   color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
+
+/* ── Color dot → now a clean rectangle swatch ── */
 
 .sbc-card__dot {
   display: inline-block;
-  width: 11px;
-  height: 11px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
-  margin-bottom: 7px;
-  vertical-align: middle;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  margin-bottom: 4px;
 }
 
 .sbc-card__name {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  margin: 0 0 5px;
+  margin: 0;
   line-height: 1.2;
 }
 
@@ -135,7 +136,7 @@
   font-size: 11px;
   line-height: 1.5;
   opacity: 0.85;
-  margin: 0 0 9px;
+  margin: 0;
 }
 
 .sbc-card__cta {

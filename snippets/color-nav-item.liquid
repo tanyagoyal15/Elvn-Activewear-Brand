@@ -1,0 +1,80 @@
+{%- liquid
+  assign color_collection = link.object
+  assign color_hex = ''
+  assign color_image = blank
+
+  if color_collection != blank and color_collection.url
+    assign color_hex = color_collection.metafields.custom.color_hex.value | default: color_collection.metafields.custom.color.value
+    assign color_image = color_collection.metafields.custom.color_card_image.value | default: color_collection.metafields.custom.card_image.value | default: color_collection.image | default: color_collection.products.first.featured_image
+  endif
+
+  if color_hex == blank
+    assign _lc = link.title | downcase | strip
+    if _lc == 'black'
+      assign color_hex = '#000000'
+    elsif _lc == 'white' or _lc == 'ivory' or _lc == 'cream'
+      assign color_hex = '#f5f0e8'
+    elsif _lc == 'purple'
+      assign color_hex = '#7c3aed'
+    elsif _lc == 'pink'
+      assign color_hex = '#ffd1dc'
+    elsif _lc == 'red'
+      assign color_hex = '#a30000'
+    elsif _lc == 'butter yellow' or _lc == 'yellow'
+      assign color_hex = '#f5d363'
+    elsif _lc == 'green'
+      assign color_hex = '#16a34a'
+    elsif _lc == 'brown'
+      assign color_hex = '#7c4a1e'
+    elsif _lc == 'blue'
+      assign color_hex = '#2563eb'
+    elsif _lc == 'beige'
+      assign color_hex = '#d2b896'
+    elsif _lc == 'orange'
+      assign color_hex = '#ea580c'
+    elsif _lc == 'grey' or _lc == 'gray'
+      assign color_hex = '#9ca3af'
+    elsif _lc == 'navy'
+      assign color_hex = '#1e3a5f'
+    elsif _lc == 'maroon' or _lc == 'burgundy'
+      assign color_hex = '#7f1d1d'
+    elsif _lc == 'lavender'
+      assign color_hex = '#c4b5fd'
+    elsif _lc == 'mint'
+      assign color_hex = '#6ee7b7'
+    elsif _lc == 'coral'
+      assign color_hex = '#fb7185'
+    elsif _lc == 'olive'
+      assign color_hex = '#6b7a3e'
+    elsif _lc == 'teal'
+      assign color_hex = '#14b8a6'
+    else
+      assign color_hex = '#b8b0a3'
+    endif
+  endif
+-%}
+
+<span class="color-nav-item{% if compact %} color-nav-item--compact{% endif %}">
+  {%- if color_image != blank and show_image != false -%}
+    <span class="color-nav-item__thumb">
+      {% render 'image', image: color_image, src_width: 180, widths: '90, 120, 180, 240', class: 'img-fit', sizes: '72px' %}
+    </span>
+  {%- endif -%}
+
+  <span class="color-nav-item__meta">
+    <span class="color-nav-item__title-row">
+      <span class="color-nav-item__dot" style="--color-dot: {{ color_hex }};"></span>
+      <span class="color-nav-item__title">{{ link.title | escape }}</span>
+    </span>
+
+    {%- if link.links != blank -%}
+      <span class="color-nav-item__shades">
+        {%- for child in link.links limit: 5 -%}
+          {%- assign shade_collection = child.object -%}
+          {%- assign shade_hex = shade_collection.metafields.custom.color_hex.value | default: shade_collection.metafields.custom.color.value | default: color_hex -%}
+          <span class="color-nav-item__shade" style="--shade-dot: {{ shade_hex }};"></span>
+        {%- endfor -%}
+      </span>
+    {%- endif -%}
+  </span>
+</span>
