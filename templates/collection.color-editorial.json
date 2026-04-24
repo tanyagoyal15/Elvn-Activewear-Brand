@@ -13,7 +13,7 @@
       "type": "main-color-editorial",
       "settings": {
         "color_menu": "color-menu",
-        "eyebrow": "Color study",
+        "eyebrow": "Color",
         "moodboard_label": "Editorial board",
         "products_label": "Shop this color",
         "products_heading": "Pieces in this palette",
@@ -23,7 +23,5 @@
       }
     }
   },
-  "order": [
-    "color-editorial"
-  ]
+  "order": ["color-editorial"]
 }

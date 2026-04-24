@@ -2,130 +2,44 @@
 {%- assign color_hex = collection.metafields.custom.color_hex.value | default: collection.metafields.custom.color.value | default: '#b8b0a3' -%}
 {%- assign color_display_name = collection.metafields.custom.color_display_name.value | default: collection.title -%}
 {%- assign selected_color_handle = color_display_name | handleize -%}
-{%- assign color_story = collection.metafields.custom.story.value | default: collection.description -%}
-{%- assign hero_image = collection.metafields.custom.hero_image.value | default: collection.metafields.custom.color_card_image.value | default: collection.metafields.custom.card_image.value | default: collection.image -%}
-{%- assign palette_1 = collection.metafields.custom.palette_1.value -%}
-{%- assign palette_2 = collection.metafields.custom.palette_2.value -%}
-{%- assign palette_3 = collection.metafields.custom.palette_3.value -%}
-{%- assign palette_4 = collection.metafields.custom.palette_4.value -%}
+
+<link rel="stylesheet" href="{{ 'products-grid.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+<script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+<script src="{{ 'product-form.js' | asset_url }}" defer></script>
 
 <section class="color-editorial color-editorial--{{ section.settings.color_scheme }}">
   <div class="color-editorial__shell">
-    <header class="color-editorial__hero">
-      <div class="color-editorial__hero-block color-editorial__hero-block--text">
-        <p class="color-editorial__eyebrow">{{ section.settings.eyebrow | escape }}</p>
-        <h1 class="color-editorial__title">{{ color_display_name | escape }}</h1>
-        {%- if color_story != blank -%}
-          <div class="color-editorial__story rte">{{ color_story }}</div>
-        {%- endif -%}
-      </div>
-
-      <div class="color-editorial__hero-block color-editorial__hero-block--media">
-        {%- if hero_image != blank -%}
-          {% render 'image', image: hero_image, src_width: 1400, widths: '700, 900, 1200, 1400, 1800', class: 'img-fit', sizes: '(min-width: 990px) 50vw, 100vw' %}
-        {%- else -%}
-          <div class="color-editorial__hero-placeholder" style="--fallback-color: {{ color_hex }};"></div>
-        {%- endif -%}
-      </div>
+    <header class="color-editorial__header">
+      <p class="color-editorial__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      <h1 class="color-editorial__title">{{ color_display_name | escape }}</h1>
     </header>
 
     <section class="color-editorial__palette-section">
-      <p class="color-editorial__section-label">{{ section.settings.moodboard_label | default: 'Color palette' | escape }}</p>
-      <div class="color-editorial__palette-track" aria-label="Color palette">
-        <span class="color-editorial__palette-item is-active">
-          <span class="color-editorial__palette-dot" style="--dot-color: {{ color_hex }};"></span>
-          <span class="color-editorial__palette-name">{{ color_display_name | escape }}</span>
+      <div class="color-editorial__palette-track" aria-label="Color navigation">
+        <span class="color-editorial__rect is-active" style="--rect-color: {{ color_hex }};">
+          <span class="color-editorial__rect-label">{{ color_display_name | escape }}</span>
         </span>
-        {%- if palette_1 != blank -%}
-          <span class="color-editorial__palette-item"><span class="color-editorial__palette-dot" style="--dot-color: {{ palette_1 }};"></span></span>
-        {%- endif -%}
-        {%- if palette_2 != blank -%}
-          <span class="color-editorial__palette-item"><span class="color-editorial__palette-dot" style="--dot-color: {{ palette_2 }};"></span></span>
-        {%- endif -%}
-        {%- if palette_3 != blank -%}
-          <span class="color-editorial__palette-item"><span class="color-editorial__palette-dot" style="--dot-color: {{ palette_3 }};"></span></span>
-        {%- endif -%}
-        {%- if palette_4 != blank -%}
-          <span class="color-editorial__palette-item"><span class="color-editorial__palette-dot" style="--dot-color: {{ palette_4 }};"></span></span>
-        {%- endif -%}
+
         {%- if color_menu != blank and color_menu.links.size > 0 -%}
           {%- for link in color_menu.links -%}
             {%- assign linked_collection = link.object -%}
             {%- if linked_collection == blank or linked_collection.handle == collection.handle -%}{% continue %}{%- endif -%}
-            {%- assign linked_hex = linked_collection.metafields.custom.color_hex.value | default: linked_collection.metafields.custom.color.value -%}
-            {%- if linked_hex != blank -%}
-              <a class="color-editorial__palette-item color-editorial__palette-item--link" href="{{ linked_collection.url }}" aria-label="{{ linked_collection.title | escape }}">
-                <span class="color-editorial__palette-dot" style="--dot-color: {{ linked_hex }};"></span>
-              </a>
-            {%- endif -%}
+            {%- assign linked_hex = linked_collection.metafields.custom.color_hex.value | default: linked_collection.metafields.custom.color.value | default: '#d0c9bd' -%}
+            <a class="color-editorial__rect" href="{{ linked_collection.url }}" style="--rect-color: {{ linked_hex }};" aria-label="{{ linked_collection.title | escape }}">
+              <span class="color-editorial__rect-label">{{ linked_collection.title | escape }}</span>
+            </a>
           {%- endfor -%}
         {%- endif -%}
       </div>
     </section>
 
     <section class="color-editorial__products">
-      <div class="color-editorial__section-head">
-        <p class="color-editorial__section-label">{{ section.settings.products_label | escape }}</p>
-        <h2 class="color-editorial__section-title">{{ section.settings.products_heading | escape }}</h2>
-      </div>
-
-      <ul class="color-editorial__product-moodboard" role="list">
+      <ul class="color-editorial__product-grid grid gap-x-4 gap-y-5 md:gap-x-5 md:gap-y-6 stretch-cards" role="list">
         {%- for product in collection.products -%}
-          {%- liquid
-            assign selected_variant = product.selected_or_first_available_variant
-
-            # First preference: explicit variant metafield mapping to base color family.
-            for variant in product.variants
-              assign variant_color_family = variant.metafields.custom.base_color_family.value | default: variant.metafields.custom.base_color_family | default: '' | handleize
-              if variant_color_family == selected_color_handle
-                assign selected_variant = variant
-                break
-              endif
-            endfor
-
-            # Fallback: match option values by name.
-            for variant in product.variants
-              assign option1_handle = variant.option1 | default: '' | handleize
-              assign option2_handle = variant.option2 | default: '' | handleize
-              assign option3_handle = variant.option3 | default: '' | handleize
-              if option1_handle == selected_color_handle or option2_handle == selected_color_handle or option3_handle == selected_color_handle
-                assign selected_variant = variant
-                break
-              endif
-            endfor
-
-            assign card_media = selected_variant.featured_media.preview_image | default: selected_variant.featured_image | default: product.featured_image
-            assign product_url = product.url
-            if selected_variant
-              assign product_url = product.url | append: '?variant=' | append: selected_variant.id
-            endif
-
-            assign tile_mod = forloop.index0 | modulo: 6
-            assign tile_class = ''
-            if tile_mod == 0
-              assign tile_class = 'is-wide'
-            elsif tile_mod == 3
-              assign tile_class = 'is-tall'
-            endif
-          -%}
-
-          <li class="color-editorial__product-tile {{ tile_class }}">
-            <a href="{{ product_url }}" class="color-editorial__product-link">
-              <div class="color-editorial__product-media">
-                {%- if card_media != blank -%}
-                  {% render 'image', image: card_media, src_width: 900, widths: '320, 460, 640, 900, 1200', class: 'img-fit', sizes: '(min-width: 1200px) 26vw, (min-width: 768px) 33vw, 50vw' %}
-                {%- else -%}
-                  {{- 'image' | placeholder_svg_tag: 'media__placeholder img-fit' -}}
-                {%- endif -%}
-              </div>
-              <div class="color-editorial__product-meta">
-                <p class="color-editorial__product-title">{{ product.title | escape }}</p>
-                <p class="color-editorial__product-variant">{{ selected_variant.title | escape }}</p>
-                <div class="color-editorial__product-price">
-                  {%- render 'price', product: product -%}
-                </div>
-              </div>
-            </a>
+          <li>
+            {% render 'product-card', product: product, image_ratio: 1.06, target_color_handle: selected_color_handle %}
           </li>
         {%- endfor -%}
       </ul>
@@ -136,40 +50,24 @@
 <style>
   .color-editorial {
     --editorial-bg: #f7f4ef;
-    --editorial-text: #171717;
+    --editorial-text: #1a1a1a;
     --editorial-muted: #6c675f;
     background: var(--editorial-bg);
     color: var(--editorial-text);
-    padding: 24px 0 64px;
+    padding: 18px 0 42px;
   }
 
   .color-editorial__shell {
-    width: min(100% - 32px, 1320px);
+    width: min(100% - 28px, 1220px);
     margin: 0 auto;
   }
 
-  .color-editorial__hero {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+  .color-editorial__header {
+    margin-bottom: 14px;
   }
 
-  .color-editorial__hero-block {
-    min-height: clamp(280px, 46vw, 520px);
-    background: #eeeadf;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-  }
-
-  .color-editorial__hero-block--text {
-    padding: clamp(26px, 4vw, 52px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .color-editorial__eyebrow,
-  .color-editorial__section-label {
-    margin: 0 0 12px;
+  .color-editorial__eyebrow {
+    margin: 0 0 6px;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.14em;
@@ -179,179 +77,85 @@
 
   .color-editorial__title {
     margin: 0;
-    font-size: clamp(34px, 6vw, 70px);
-    letter-spacing: 0.03em;
-    line-height: 0.94;
+    font-size: clamp(24px, 4vw, 40px);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
   }
 
-  .color-editorial__story {
-    margin-top: 18px;
-    font-size: 15px;
-    line-height: 1.75;
-    color: var(--editorial-muted);
-    max-width: 40ch;
-  }
-
-  .color-editorial__hero-block--media,
-  .color-editorial__product-media {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .color-editorial__hero-block--media img,
-  .color-editorial__product-media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .color-editorial__hero-placeholder {
-    width: 100%;
-    height: 100%;
-    background: var(--fallback-color, #d8d2c9);
-  }
-
   .color-editorial__palette-section {
-    margin-top: 16px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: 16px;
   }
 
   .color-editorial__palette-track {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     overflow-x: auto;
-    padding: 8px 2px 6px;
+    padding: 4px 1px 6px;
     scrollbar-width: thin;
   }
 
-  .color-editorial__palette-item {
+  .color-editorial__rect {
+    position: relative;
     display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: inherit;
+    align-items: flex-end;
+    justify-content: flex-start;
     flex: 0 0 auto;
-  }
-
-  .color-editorial__palette-dot {
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    background: var(--dot-color, #d5d0c6);
-    box-shadow: 0 0 0 2px #fff;
-  }
-
-  .color-editorial__palette-item.is-active .color-editorial__palette-dot {
-    box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0, 0, 0, 0.55);
-  }
-
-  .color-editorial__palette-name {
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-weight: 500;
-  }
-
-  .color-editorial__products {
-    margin-top: 34px;
-  }
-
-  .color-editorial__section-head {
-    margin-bottom: 14px;
-  }
-
-  .color-editorial__section-title {
-    margin: 0;
-    font-size: clamp(20px, 2.2vw, 30px);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-  }
-
-  .color-editorial__product-moodboard {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    grid-auto-flow: dense;
-  }
-
-  .color-editorial__product-tile {
-    background: rgba(255, 255, 255, 0.72);
-  }
-
-  .color-editorial__product-tile.is-wide {
-    grid-column: span 2;
-  }
-
-  .color-editorial__product-tile.is-tall .color-editorial__product-media {
-    aspect-ratio: 4 / 5;
-  }
-
-  .color-editorial__product-link {
+    width: clamp(108px, 18vw, 180px);
+    height: 10px;
+    {% comment %} padding: 8px 10px; {% endcomment %}
+    {% comment %} border: 1px solid rgba(0, 0, 0, 0.14); {% endcomment %}
+    background: var(--rect-color, #d5d0c6);
+    color: #161616;
     text-decoration: none;
-    color: inherit;
-    display: block;
+    transition: transform 0.2s ease;
   }
 
-  .color-editorial__product-media {
-    aspect-ratio: 4 / 4.8;
-    background: #ece7dd;
+  .color-editorial__rect:hover {
+    transform: translateY(-1px);
   }
 
-  .color-editorial__product-meta {
-    padding: 11px 10px 14px;
+  .color-editorial__rect.is-active {
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55);
   }
 
-  .color-editorial__product-title,
-  .color-editorial__product-variant {
-    margin: 0;
-  }
-
-  .color-editorial__product-title {
-    font-size: 13px;
-    line-height: 1.45;
-    letter-spacing: 0.03em;
+  .color-editorial__rect-label {
+    font-size: 10px;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.68);
+    padding: 3px 5px;
+    line-height: 1;
+    display: none;
   }
 
-  .color-editorial__product-variant {
-    margin-top: 3px;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--editorial-muted);
-  }
-
-  .color-editorial__product-price {
+  .color-editorial__products .product-card .card__quick-add {
     margin-top: 8px;
-    font-size: 12px;
   }
 
-  @media (min-width: 768px) {
-    .color-editorial__product-moodboard {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
+  .color-editorial__product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   @media (max-width: 767.98px) {
-    .color-editorial__hero {
-      grid-template-columns: 1fr;
+    .color-editorial {
+      padding: 14px 0 34px;
     }
 
-    .color-editorial__hero-block {
-      min-height: auto;
+    .color-editorial__shell {
+      width: min(100% - 20px, 1220px);
     }
 
-    .color-editorial__hero-block--media {
-      aspect-ratio: 4 / 5;
+    .color-editorial__rect {
+      width: 100px;
+      height: 10px;
+    }
+
+    .color-editorial__product-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
     }
   }
 </style>
