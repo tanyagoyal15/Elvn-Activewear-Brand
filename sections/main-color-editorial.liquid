@@ -1,6 +1,7 @@
 {%- assign color_menu = linklists[section.settings.color_menu] -%}
 {%- assign color_hex = collection.metafields.custom.color_hex.value | default: collection.metafields.custom.color.value | default: '#b8b0a3' -%}
 {%- assign color_display_name = collection.metafields.custom.color_display_name.value | default: collection.title -%}
+{%- assign selected_color_handle = color_display_name | handleize -%}
 {%- assign color_story = collection.metafields.custom.story.value | default: collection.description -%}
 {%- assign hero_image = collection.metafields.custom.hero_image.value | default: collection.image -%}
 {%- assign secondary_image = collection.metafields.custom.secondary_image.value -%}
@@ -98,7 +99,7 @@
       <ul class="color-editorial__product-grid grid gap-x-5 gap-y-6 md:gap-6 stretch-cards" role="list">
         {%- for product in collection.products -%}
           <li>
-            {% render 'product-card', product: product, image_ratio: image_ratio %}
+            {% render 'product-card', product: product, image_ratio: image_ratio, target_color_handle: selected_color_handle %}
           </li>
         {%- endfor -%}
       </ul>

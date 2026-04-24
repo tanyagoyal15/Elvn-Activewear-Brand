@@ -36,8 +36,24 @@
   endif
 
   assign current_variant = product.selected_or_first_available_variant
+  assign target_color_handle = target_color_handle | default: blank
+  if target_color_handle != blank
+    for variant in product.variants
+      assign option1_handle = variant.option1 | default: '' | handleize
+      assign option2_handle = variant.option2 | default: '' | handleize
+      assign option3_handle = variant.option3 | default: '' | handleize
+      if option1_handle == target_color_handle or option2_handle == target_color_handle or option3_handle == target_color_handle
+        assign current_variant = variant
+        break
+      endif
+    endfor
+  endif
   assign product_images = product.media | where: 'media_type', 'image'
-  assign featured_media = product.media | find: 'id', product.featured_media.id
+  if current_variant.featured_media
+    assign featured_media = current_variant.featured_media
+  else
+    assign featured_media = product.media | find: 'id', product.featured_media.id
+  endif
 
   if settings.card_show_hover_image and product_images.size > 1
     assign show_hover_image = true
@@ -412,7 +428,7 @@
                               value="{{ value | escape }}"
                               data-variant-id="{{ value.variant.id }}"
                               data-media-id="{{ value.variant.featured_media.id }}"
-                              {% if value.selected %} checked{% endif %}
+                              {% if value.variant.id == current_variant.id %} checked{% endif %}
                               {% unless value.available %} disabled{% endunless %}
                             >
 
