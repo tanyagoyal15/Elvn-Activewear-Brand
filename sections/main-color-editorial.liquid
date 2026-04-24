@@ -145,7 +145,8 @@
   .ce__hero {
     {% comment %} position: relative; {% endcomment %}
     width: 100%;
-    height: clamp(440px, 68vh, 780px);
+    padding: 50px;
+    {% comment %} height: clamp(440px, 68vh, 780px); {% endcomment %}
     overflow: hidden;
   }
 
@@ -199,18 +200,20 @@
     font-size: 9px;
     letter-spacing: 0.26em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
+    color: #000;
+    {% comment %} color: rgba(255, 255, 255, 0.55); {% endcomment %}
     margin-bottom: 12px;
     font-weight: 500;
   }
 
   .ce__hero-name {
     margin: 0;
-    font-size: clamp(48px, 9.5vw, 118px);
+    font-size: clamp(48px, 9.5vw, 80px);
     line-height: 0.88;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #fff;
+    {% comment %} color: #fff; {% endcomment %}
+     color: #000;
     font-weight: 300;
   }
 
@@ -328,8 +331,8 @@
 
   .ce__grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 22px 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
     list-style: none;
     margin: 0;
     padding: 28px 0 0;
