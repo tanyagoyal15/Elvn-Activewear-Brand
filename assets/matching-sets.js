@@ -215,13 +215,34 @@ function renderDrawerContent() {
   const hasGroups = groups.top.length > 0 || groups.bottom.length > 0;
 
   let html = "";
+  let allAlternates = [];
 
   if (hasGroups) {
-    if (groups.top.length > 0) html += renderProductGroup("top", groups.top, set);
-    if (groups.bottom.length > 0) html += renderProductGroup("bottom", groups.bottom, set);
+    if (groups.top.length > 0) {
+      const stateItem = state.items.find((i) => i.groupType === "top");
+      const activeId = stateItem?.productId;
+      const active = groups.top.find((p) => p.id == activeId) || groups.top[0];
+      allAlternates = allAlternates.concat(
+        groups.top.filter((p) => p.id != active.id).map((p) => ({ ...p, groupType: "top" }))
+      );
+      html += renderProductGroup("top", groups.top, set);
+    }
+    if (groups.bottom.length > 0) {
+      const stateItem = state.items.find((i) => i.groupType === "bottom");
+      const activeId = stateItem?.productId;
+      const active = groups.bottom.find((p) => p.id == activeId) || groups.bottom[0];
+      allAlternates = allAlternates.concat(
+        groups.bottom.filter((p) => p.id != active.id).map((p) => ({ ...p, groupType: "bottom" }))
+      );
+      html += renderProductGroup("bottom", groups.bottom, set);
+    }
     groups.other.forEach((p) => {
       html += renderDrawerItem(p, "other", set);
     });
+
+    if (allAlternates.length > 0) {
+      html += renderAlsoPairWith(allAlternates, set);
+    }
   } else {
     set.products.forEach((p) => {
       html += renderDrawerItem(p, "other", set);
@@ -239,41 +260,43 @@ function renderProductGroup(groupType, products, set) {
   const stateItem = state.items.find((i) => i.groupType === groupType);
   const activeId = stateItem?.productId;
   const active = products.find((p) => p.id == activeId) || products[0];
-  const alternates = products.filter((p) => p.id != active.id);
   const label = groupType === "top" ? "Top" : "Bottom";
 
   return `
     <div class="drawer-group" data-group="${groupType}">
       <div class="drawer-group-label">${label}</div>
       ${renderDrawerItem(active, groupType, set)}
-      ${alternates.length > 0 ? renderAlsoPairWith(alternates, groupType, set) : ""}
     </div>
   `;
 }
 
-function renderAlsoPairWith(products, groupType, set) {
-  const stateItem = state.items.find((i) => i.groupType === groupType);
-  const activeColor = stateItem?.selectedColor;
-
+function renderAlsoPairWith(products, set) {
   const items = products
     .map((p) => {
+      const stateItem = state.items.find((i) => i.groupType === p.groupType);
+      const activeColor = stateItem?.selectedColor;
       const img =
         (activeColor && p.colorImages && p.colorImages[activeColor]) ||
         p.featured_image ||
         set.image;
+      const typeLabel = p.groupType === "top" ? "Top" : "Bottom";
+
       return `
-        <button class="also-pair-item" data-product-id="${p.id}" data-group="${groupType}">
+        <button class="also-pair-item" data-product-id="${p.id}" data-group="${p.groupType}">
           <div class="also-pair-img-wrap">
             <img src="${img}" alt="${p.title}" loading="lazy" />
           </div>
-          <span class="also-pair-name">${p.title}</span>
+          <div class="also-pair-info">
+            <span class="also-pair-name">${p.title}</span>
+            <span class="also-pair-type">${typeLabel}</span>
+          </div>
         </button>
       `;
     })
     .join("");
 
   return `
-    <div class="also-pair-with">
+    <div class="also-pair-section">
       <div class="also-pair-header">
         <span class="also-pair-divider"></span>
         <span class="also-pair-label">Also pair with</span>
