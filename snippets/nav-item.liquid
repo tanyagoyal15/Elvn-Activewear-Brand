@@ -38,7 +38,7 @@ Usage:
   
     {% else %}
   
-      <a href="{{ link.url }}" class="{% if link.object and link.object.url and nav_color_hex != blank %}mobile-color-link{% endif %}">
+      <a href="{{ link.url }}" class="no-child-link {% if link.object and link.object.url and nav_color_hex != blank %}mobile-color-link{% endif %}">
         {% if link.object and link.object.url and nav_color_hex != blank %}
           {% render 'color-nav-item', link: link, compact: true, show_image: false %}
         {% else %}
