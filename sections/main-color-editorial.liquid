@@ -143,15 +143,15 @@
 
   /* HERO */
   .ce__hero {
-    position: relative;
+    {% comment %} position: relative; {% endcomment %}
     width: 100%;
     height: clamp(440px, 68vh, 780px);
     overflow: hidden;
   }
 
   .ce__hero-media {
-    position: absolute;
-    inset: 0;
+    {% comment %} position: absolute; {% endcomment %}
+    {% comment %} inset: 0; {% endcomment %}
   }
 
   .ce__hero-img {
@@ -159,7 +159,8 @@
     height: 100%;
     object-fit: cover;
     object-position: center top;
-    display: block;
+    display: none;
+
   }
 
   .ce__hero-img--solid {
@@ -179,11 +180,18 @@
   }
 
   .ce__hero-text {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 0 clamp(20px, 5vw, 72px) clamp(28px, 5.5vh, 56px);
+    {% comment %} position: absolute; {% endcomment %}
+    {% comment %} bottom: 0; {% endcomment %}
+    {% comment %} left: 0; {% endcomment %}
+    {% comment %} right: 0; {% endcomment %}
+    {% comment %} padding: 0 clamp(20px, 5vw, 72px) clamp(28px, 5.5vh, 56px); {% endcomment %}
+
+    color: #000;
+    /* display: flex; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   .ce__hero-eyebrow {
@@ -219,7 +227,7 @@
   /* PALETTE BAR */
   .ce__palette-bar {
     width: 100%;
-    padding: 18px clamp(20px, 5vw, 72px);
+    padding: 30px 300px 20px 300px;
     border-bottom: 1px solid var(--ce-border);
   }
 
@@ -249,7 +257,7 @@
 
   .ce__swatch-fill {
     display: block;
-    width: clamp(72px, 13vw, 152px);
+    width: clamp(72px, 13vw, 80px);
     height: 5px;
     transition: height 0.22s ease;
   }
