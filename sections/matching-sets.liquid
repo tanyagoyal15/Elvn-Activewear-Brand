@@ -86,7 +86,7 @@
         {%- endif -%}
 
         {%- if section.settings.button_label != blank -%}
-          <a class="matching-sets-shop-all" href="{{ section.settings.button_link | default: '/collections/matching-sets' }}">
+          <a class="matching-sets-shop-all matching-sets-shop-all--desktop" href="{{ section.settings.button_link | default: '/collections/matching-sets' }}">
             {{ section.settings.button_label | escape }}
           </a>
         {%- endif -%}
@@ -103,6 +103,12 @@
           %}
         {% endfor %}
       </div>
+
+      {%- if section.settings.button_label != blank -%}
+        <a class="matching-sets-shop-all matching-sets-shop-all--mobile" href="{{ section.settings.button_link | default: '/collections/matching-sets' }}">
+          {{ section.settings.button_label | escape }}
+        </a>
+      {%- endif -%}
     </div>
   </div>
 {%- endif -%}
@@ -247,6 +253,15 @@
       color: #fff;
     }
 
+    /* Desktop: show only the version inside copy column */
+    .matching-sets-shop-all--mobile { display: none; }
+
+    /* Mobile: hide the copy-column version, show the one after the grid */
+    @media (max-width: 768px) {
+      .matching-sets-shop-all--desktop { display: none; }
+      .matching-sets-shop-all--mobile  { display: inline-flex; }
+    }
+
     .matching-sets-mosaic {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -356,7 +371,7 @@
     @media (max-width: 768px) {
       .matching-sets-editorial {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 16px;
       }
 
       .matching-sets-copy {
@@ -367,6 +382,7 @@
       .matching-sets-shop-all {
         width: 100%;
         min-width: 0;
+        margin-top: 0;
       }
 
       .matching-sets-mosaic {
@@ -396,11 +412,10 @@
       margin: 0 auto;
       opacity: 1;
       transform: none;
+      {% comment %} position: relative; {% endcomment %}
     }
 
-    {% comment %} .matching-set-card {
-        
-    } {% endcomment %}
+    /* .matching-set-card { } */
       
     .matching-set-card.loaded {
         opacity: 1;
@@ -437,19 +452,19 @@
     .mini-card {
       position: absolute;
       width: 220px;
-      background: rgba(255,255,255,0.96);
-      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(8px);
       border-radius: 12px;
       padding: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      z-index: 1000;
-    
-      transform: translateY(10px) scale(0.98);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+      z-index: 99999;
+
+      transform: translateY(8px) scale(0.97);
       opacity: 0;
       pointer-events: none;
-      transition: all 0.25s ease;
+      transition: opacity 0.22s ease, transform 0.22s ease;
     }
-    
+
     .mini-card.show {
       transform: translateY(0) scale(1);
       opacity: 1;

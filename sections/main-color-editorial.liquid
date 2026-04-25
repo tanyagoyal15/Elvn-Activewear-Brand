@@ -7,6 +7,9 @@
   {%- assign hero_image = collection.products.first.featured_image -%}
 {%- endif -%}
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ 'products-grid.css' | asset_url }}">
 <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
@@ -17,21 +20,22 @@
 
   <!-- ① HERO -->
   <div class="ce__hero">
-    <div class="ce__hero-media">
-      {%- if hero_image != blank -%}
-        {%- render 'image', image: hero_image, src_width: 1800, widths: '800, 1200, 1600, 1800', class: 'ce__hero-img', sizes: '100vw' -%}
-      {%- else -%}
-        <div class="ce__hero-img ce__hero-img--solid" style="background-color: {{ color_hex }};"></div>
-      {%- endif -%}
-      <div class="ce__hero-veil"></div>
-    </div>
 
-    <div class="ce__hero-text">
+    <div class="ce__hero-left">
       <span class="ce__hero-eyebrow">{{ section.settings.eyebrow | escape }}</span>
+      <span class="ce__hero-dot" style="background: {{ color_hex }};"></span>
       <h1 class="ce__hero-name">{{ color_display_name | upcase | escape }}</h1>
+      <a class="ce__hero-cta" href="#ce-products">Shop this color &#8599;</a>
     </div>
 
-    <span class="ce__hero-dot" style="background: {{ color_hex }};"></span>
+    <div class="ce__hero-right">
+      {%- if hero_image != blank -%}
+        {%- render 'image', image: hero_image, src_width: 900, widths: '600, 800, 1000', class: 'ce__hero-img', sizes: '(max-width: 767px) 100vw, 50vw' -%}
+      {%- else -%}
+        <div class="ce__hero-img--solid" style="background: {{ color_hex }};"></div>
+      {%- endif -%}
+    </div>
+
   </div>
 
   <!-- ② PALETTE STRIP -->
@@ -58,7 +62,7 @@
   </nav>
 
   <!-- ③ PRODUCTS -->
-  <div class="ce__products">
+  <div class="ce__products" id="ce-products">
     <div class="ce__shell">
       <header class="ce__products-hd">
         <span class="ce__label">{{ section.settings.products_label | escape }}</span>
@@ -68,7 +72,7 @@
       <ul class="ce__grid stretch-cards" role="list">
         {%- for product in collection.products -%}
           <li>
-            {% render 'product-card', product: product, image_ratio: 1.06, target_color_handle: selected_color_handle %}
+            {% render 'product-card', product: product, image_ratio: 1.4, target_color_handle: selected_color_handle %}
           </li>
         {%- endfor -%}
       </ul>
@@ -94,33 +98,31 @@
             <h2 class="ce__explore-title">{{ section.settings.other_colors_heading | escape }}</h2>
           </header>
         </div>
-        <div class="ce__explore-scroll">
-          <div class="ce__explore-track">
-            {%- for link in color_menu.links -%}
-              {%- assign olc = link.object -%}
-              {%- if olc == blank or olc.handle == collection.handle -%}{% continue %}{%- endif -%}
-              {%- assign ohex = olc.metafields.custom.color_hex.value | default: olc.metafields.custom.color.value | default: '#d0c9bd' -%}
-              {%- assign oname = olc.metafields.custom.color_display_name.value | default: olc.title -%}
-              {%- assign oimg = olc.metafields.custom.color_card_image.value | default: olc.metafields.custom.card_image.value | default: olc.image -%}
-              {%- if oimg == blank and olc.products.first -%}
-                {%- assign oimg = olc.products.first.featured_image -%}
-              {%- endif -%}
-              <a class="ce__ec" href="{{ olc.url }}" aria-label="{{ oname | escape }}">
-                <div class="ce__ec-media">
-                  {%- if oimg != blank -%}
-                    {%- render 'image', image: oimg, src_width: 600, widths: '300, 480, 600', class: 'ce__ec-img', sizes: '(max-width: 767px) 58vw, 280px' -%}
-                  {%- else -%}
-                    <div class="ce__ec-img ce__ec-img--solid" style="background: {{ ohex }};"></div>
-                  {%- endif -%}
-                  <div class="ce__ec-overlay">
-                    <span class="ce__ec-dot" style="background: {{ ohex }};"></span>
-                    <span class="ce__ec-oname">{{ oname | upcase | escape }}</span>
-                    <span class="ce__ec-arrow">&#8599;</span>
-                  </div>
+        <div class="ce__explore-grid">
+          {%- for link in color_menu.links -%}
+            {%- assign olc = link.object -%}
+            {%- if olc == blank or olc.handle == collection.handle -%}{% continue %}{%- endif -%}
+            {%- assign ohex = olc.metafields.custom.color_hex.value | default: olc.metafields.custom.color.value | default: '#d0c9bd' -%}
+            {%- assign oname = olc.metafields.custom.color_display_name.value | default: olc.title -%}
+            {%- assign oimg = olc.metafields.custom.color_card_image.value | default: olc.metafields.custom.card_image.value | default: olc.image -%}
+            {%- if oimg == blank and olc.products.first -%}
+              {%- assign oimg = olc.products.first.featured_image -%}
+            {%- endif -%}
+            <a class="ce__ec" href="{{ olc.url }}" aria-label="{{ oname | escape }}">
+              <div class="ce__ec-media">
+                {%- if oimg != blank -%}
+                  {%- render 'image', image: oimg, src_width: 800, widths: '400, 600, 800', class: 'ce__ec-img', sizes: '(max-width: 767px) 50vw, 25vw' -%}
+                {%- else -%}
+                  <div class="ce__ec-img ce__ec-img--solid" style="background: {{ ohex }};"></div>
+                {%- endif -%}
+                <div class="ce__ec-overlay">
+                  <span class="ce__ec-dot" style="background: {{ ohex }};"></span>
+                  <span class="ce__ec-oname">{{ oname | upcase | escape }}</span>
+                  <span class="ce__ec-arrow">&#8599;</span>
                 </div>
-              </a>
-            {%- endfor -%}
-          </div>
+              </div>
+            </a>
+          {%- endfor -%}
         </div>
       </div>
     {%- endif -%}
@@ -132,27 +134,99 @@
   /* ─── COLOR EDITORIAL PAGE ─────────────────────── */
 
   .ce {
-    --ce-bg: #f5f0eb;
+    --ce-font-head: 'Host Grotesk', sans-serif;
+    --ce-bg: #fff;
     --ce-text: #1a1a1a;
-    --ce-muted: #7a756d;
-    --ce-border: rgba(26, 26, 26, 0.1);
+    --ce-muted: #8a857d;
+    --ce-border: rgba(26, 26, 26, 0.09);
     --ce-shell-w: min(100% - 48px, 1240px);
     background: var(--ce-bg);
     color: var(--ce-text);
   }
 
-  /* HERO */
-  .ce__hero {
-    {% comment %} position: relative; {% endcomment %}
-    width: 100%;
-    padding: 50px;
-    {% comment %} height: clamp(440px, 68vh, 780px); {% endcomment %}
-    overflow: hidden;
+  /* ── HERO ENTRANCE ANIMATIONS ── */
+  @keyframes ce-fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0);    }
   }
 
-  .ce__hero-media {
-    {% comment %} position: absolute; {% endcomment %}
-    {% comment %} inset: 0; {% endcomment %}
+  /* ── HERO ──
+     height = 100svh minus the palette bar height (~110px) so hero + palette
+     are both visible in the initial viewport without any scrolling.         */
+  .ce__hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    {% comment %} height: min(calc(100svh - 110px), 440px); {% endcomment %}
+    {% comment %} min-height: 220px; {% endcomment %}
+    overflow: hidden;
+    border-bottom: 1px solid var(--ce-border);
+  }
+
+  .ce__hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: clamp(20px, 3.2vw, 48px) clamp(24px, 4.5vw, 64px);
+  }
+
+  .ce__hero-eyebrow {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ce-muted);
+    font-weight: 500;
+    margin-bottom: 14px;
+    margin-left: 4px;
+    animation: ce-fade-up 0.55s ease both;
+  }
+
+  .ce__hero-dot {
+    display: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-bottom: 14px;
+    animation: ce-fade-up 0.55s 0.08s ease both;
+  }
+
+  .ce__hero-name {
+    margin: 0 0 26px;
+    font-family: var(--ce-font-head);
+    font-size: clamp(32px, 4.8vw, 76px);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: #111;
+    font-weight: 200;
+    animation: ce-fade-up 0.6s 0.14s ease both;
+  }
+
+  .ce__hero-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #111;
+    padding-bottom: 3px;
+    border-bottom: 1px solid currentColor;
+    {% comment %} align-self: flex-start; {% endcomment %}
+    transition: opacity 0.2s ease;
+    animation: ce-fade-up 0.55s 0.28s ease both;
+    margin-left: 5px;
+  }
+
+  .ce__hero-cta:hover { opacity: 0.45; }
+
+  .ce__hero-right {
+    overflow: hidden;
+    background: #ece8e2;
   }
 
   .ce__hero-img {
@@ -161,91 +235,29 @@
     object-fit: cover;
     object-position: center top;
     display: none;
-
   }
 
-  .ce__hero-img--solid {
-    width: 100%;
-    height: 100%;
-  }
+  .ce__hero-img--solid { width: 100%; height: 100%; }
 
-  .ce__hero-veil {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(12, 9, 7, 0.68) 0%,
-      rgba(12, 9, 7, 0.15) 42%,
-      transparent 100%
-    );
-  }
-
-  .ce__hero-text {
-    {% comment %} position: absolute; {% endcomment %}
-    {% comment %} bottom: 0; {% endcomment %}
-    {% comment %} left: 0; {% endcomment %}
-    {% comment %} right: 0; {% endcomment %}
-    {% comment %} padding: 0 clamp(20px, 5vw, 72px) clamp(28px, 5.5vh, 56px); {% endcomment %}
-
-    color: #000;
-    /* display: flex; */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-  }
-
-  .ce__hero-eyebrow {
-    display: block;
-    font-size: 9px;
-    letter-spacing: 0.26em;
-    text-transform: uppercase;
-    color: #000;
-    {% comment %} color: rgba(255, 255, 255, 0.55); {% endcomment %}
-    margin-bottom: 12px;
-    font-weight: 500;
-  }
-
-  .ce__hero-name {
-    margin: 0;
-    font-size: clamp(48px, 9.5vw, 80px);
-    line-height: 0.88;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    {% comment %} color: #fff; {% endcomment %}
-     color: #000;
-    font-weight: 300;
-  }
-
-  .ce__hero-dot {
-    position: absolute;
-    bottom: clamp(28px, 5.5vh, 56px);
-    right: clamp(20px, 5vw, 72px);
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255, 255, 255, 0.4);
-  }
-
-  /* PALETTE BAR */
+  /* ── PALETTE BAR ── */
   .ce__palette-bar {
-    width: 100%;
-    padding: 30px 300px 20px 300px;
     border-bottom: 1px solid var(--ce-border);
+    padding: 22px 0 16px;
   }
 
   .ce__palette-inner {
+    width: var(--ce-shell-w);
+    margin: 0 auto;
     display: flex;
-    gap: 8px;
+    gap: 10px;
     overflow-x: auto;
     scrollbar-width: none;
     padding-bottom: 2px;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
   }
 
-  .ce__palette-inner::-webkit-scrollbar {
-    display: none;
-  }
+  .ce__palette-inner::-webkit-scrollbar { display: none; }
 
   .ce__swatch {
     display: flex;
@@ -260,24 +272,23 @@
 
   .ce__swatch-fill {
     display: block;
-    width: clamp(72px, 13vw, 80px);
-    height: 5px;
-    transition: height 0.22s ease;
+    width: clamp(60px, 10vw, 76px);
+    height: 4px;
+    border-radius: 2px;
+    transition: height 0.2s ease;
   }
 
-  .ce__swatch:hover .ce__swatch-fill {
-    height: 9px;
-  }
+  .ce__swatch:hover .ce__swatch-fill { height: 8px; }
 
   .ce__swatch--active .ce__swatch-fill {
-    height: 9px;
-    outline: 1.5px solid rgba(26, 26, 26, 0.45);
-    outline-offset: 2.5px;
+    height: 8px;
+    {% comment %} outline: 1.5px solid rgba(26, 26, 26, 0.35); {% endcomment %}
+    outline-offset: 2px;
   }
 
   .ce__swatch-name {
-    font-size: 8.5px;
-    letter-spacing: 0.15em;
+    font-size: 8px;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--ce-muted);
     white-space: nowrap;
@@ -288,13 +299,13 @@
     font-weight: 600;
   }
 
-  /* SHELL */
+  /* ── SHELL ── */
   .ce__shell {
     width: var(--ce-shell-w);
     margin: 0 auto;
   }
 
-  /* LABEL */
+  /* ── LABEL ── */
   .ce__label {
     display: block;
     font-size: 9px;
@@ -304,9 +315,9 @@
     margin-bottom: 10px;
   }
 
-  /* PRODUCTS */
+  /* ── PRODUCTS ── */
   .ce__products {
-    padding: 52px 0 68px;
+    padding: 44px 0 60px;
   }
 
   .ce__products-hd {
@@ -314,10 +325,11 @@
   }
 
   .ce__products-title {
-    margin: 0 0 18px;
-    font-size: clamp(20px, 3vw, 32px);
+    margin: 0 0 16px;
+    font-family: var(--ce-font-head);
+    font-size: clamp(18px, 2.6vw, 30px);
     font-weight: 300;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     line-height: 1.1;
   }
@@ -338,95 +350,121 @@
     padding: 28px 0 0;
   }
 
-  /* EXPLORE OTHER COLORS */
+  /* ── EXPLORE OTHER COLORS ── */
   .ce__explore {
     border-top: 1px solid var(--ce-border);
-    padding-bottom: 80px;
+    padding: 28px 0 0;  /* no bottom — grid sits flush at the section base */
   }
 
   .ce__explore-hd {
-    padding: 44px 0 30px;
+    width: var(--ce-shell-w);
+    margin: 0 auto;
+    padding-bottom: 14px;
   }
 
   .ce__explore-title {
     margin: 0;
-    font-size: clamp(18px, 2.4vw, 28px);
+    font-family: var(--ce-font-head);
+    font-size: clamp(16px, 2.2vw, 26px);
     font-weight: 300;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  .ce__explore-scroll {
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding: 0 clamp(20px, 5vw, 72px);
+  /*
+    Compact viewport-fitting bento grid.
+    2 rows with different heights; height set via grid-template-rows so cells
+    fill their area (no aspect-ratio fighting):
+
+    Row 1 (items 1-3) → span 4 each → 33% wide → tall, near-portrait cells
+    Row 2 (items 4-7) → span 3 each → 25% wide → shorter cells
+
+    grid-template-rows: 1.6fr 1fr means Row 1 gets 61.5% of the grid height,
+    Row 2 gets 38.5%.  At ~74vh this produces:
+      Row 1 cells ≈ 427px wide × 426px tall  → ~square/portrait  ✓
+      Row 2 cells ≈ 320px wide × 266px tall  → slight landscape  ✓
+    Everything fits in one viewport.
+  */
+  .ce__explore-grid {
+    /* Full-bleed: no shell padding — more dramatic edge-to-edge grid */
+    {% comment %} display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: 1.6fr 1fr;
+    gap: 4px;
+    height: clamp(480px, 74vh, 800px);
+    overflow: hidden;       /* clips any accidental row-3 overflow */ {% endcomment %}
+
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 4px;
+    height: clamp(480px, 80vh, 800px);
+    overflow: hidden;
+    /* min-height: 200px; */
+    {% comment %} padding: 0 60px; {% endcomment %}
+    width: var(--ce-shell-w);
+    margin: 0 auto;
   }
 
-  .ce__explore-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  .ce__explore-track {
-    display: flex;
-    gap: 14px;
-  }
-
+  /* Row 1: items 1-3, each takes 33% of width */
   .ce__ec {
-    flex: 0 0 auto;
-    width: clamp(210px, 21vw, 300px);
+    grid-column: span 4;
     text-decoration: none;
     color: var(--ce-text);
+    min-height: 0;
   }
 
+  /* Row 2: items 4-7, each takes 25% of width */
+  .ce__ec:nth-child(4),
+  .ce__ec:nth-child(5),
+  .ce__ec:nth-child(6),
+  .ce__ec:nth-child(7) { grid-column: span 3; }
+
+  /* Any overflow items (8+) stay at span 4 but are hidden */
+
+  /* Media fills the full grid cell — height driven by grid rows, not aspect-ratio */
   .ce__ec-media {
     position: relative;
     width: 100%;
-    aspect-ratio: 3 / 4;
+    height: 100%;
     overflow: hidden;
-    background: #e6e0d8;
+    background: #e6e2dc;
   }
 
   .ce__ec-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center top;
     display: block;
-    transition: transform 0.55s ease;
+    transition: transform 0.5s ease;
   }
 
-  .ce__ec-img--solid {
-    width: 100%;
-    height: 100%;
-  }
+  .ce__ec-img--solid { width: 100%; height: 100%; }
 
-  .ce__ec:hover .ce__ec-img {
-    transform: scale(1.05);
-  }
+  .ce__ec:hover .ce__ec-img { transform: scale(1.04); }
 
   .ce__ec-overlay {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 48px 14px 16px;
-    background: linear-gradient(to top, rgba(10, 8, 6, 0.62) 0%, transparent 100%);
+    bottom: 0; left: 0; right: 0;
+    padding: 40px 12px 12px;
+    background: linear-gradient(to top, rgba(8, 6, 4, 0.58) 0%, transparent 100%);
     display: flex;
     align-items: flex-end;
-    gap: 8px;
+    gap: 7px;
   }
 
   .ce__ec-dot {
     flex-shrink: 0;
-    width: 8px;
-    height: 8px;
+    width: 7px; height: 7px;
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     margin-bottom: 1px;
   }
 
   .ce__ec-oname {
     font-size: 10px;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.15em;
     color: rgba(255, 255, 255, 0.9);
     text-transform: uppercase;
     font-weight: 500;
@@ -435,53 +473,83 @@
   }
 
   .ce__ec-arrow {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
     flex-shrink: 0;
     transition: transform 0.2s ease;
   }
 
-  .ce__ec:hover .ce__ec-arrow {
-    transform: translate(2px, -2px);
-  }
+  .ce__ec:hover .ce__ec-arrow { transform: translate(2px, -2px); }
 
-  /* RESPONSIVE */
+  /* ── RESPONSIVE ── */
   @media (max-width: 767.98px) {
     .ce {
       --ce-shell-w: min(100% - 32px, 1240px);
     }
 
     .ce__hero {
-      height: clamp(280px, 56vh, 460px);
+      grid-template-columns: 1fr;
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    .ce__hero-right {
+      {% comment %} height: clamp(200px, 52vw, 320``px); {% endcomment %}
+      overflow: hidden;
+      order: -1;
+    }
+
+    .ce__hero-left {
+      padding: clamp(24px, 6vw, 40px) clamp(18px, 5vw, 32px);
     }
 
     .ce__hero-name {
-      font-size: clamp(34px, 12vw, 64px);
+      font-size: clamp(30px, 11vw, 56px);
+      margin-bottom: 20px;
     }
 
-    .ce__palette-bar {
-      padding: 14px 16px;
-    }
+    .ce__palette-bar { padding: 12px 0 10px; }
 
-    .ce__swatch-fill {
-      width: clamp(60px, 22vw, 110px);
-    }
+    .ce__swatch-fill { width: clamp(52px, 20vw, 100px); }
 
-    .ce__products {
-      padding: 32px 0 48px;
-    }
+    .ce__products { padding: 28px 0 40px; }
 
     .ce__grid {
       grid-template-columns: repeat(2, 1fr);
-      gap: 14px 10px;
+      gap: 12px 8px;
     }
 
-    .ce__explore-scroll {
-      padding: 0 16px;
+    /* Explore: 2-col auto-height grid on mobile — portrait cells */
+    .ce__explore {
+      padding: 20px 0 0;
     }
 
-    .ce__ec {
-      width: clamp(170px, 56vw, 250px);
+    .ce__explore-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto;
+      height: auto;
+      overflow: visible;
+      gap: 4px;
+    }
+
+    /* All cards span 1 of 2 columns */
+    .ce__ec,
+    .ce__ec:nth-child(4),
+    .ce__ec:nth-child(5),
+    .ce__ec:nth-child(6),
+    .ce__ec:nth-child(7) {
+      grid-column: span 1;
+    }
+
+    /* Restore portrait aspect-ratio on mobile (height is auto again) */
+    .ce__ec-media {
+      aspect-ratio: 3 / 4;
+      height: auto;
+    }
+
+    .ce__hero-img {
+      display: block;
     }
   }
 </style>

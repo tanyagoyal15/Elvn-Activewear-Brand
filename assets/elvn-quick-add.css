@@ -156,9 +156,11 @@ variant-king-combined-listing {
 
 .quick-cart-icon {
   position: absolute;
-  bottom: 10px;
+  top: 10px;
   right: 10px;
   z-index: 10;
+  background-color: #fff;
+  border-radius: 50%;
 }
 
 @media (min-width: 767.98px) {

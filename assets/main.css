@@ -50,7 +50,8 @@ summary::-webkit-details-marker {
   color: rgb(var(--heading-color));
 }
 .color-scheme:not(.color-scheme--no-bg) {
-  background-color: var(--bg-color);
+  /* background-color: var(--bg-color); */
+  background-color: #fff;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1784,7 +1785,7 @@ small {
   }
 }
 .custom-aspect-ratio {
-  aspect-ratio: var(--ratio, 1.77);
+  aspect-ratio: 1/1.2;
 }
 
 .sticky-top {
@@ -3124,6 +3125,7 @@ td {
 .stretch-cards .card {
   max-width: none;
   height: 100%;
+  /* background-color: #fff !important; */
 }
 
 .product-card {
@@ -3690,7 +3692,7 @@ td {
   }
   .card--standard .card__info {
     position: relative;
-    background-color: var(--card-bg-color);
+    background-color: #fff;
   }
   .card--standard .card__info > *:not(.card__swatches) {
     z-index: 1;

@@ -66,6 +66,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ================= MINI CARD =================
 
+// function getOrCreateMiniCard() {
+//   let card = document.getElementById("elvn-mini-card");
+//   if (!card) {
+//     card = document.createElement("div");
+//     card.id = "elvn-mini-card";
+//     card.className = "mini-card";
+//     document.body.appendChild(card);
+//   }
+//   return card;
+// }
+
 function showMiniCard(set, type, anchor) {
   const product =
     type === "top" ? set.products[0] : set.products[1] || set.products[0];
@@ -223,16 +234,21 @@ function renderDrawerContent() {
       const activeId = stateItem?.productId;
       const active = groups.top.find((p) => p.id == activeId) || groups.top[0];
       allAlternates = allAlternates.concat(
-        groups.top.filter((p) => p.id != active.id).map((p) => ({ ...p, groupType: "top" }))
+        groups.top
+          .filter((p) => p.id != active.id)
+          .map((p) => ({ ...p, groupType: "top" })),
       );
       html += renderProductGroup("top", groups.top, set);
     }
     if (groups.bottom.length > 0) {
       const stateItem = state.items.find((i) => i.groupType === "bottom");
       const activeId = stateItem?.productId;
-      const active = groups.bottom.find((p) => p.id == activeId) || groups.bottom[0];
+      const active =
+        groups.bottom.find((p) => p.id == activeId) || groups.bottom[0];
       allAlternates = allAlternates.concat(
-        groups.bottom.filter((p) => p.id != active.id).map((p) => ({ ...p, groupType: "bottom" }))
+        groups.bottom
+          .filter((p) => p.id != active.id)
+          .map((p) => ({ ...p, groupType: "bottom" })),
       );
       html += renderProductGroup("bottom", groups.bottom, set);
     }
@@ -468,15 +484,17 @@ function attachColorLogic() {
 // Update thumbnails in the "Also pair with" strip when color changes within a group
 function updateAlsoPairThumbnails(groupType, color) {
   const set = state.currentSet;
-  document.querySelectorAll(`.also-pair-item[data-group="${groupType}"]`).forEach((btn) => {
-    const productId = btn.dataset.productId;
-    const product = set.products.find((p) => p.id == productId);
-    if (!product) return;
-    const img = btn.querySelector("img");
-    if (img && product.colorImages?.[color]) {
-      img.src = product.colorImages[color];
-    }
-  });
+  document
+    .querySelectorAll(`.also-pair-item[data-group="${groupType}"]`)
+    .forEach((btn) => {
+      const productId = btn.dataset.productId;
+      const product = set.products.find((p) => p.id == productId);
+      if (!product) return;
+      const img = btn.querySelector("img");
+      if (img && product.colorImages?.[color]) {
+        img.src = product.colorImages[color];
+      }
+    });
 }
 
 // ================= VARIANT LOGIC =================
