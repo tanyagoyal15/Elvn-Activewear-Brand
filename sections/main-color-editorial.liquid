@@ -18,7 +18,7 @@
 
 <div class="ce">
 
-  <!-- ① HERO -->
+  <!-- HERO -->
   <div class="ce__hero">
 
     <div class="ce__hero-left">
@@ -38,7 +38,7 @@
 
   </div>
 
-  <!-- ② PALETTE STRIP -->
+  <!-- PALETTE STRIP -->
   <nav class="ce__palette-bar" aria-label="Color palette navigation">
     <div class="ce__palette-inner">
       <span class="ce__swatch ce__swatch--active" aria-current="true">
@@ -61,7 +61,7 @@
     </div>
   </nav>
 
-  <!-- ③ PRODUCTS -->
+  <!-- PRODUCTS -->
   <div class="ce__products" id="ce-products">
     <div class="ce__shell">
       <header class="ce__products-hd">
@@ -79,7 +79,7 @@
     </div>
   </div>
 
-  <!-- ④ EXPLORE OTHER COLORS -->
+  <!-- EXPLORE OTHER COLORS -->
   {%- if color_menu != blank -%}
     {%- assign has_others = false -%}
     {%- for link in color_menu.links -%}
@@ -99,9 +99,12 @@
           </header>
         </div>
         <div class="ce__explore-grid">
+          {%- assign ec_count = 0 -%}
           {%- for link in color_menu.links -%}
             {%- assign olc = link.object -%}
             {%- if olc == blank or olc.handle == collection.handle -%}{% continue %}{%- endif -%}
+            {%- assign ec_count = ec_count | plus: 1 -%}
+            {%- if ec_count > 8 -%}{%- break -%}{%- endif -%}
             {%- assign ohex = olc.metafields.custom.color_hex.value | default: olc.metafields.custom.color.value | default: '#d0c9bd' -%}
             {%- assign oname = olc.metafields.custom.color_display_name.value | default: olc.title -%}
             {%- assign oimg = olc.metafields.custom.color_card_image.value | default: olc.metafields.custom.card_image.value | default: olc.image -%}
@@ -131,7 +134,6 @@
 </div>
 
 <style>
-  /* ─── COLOR EDITORIAL PAGE ─────────────────────── */
 
   .ce {
     --ce-font-head: 'Host Grotesk', sans-serif;
@@ -144,20 +146,14 @@
     color: var(--ce-text);
   }
 
-  /* ── HERO ENTRANCE ANIMATIONS ── */
   @keyframes ce-fade-up {
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0);    }
   }
 
-  /* ── HERO ──
-     height = 100svh minus the palette bar height (~110px) so hero + palette
-     are both visible in the initial viewport without any scrolling.         */
   .ce__hero {
     display: grid;
     grid-template-columns: 1fr;
-    {% comment %} height: min(calc(100svh - 110px), 440px); {% endcomment %}
-    {% comment %} min-height: 220px; {% endcomment %}
     overflow: hidden;
     border-bottom: 1px solid var(--ce-border);
   }
@@ -216,7 +212,6 @@
     color: #111;
     padding-bottom: 3px;
     border-bottom: 1px solid currentColor;
-    {% comment %} align-self: flex-start; {% endcomment %}
     transition: opacity 0.2s ease;
     animation: ce-fade-up 0.55s 0.28s ease both;
     margin-left: 5px;
@@ -239,7 +234,6 @@
 
   .ce__hero-img--solid { width: 100%; height: 100%; }
 
-  /* ── PALETTE BAR ── */
   .ce__palette-bar {
     border-bottom: 1px solid var(--ce-border);
     padding: 22px 0 16px;
@@ -282,7 +276,6 @@
 
   .ce__swatch--active .ce__swatch-fill {
     height: 8px;
-    {% comment %} outline: 1.5px solid rgba(26, 26, 26, 0.35); {% endcomment %}
     outline-offset: 2px;
   }
 
@@ -299,13 +292,11 @@
     font-weight: 600;
   }
 
-  /* ── SHELL ── */
   .ce__shell {
     width: var(--ce-shell-w);
     margin: 0 auto;
   }
 
-  /* ── LABEL ── */
   .ce__label {
     display: block;
     font-size: 9px;
@@ -315,7 +306,6 @@
     margin-bottom: 10px;
   }
 
-  /* ── PRODUCTS ── */
   .ce__products {
     padding: 44px 0 60px;
   }
@@ -350,16 +340,11 @@
     padding: 28px 0 0;
   }
 
-  /* ── EXPLORE OTHER COLORS ── */
-  .ce__explore {
-    border-top: 1px solid var(--ce-border);
-    padding: 28px 0 0;  /* no bottom — grid sits flush at the section base */
-  }
 
   .ce__explore-hd {
-    width: var(--ce-shell-w);
+    width: min(4 * 260px + 3 * 6px, 100%);
     margin: 0 auto;
-    padding-bottom: 14px;
+    padding-bottom: 20px;
   }
 
   .ce__explore-title {
@@ -371,58 +356,28 @@
     text-transform: uppercase;
   }
 
-  /*
-    Compact viewport-fitting bento grid.
-    2 rows with different heights; height set via grid-template-rows so cells
-    fill their area (no aspect-ratio fighting):
+  .ce__explore {
+    background: #fbfaf2;
+    padding: clamp(32px, 5vw, 40px) 0;
+  }
 
-    Row 1 (items 1-3) → span 4 each → 33% wide → tall, near-portrait cells
-    Row 2 (items 4-7) → span 3 each → 25% wide → shorter cells
-
-    grid-template-rows: 1.6fr 1fr means Row 1 gets 61.5% of the grid height,
-    Row 2 gets 38.5%.  At ~74vh this produces:
-      Row 1 cells ≈ 427px wide × 426px tall  → ~square/portrait  ✓
-      Row 2 cells ≈ 320px wide × 266px tall  → slight landscape  ✓
-    Everything fits in one viewport.
-  */
   .ce__explore-grid {
-    /* Full-bleed: no shell padding — more dramatic edge-to-edge grid */
-    {% comment %} display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: 1.6fr 1fr;
-    gap: 4px;
-    height: clamp(480px, 74vh, 800px);
-    overflow: hidden;       /* clips any accidental row-3 overflow */ {% endcomment %}
-
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: 1fr 1fr 1fr;
-    gap: 4px;
-    height: clamp(480px, 80vh, 800px);
+    grid-template-columns: repeat(4, 260px);
+    grid-template-rows: 1fr 1fr;
+    height: min(88vh, 820px);
+    gap: 6px;
     overflow: hidden;
-    /* min-height: 200px; */
-    {% comment %} padding: 0 60px; {% endcomment %}
-    width: var(--ce-shell-w);
+    justify-content: center;
     margin: 0 auto;
   }
 
-  /* Row 1: items 1-3, each takes 33% of width */
   .ce__ec {
-    grid-column: span 4;
     text-decoration: none;
     color: var(--ce-text);
     min-height: 0;
   }
 
-  /* Row 2: items 4-7, each takes 25% of width */
-  .ce__ec:nth-child(4),
-  .ce__ec:nth-child(5),
-  .ce__ec:nth-child(6),
-  .ce__ec:nth-child(7) { grid-column: span 3; }
-
-  /* Any overflow items (8+) stay at span 4 but are hidden */
-
-  /* Media fills the full grid cell — height driven by grid rows, not aspect-ratio */
   .ce__ec-media {
     position: relative;
     width: 100%;
@@ -435,7 +390,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center top;
+    object-position: center 20%;
     display: block;
     transition: transform 0.5s ease;
   }
@@ -481,7 +436,6 @@
 
   .ce__ec:hover .ce__ec-arrow { transform: translate(2px, -2px); }
 
-  /* ── RESPONSIVE ── */
   @media (max-width: 767.98px) {
     .ce {
       --ce-shell-w: min(100% - 32px, 1240px);
@@ -495,7 +449,6 @@
     }
 
     .ce__hero-right {
-      {% comment %} height: clamp(200px, 52vw, 320``px); {% endcomment %}
       overflow: hidden;
       order: -1;
     }
@@ -520,7 +473,6 @@
       gap: 12px 8px;
     }
 
-    /* Explore: 2-col auto-height grid on mobile — portrait cells */
     .ce__explore {
       padding: 20px 0 0;
     }
@@ -533,16 +485,20 @@
       gap: 4px;
     }
 
-    /* All cards span 1 of 2 columns */
-    .ce__ec,
-    .ce__ec:nth-child(4),
-    .ce__ec:nth-child(5),
-    .ce__ec:nth-child(6),
-    .ce__ec:nth-child(7) {
-      grid-column: span 1;
+    .ce__explore {
+      background: none;
+      padding: 20px 0 0;
     }
 
-    /* Restore portrait aspect-ratio on mobile (height is auto again) */
+    .ce__explore-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto;
+      height: auto;
+      overflow: visible;
+      gap: 4px;
+      justify-content: stretch;
+    }
+
     .ce__ec-media {
       aspect-ratio: 3 / 4;
       height: auto;
@@ -592,7 +548,7 @@
       "type": "text",
       "id": "other_colors_heading",
       "label": "Other colors heading",
-      "default": "Colors in this palette"
+      "default": "Colors"
     }
   ]
 }
