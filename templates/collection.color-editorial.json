@@ -7,8 +7,8 @@
         "eyebrow": "Color",
         "products_label": "Shop this color",
         "products_heading": "Pieces in this palette",
-        "other_colors_label": "Explore more",
-        "other_colors_heading": "Colors in this palette"
+        "other_colors_label": "",
+        "other_colors_heading": "Explore more colors"
       }
     }
   },

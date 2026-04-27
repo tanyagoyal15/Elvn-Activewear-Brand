@@ -203,7 +203,7 @@
       let filtered;
       if (hasColorOption && activeColor) {
         filtered = variants.filter(
-          (v) => normalize(v.color) === normalize(activeColor),
+          (v) => this.normalize(v.color) === this.normalize(activeColor),
         );
 
         if (!filtered.length) {

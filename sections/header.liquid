@@ -617,10 +617,10 @@
     {%- endif -%}
 
     <div class="header__icons flex-1 flex justify-end items-center">
-      <a class="header__icon text-current" href="https://wa.me/919892836850" target="_blank" rel="noopener">
+      {% comment %} <a class="header__icon text-current" href="https://wa.me/919892836850" target="_blank" rel="noopener">
         {% render 'icon-whatsapp' %}
         <span class="visually-hidden">WhatsApp</span>
-      </a>
+      </a> {% endcomment %}
       {%- if section.settings.enable_localization -%}
         {% if show_country or show_language %}
           <button class="localization-options localization-options--header text-current js-toggle-localization" data-localization-trigger="localization-drawer-header">

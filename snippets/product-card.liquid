@@ -38,15 +38,28 @@
   assign current_variant = product.selected_or_first_available_variant
   assign target_color_handle = target_color_handle | default: blank
   if target_color_handle != blank
+    assign found_by_metafield = false
+
     for variant in product.variants
-      assign option1_handle = variant.option1 | default: '' | handleize
-      assign option2_handle = variant.option2 | default: '' | handleize
-      assign option3_handle = variant.option3 | default: '' | handleize
-      if option1_handle == target_color_handle or option2_handle == target_color_handle or option3_handle == target_color_handle
+      assign base_family_handle = variant.metafields.custom.base_color_family | handleize
+      if base_family_handle == target_color_handle
         assign current_variant = variant
+        assign found_by_metafield = true
         break
       endif
     endfor
+
+    unless found_by_metafield
+      for variant in product.variants
+        assign option1_handle = variant.option1 | default: '' | handleize
+        assign option2_handle = variant.option2 | default: '' | handleize
+        assign option3_handle = variant.option3 | default: '' | handleize
+        if option1_handle == target_color_handle or option2_handle == target_color_handle or option3_handle == target_color_handle
+          assign current_variant = variant
+          break
+        endif
+      endfor
+    endunless
   endif
   assign product_images = product.media | where: 'media_type', 'image'
   if current_variant.featured_media
@@ -420,7 +433,7 @@
                   {%- if native_swatch_options.size > 0 -%}
                     
                     <div class="elvn-card-swatches">
-                      {%- for value in option.values limit: 5 -%}
+                      {%- for value in option.values -%}
                         <label class="elvn-swatch">
                             <input type="radio"
                               class="opt-btn visually-hidden js-option"

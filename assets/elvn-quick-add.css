@@ -77,6 +77,16 @@
   gap: 8px;
 }
 
+.card__content:not(.card__content--inline) {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card__content:not(.card__content--inline) .card__price {
+  margin-top: auto;
+}
+
 .card__price {
   margin: 0;
   font-size: 12px;
@@ -147,7 +157,6 @@
 }
 
 .card--standard .card__info {
-  padding: 8px;
 }
 
 variant-king-combined-listing {
