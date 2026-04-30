@@ -39,7 +39,11 @@
           }
         }
       },
-      "block_order": ["subheading_U9xaeX", "heading_mmfgtc", "button_CAc3kp"],
+      "block_order": [
+        "subheading_U9xaeX",
+        "heading_mmfgtc",
+        "button_CAc3kp"
+      ],
       "name": "Background video",
       "settings": {
         "video_shopify": "shopify://files/videos/banner final.mp4",
@@ -107,7 +111,9 @@
           }
         }
       },
-      "block_order": ["slide_CdYnnD"],
+      "block_order": [
+        "slide_CdYnnD"
+      ],
       "disabled": true,
       "name": "Slideshow",
       "settings": {
@@ -156,7 +162,10 @@
           }
         }
       },
-      "block_order": ["heading_Y8TcLN", "subheading_newrel"],
+      "block_order": [
+        "heading_Y8TcLN",
+        "subheading_newrel"
+      ],
       "name": "Featured collection",
       "settings": {
         "collection": "just-dropped",
@@ -215,7 +224,7 @@
         "grid_item_cRCdJK": {
           "type": "grid_item",
           "settings": {
-            "image": "shopify://shop_images/DRU0537.jpg",
+            "image": "shopify://shop_images/IMG_4661_jpg.jpg",
             "title": "Court",
             "cta": "Shop Now",
             "link": "shopify://collections/court",
@@ -258,16 +267,16 @@
     "matching-sets": {
       "type": "matching-sets",
       "blocks": {
-        "matching_set_Ggad9R": {
-          "type": "matching_set",
-          "settings": {
-            "matching_set": ""
-          }
-        },
         "matching_set_T8pFWM": {
           "type": "matching_set",
           "settings": {
             "matching_set": "contrastsculpt-it-girl-top-shorts"
+          }
+        },
+        "matching_set_Ggad9R": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "contrastsculpt-sports-bra-shorts"
           }
         },
         "matching_set_wYe3hw": {
@@ -314,8 +323,8 @@
         }
       },
       "block_order": [
-        "matching_set_Ggad9R",
         "matching_set_T8pFWM",
+        "matching_set_Ggad9R",
         "matching_set_wYe3hw",
         "matching_set_CkXV4m",
         "matching_set_VYbEWg",
@@ -451,7 +460,7 @@
         "grid_item_bXnRVE": {
           "type": "grid_item",
           "settings": {
-            "image": "shopify://shop_images/LINEN_BRA_2.jpg",
+            "image": "shopify://shop_images/Elvn_lookBook_0350_34932a36-06d6-406d-89f1-c398354051c1.jpg",
             "title": "Sports Bra",
             "cta": "Shop Now",
             "link": "shopify://collections/sports-bra",
@@ -462,10 +471,10 @@
         "grid_item_cpU43t": {
           "type": "grid_item",
           "settings": {
-            "image": "shopify://shop_images/Elvn_lookBook_0393_0e8d5822-ed87-4d4c-8431-c1d5bae636c1.jpg",
-            "title": "Tshirts / Top",
+            "image": "shopify://shop_images/DRU0754_a757b04c-a008-4ee7-b7e0-6f86f7f444cf.jpg",
+            "title": "Top",
             "cta": "Shop Now",
-            "link": "",
+            "link": "shopify://collections/tshirts-tops",
             "overlay_position": "center",
             "span": "1"
           }
@@ -473,10 +482,10 @@
         "grid_item_iNCJGp": {
           "type": "grid_item",
           "settings": {
-            "image": "shopify://shop_images/214.png",
+            "image": "shopify://shop_images/39.png",
             "title": "Leggings",
             "cta": "Shop Now",
-            "link": "",
+            "link": "shopify://collections/leggings",
             "overlay_position": "center",
             "span": "1"
           }
@@ -484,10 +493,10 @@
         "grid_item_XL3LjG": {
           "type": "grid_item",
           "settings": {
-            "image": "shopify://shop_images/Elvn_lookBook_0365.jpg",
+            "image": "shopify://shop_images/Elvn_lookBook_2415_BLUE_WITHOUT_SHOES_1b26d8d0-e0dd-428c-9e0a-53b7b117ac1d.jpg",
             "title": "Flared Pants",
             "cta": "Shop Now",
-            "link": "",
+            "link": "shopify://collections/flayed-pants",
             "overlay_position": "center",
             "span": "1"
           }
@@ -495,10 +504,10 @@
         "grid_item_LPCz4q": {
           "type": "grid_item",
           "settings": {
-            "image": "shopify://shop_images/19._LINEN_SHORTS_2.jpg",
+            "image": "shopify://shop_images/106_c15cdada-8611-4f05-af28-d954821eed31.png",
             "title": "Shorts",
             "cta": "Shop Now",
-            "link": "",
+            "link": "shopify://collections/shorts",
             "overlay_position": "center",
             "span": "1"
           }
@@ -506,7 +515,7 @@
         "grid_item_PWUtbh": {
           "type": "grid_item",
           "settings": {
-            "image": "shopify://shop_images/244.png",
+            "image": "shopify://shop_images/287.png",
             "title": "Skirts",
             "cta": "Shop Now",
             "link": "shopify://collections/skirts",
@@ -567,7 +576,10 @@
           }
         }
       },
-      "block_order": ["heading_UnkcTx", "subheading_performance"],
+      "block_order": [
+        "heading_UnkcTx",
+        "subheading_performance"
+      ],
       "name": "Product list",
       "settings": {
         "product_list": [

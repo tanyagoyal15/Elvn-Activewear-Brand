@@ -16,7 +16,38 @@
 <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
 <script src="{{ 'product-form.js' | asset_url }}" defer></script>
 
+{% comment %} shimmer styles rendered inline BEFORE content so skeleton covers page on first paint {% endcomment %}
+<style>
+  .ce { position: relative; background: #fff; }
+  .ce-sk { position: absolute; inset: 0; z-index: 50; background: #fff; pointer-events: none; }
+</style>
+
 <div class="ce">
+
+  <!-- PAGE SKELETON -->
+  <div class="ce-sk" id="ce-skeleton" aria-hidden="true">
+    <div class="ce-sk__hero">
+      <div class="ce-sk__line ce-sk__line--eyebrow"></div>
+      <div class="ce-sk__line ce-sk__line--heading"></div>
+      <div class="ce-sk__line ce-sk__line--cta"></div>
+    </div>
+    <div class="ce-sk__palette">
+      <div class="ce-sk__swatch"></div>
+      <div class="ce-sk__swatch"></div>
+      <div class="ce-sk__swatch"></div>
+      <div class="ce-sk__swatch"></div>
+      <div class="ce-sk__swatch"></div>
+    </div>
+    <div class="ce-sk__products">
+      <div class="ce-sk__line ce-sk__line--title"></div>
+      <div class="ce-sk__grid">
+        <div class="ce-sk__card"><div class="ce-sk__card-img"></div><div class="ce-sk__card-text"></div></div>
+        <div class="ce-sk__card"><div class="ce-sk__card-img"></div><div class="ce-sk__card-text"></div></div>
+        <div class="ce-sk__card"><div class="ce-sk__card-img"></div><div class="ce-sk__card-text"></div></div>
+        <div class="ce-sk__card"><div class="ce-sk__card-img"></div><div class="ce-sk__card-text"></div></div>
+      </div>
+    </div>
+  </div>
 
   <!-- HERO -->
   <div class="ce__hero">
@@ -135,6 +166,140 @@
 
 <style>
 
+  /* ─── SHIMMER KEYFRAME ─────────────────────── */
+  @keyframes ce-shimmer {
+    0%   { background-position: 120% 0; }
+    100% { background-position: -120% 0; }
+  }
+
+  /* ─── SKELETON OVERLAY ─────────────────────── */
+  .ce-sk {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    background: #fff;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    padding: 24px 20px 0;
+  }
+
+  .ce-sk.is-done {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* shared shimmer block */
+  .ce-sk__line,
+  .ce-sk__swatch,
+  .ce-sk__card-img,
+  .ce-sk__card-text {
+    background: linear-gradient(
+      100deg,
+      #ece9e4 20%,
+      #f5f3f0 50%,
+      #ece9e4 80%
+    );
+    background-size: 220% 100%;
+    animation: ce-shimmer 1.3s ease-in-out infinite;
+    border-radius: 4px;
+  }
+
+  /* hero skeleton */
+  .ce-sk__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 0 28px;
+    gap: 16px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .ce-sk__line--eyebrow  { width: 60px;  height: 8px;  border-radius: 4px; }
+  .ce-sk__line--heading  { width: 180px; height: 52px; border-radius: 6px; }
+  .ce-sk__line--cta      { width: 120px; height: 10px; border-radius: 4px; }
+
+  /* palette skeleton */
+  .ce-sk__palette {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 0 16px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .ce-sk__swatch {
+    width: 64px;
+    height: 24px;
+    border-radius: 4px;
+  }
+
+  /* products skeleton */
+  .ce-sk__products {
+    padding: 32px 0 0;
+  }
+
+  .ce-sk__line--title {
+    width: 200px;
+    height: 18px;
+    margin-bottom: 20px;
+  }
+
+  .ce-sk__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 8px;
+  }
+
+  .ce-sk__card { display: flex; flex-direction: column; gap: 8px; }
+
+  .ce-sk__card-img {
+    width: 100%;
+    aspect-ratio: 1 / 1.4;
+    border-radius: 4px;
+  }
+
+  .ce-sk__card-text {
+    width: 70%;
+    height: 12px;
+    border-radius: 4px;
+  }
+
+  /* ─── PRODUCT GRID IMAGE SHIMMER ────────────── */
+  .ce__grid .card__media {
+    position: relative;
+  }
+
+  .ce__grid .card__media::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(
+      100deg,
+      rgba(255,255,255,0) 20%,
+      rgba(255,255,255,0.6) 50%,
+      rgba(255,255,255,0) 80%
+    ), #ece9e4;
+    background-size: 220% 100%;
+    animation: ce-shimmer 1.3s ease-in-out infinite;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+  }
+
+  .ce__grid .card__media.img-loaded::before {
+    opacity: 0;
+  }
+
+  .ce__grid .card__media .img-fit {
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .ce__grid .card__media.img-loaded .img-fit {
+    opacity: 1;
+  }
+
   .ce {
     --ce-font-head: 'Host Grotesk', sans-serif;
     --ce-bg: #fff;
@@ -144,6 +309,7 @@
     --ce-shell-w: min(100% - 48px, 1240px);
     background: var(--ce-bg);
     color: var(--ce-text);
+    position: relative;
   }
 
   @keyframes ce-fade-up {
@@ -163,7 +329,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: clamp(20px, 3.2vw, 48px) clamp(24px, 4.5vw, 64px);
+    padding: 20px;
+    {% comment %} padding: clamp(20px, 3.2vw, 48px) clamp(24px, 4.5vw, 64px); {% endcomment %}
   }
 
   .ce__hero-eyebrow {
@@ -173,7 +340,7 @@
     text-transform: uppercase;
     color: var(--ce-muted);
     font-weight: 500;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     margin-left: 4px;
     animation: ce-fade-up 0.55s ease both;
   }
@@ -437,9 +604,55 @@
 
   .ce__ec:hover .ce__ec-arrow { transform: translate(2px, -2px); }
 
+  /* ── explore & hero image shimmer ── */
+  .ce__hero-right,
+  .ce__ec-media {
+    position: relative;
+  }
+
+  .ce__hero-right::before,
+  .ce__ec-media::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      100deg,
+      rgba(255,255,255,0) 20%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0) 80%
+    ), #ece8e2;
+    background-size: 220% 100%;
+    animation: ce-shimmer 1.3s ease-in-out infinite;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .ce__hero-right.img-loaded::before,
+  .ce__ec-media.img-loaded::before {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ce__hero-img,
+  .ce__ec-img {
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .ce__hero-right.img-loaded .ce__hero-img,
+  .ce__ec-media.img-loaded .ce__ec-img {
+    opacity: 1;
+  }
+
   @media (max-width: 767.98px) {
     .ce {
       --ce-shell-w: min(100% - 32px, 1240px);
+    }
+
+    /* hide hero image entirely on mobile */
+    .ce__hero-right {
+      display: none;
     }
 
     .ce__hero {
@@ -449,18 +662,13 @@
       overflow: visible;
     }
 
-    .ce__hero-right {
-      overflow: hidden;
-      order: -1;
-    }
-
     .ce__hero-left {
-      padding: clamp(24px, 6vw, 40px) clamp(18px, 5vw, 32px);
+      {% comment %} padding: clamp(24px, 6vw, 40px) clamp(18px, 5vw, 32px); {% endcomment %}
     }
 
     .ce__hero-name {
       font-size: clamp(30px, 11vw, 56px);
-      margin-bottom: 20px;
+      margin-bottom: 14px;
     }
 
     .ce__palette-bar { padding: 12px 0 10px; }
@@ -472,18 +680,6 @@
     .ce__grid {
       grid-template-columns: repeat(2, 1fr);
       gap: 12px 8px;
-    }
-
-    .ce__explore {
-      padding: 20px 0 0;
-    }
-
-    .ce__explore-grid {
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: auto;
-      height: auto;
-      overflow: visible;
-      gap: 4px;
     }
 
     .ce__explore {
@@ -504,12 +700,54 @@
       aspect-ratio: 3 / 4;
       height: auto;
     }
-
-    .ce__hero-img {
-      display: block;
-    }
   }
 </style>
+
+<script>
+  (function () {
+    /* ── hero & explore image shimmers ── */
+    function markLoaded(img) {
+      const container = img.closest('.ce__hero-right, .ce__ec-media');
+      if (container) container.classList.add('img-loaded');
+    }
+    document.querySelectorAll('.ce__hero-img, .ce__ec-img').forEach(function (img) {
+      if (img.complete && img.naturalWidth > 0) {
+        markLoaded(img);
+      } else {
+        img.addEventListener('load', function () { markLoaded(img); });
+      }
+    });
+
+    /* ── product grid image shimmers ── */
+    document.querySelectorAll('.ce__grid .card__media').forEach(function (mediaEl) {
+      const imgs = mediaEl.querySelectorAll('img');
+      if (!imgs.length) { mediaEl.classList.add('img-loaded'); return; }
+      const firstImg = imgs[0];
+      if (firstImg.complete && firstImg.naturalWidth > 0) {
+        mediaEl.classList.add('img-loaded');
+      } else {
+        firstImg.addEventListener('load', function () { mediaEl.classList.add('img-loaded'); });
+      }
+    });
+
+    /* ── page skeleton removal ── */
+    const skeleton = document.getElementById('ce-skeleton');
+    if (skeleton) {
+      /* Remove after DOMContentLoaded + short delay so shimmer is visible briefly */
+      function removeSkeleton() {
+        skeleton.classList.add('is-done');
+        setTimeout(function () { skeleton.remove(); }, 400);
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+          setTimeout(removeSkeleton, 300);
+        });
+      } else {
+        setTimeout(removeSkeleton, 300);
+      }
+    }
+  })();
+</script>
 
 {% schema %}
 {
