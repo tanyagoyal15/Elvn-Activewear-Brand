@@ -1,0 +1,12 @@
+{
+  "name": "elvn-tools",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "create-sets": "node create-matching-sets.js"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.5",
+    "node-fetch": "^3.3.2"
+  }
+}

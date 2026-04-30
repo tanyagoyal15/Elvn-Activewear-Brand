@@ -11,12 +11,206 @@
   "sections": {
     "matching-sets-grid": {
       "type": "matching-sets",
+      "blocks": {
+        "matching_set_UfmCra": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "matchpoint-tank-top-skirt"
+          }
+        },
+        "matching_set_MyzG8c": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "flowstudio-top-pants"
+          }
+        },
+        "matching_set_KRnD4A": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "flowstudio-top-shorts"
+          }
+        },
+        "matching_set_9epYBL": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "aircourt-full-sleeve-top-leggings"
+          }
+        },
+        "matching_set_BXxLLX": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "aircourt-full-sleeve-top-skirt"
+          }
+        },
+        "matching_set_YXzyAw": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "contrastsculpt-it-girl-top-shorts"
+          }
+        },
+        "matching_set_y3eQUF": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "contrastsculpt-it-girl-top-leggings"
+          }
+        },
+        "matching_set_zia36Y": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "contrastsculpt-top-shorts"
+          }
+        },
+        "matching_set_PAMUqb": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "contrastsculpt-sports-bra-flared-leggings"
+          }
+        },
+        "matching_set_nQCCag": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "contrastsculpt-sports-bra-shorts"
+          }
+        },
+        "matching_set_PnGAUX": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "contrastsculpt-sports-bra-leggings"
+          }
+        },
+        "matching_set_wCLRkE": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "advantage-halter-top-shorts"
+          }
+        },
+        "matching_set_4KnKLL": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "advantage-halter-top-skirt"
+          }
+        },
+        "matching_set_KU3q7d": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "advantage-halter-top-leggings"
+          }
+        },
+        "matching_set_DY6bei": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "advantage-zipper-t-shirt-shorts"
+          }
+        },
+        "matching_set_CUCr9Q": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "advantage-zipper-t-shirt-skirt"
+          }
+        },
+        "matching_set_ATaRNg": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "trueperformance-top-flared-pants"
+          }
+        },
+        "matching_set_wLcem6": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "trueperformance-top-shorts"
+          }
+        },
+        "matching_set_HNVrNn": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "trueperformance-v-neck-sports-bra-flared-pants"
+          }
+        },
+        "matching_set_7zajyT": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "trueperformance-v-neck-sports-bra-leggings"
+          }
+        },
+        "matching_set_ACpqKL": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "trueperformance-v-neck-sports-bra-shorts"
+          }
+        },
+        "matching_set_Xrpy9D": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "trueperformance-sports-bra-flared-pants"
+          }
+        },
+        "matching_set_RphVaG": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "powercurve-sports-bra-shorts"
+          }
+        },
+        "matching_set_yXGCYG": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "powercurve-long-sleeves-top-shorts"
+          }
+        },
+        "matching_set_bhMy73": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "powercurve-long-sleeves-top-leggings"
+          }
+        },
+        "matching_set_cyDTWR": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "powercurve-top-leggings"
+          }
+        },
+        "matching_set_9EjBxL": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "halter-flow-halterflow-top-halterflow-sweatpants"
+          }
+        }
+      },
+      "block_order": [
+        "matching_set_UfmCra",
+        "matching_set_MyzG8c",
+        "matching_set_KRnD4A",
+        "matching_set_9epYBL",
+        "matching_set_BXxLLX",
+        "matching_set_YXzyAw",
+        "matching_set_y3eQUF",
+        "matching_set_zia36Y",
+        "matching_set_PAMUqb",
+        "matching_set_nQCCag",
+        "matching_set_PnGAUX",
+        "matching_set_wCLRkE",
+        "matching_set_4KnKLL",
+        "matching_set_KU3q7d",
+        "matching_set_DY6bei",
+        "matching_set_CUCr9Q",
+        "matching_set_ATaRNg",
+        "matching_set_wLcem6",
+        "matching_set_HNVrNn",
+        "matching_set_7zajyT",
+        "matching_set_ACpqKL",
+        "matching_set_Xrpy9D",
+        "matching_set_RphVaG",
+        "matching_set_yXGCYG",
+        "matching_set_bhMy73",
+        "matching_set_cyDTWR",
+        "matching_set_9EjBxL"
+      ],
       "settings": {
         "display_mode": "collection_grid",
         "eyebrow": "",
         "section_heading": "Shop matching sets",
         "section_subheading": "Browse every coordinated look in one place.",
         "button_label": "",
+        "button_link": "",
         "sets_to_show": 4,
         "columns_desktop": 3,
         "columns_mobile": "2"

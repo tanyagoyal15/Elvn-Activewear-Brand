@@ -24,8 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------- MINI CARD CLOSE ----------------
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".mini-card") && !e.target.closest(".hotspot")) {
-      document.querySelectorAll(".mini-card.show").forEach((card) => {
-        card.classList.remove("show");
+      document.querySelectorAll(".mini-card.show").forEach((c) => {
+        c.classList.remove("show");
+        c.closest(".matching-set-card").style.zIndex = "";
       });
     }
   });
@@ -82,18 +83,29 @@ function showMiniCard(set, type, anchor) {
     type === "top" ? set.products[0] : set.products[1] || set.products[0];
   if (!product) return;
 
-  const container = anchor.closest(".set-image");
-  const miniCard = container.querySelector(".mini-card");
+  const imageContainer = anchor.closest(".set-image");
+  const card = anchor.closest(".matching-set-card");
+  const miniCard = card ? card.querySelector(".mini-card") : null;
   if (!miniCard) return;
 
-  document.querySelectorAll(".mini-card.show").forEach((card) => {
-    card.classList.remove("show");
+  document.querySelectorAll(".mini-card.show").forEach((c) => {
+    c.classList.remove("show");
+    c.closest(".matching-set-card").style.zIndex = "";
   });
+
+  card.style.zIndex = "1";
+
+  const defaultColor =
+    type === "top" ? set.default_top_color : set.default_bottom_color;
+  const thumbImg =
+    (defaultColor && product.colorImages?.[defaultColor]) ||
+    product.featured_image ||
+    set.image;
 
   miniCard.innerHTML = `
     <div class="mini-card-inner">
       <div class="mini-left">
-        <img src="${product.featured_image || set.image}" />
+        <img src="${thumbImg}" />
       </div>
       <div class="mini-right">
         <div class="mini-title">${product.title}</div>
@@ -103,20 +115,45 @@ function showMiniCard(set, type, anchor) {
     </div>
   `;
 
-  const rect = anchor.getBoundingClientRect();
-  const parentRect = container.getBoundingClientRect();
-  const CARD_WIDTH = 240;
-  const OFFSET = 12;
+  // Force layout so we can read actual rendered height
+  miniCard.style.top = "0px";
+  miniCard.style.left = "0px";
+  miniCard.style.visibility = "hidden";
+  miniCard.classList.add("show");
+  const miniCardHeight = miniCard.offsetHeight;
+  miniCard.style.visibility = "";
 
-  let top = rect.top - parentRect.top + 16;
-  let left = rect.left - parentRect.left - CARD_WIDTH / 2;
-  if (left < OFFSET) left = OFFSET;
-  if (left + CARD_WIDTH > parentRect.width - OFFSET)
-    left = parentRect.width - CARD_WIDTH - OFFSET;
+  const hotspotRect = anchor.getBoundingClientRect();
+  const cardRect = card.getBoundingClientRect();
+  const imageRect = imageContainer.getBoundingClientRect();
+
+  const MINI_W = 220;
+  const OFFSET = 10;
+  const viewW = window.innerWidth;
+
+  // Bounds: clamp within the grid container (respects wrapper padding / overflow:clip)
+  const gridRect = card.parentElement.getBoundingClientRect();
+
+  // --- Vertical (viewport space) ---
+  let viewTop = hotspotRect.bottom + 8;
+  if (viewTop + miniCardHeight > imageRect.bottom - OFFSET) {
+    viewTop = hotspotRect.top - miniCardHeight - 8;
+  }
+  if (viewTop < imageRect.top + OFFSET) viewTop = imageRect.top + OFFSET;
+
+  // --- Horizontal (viewport space, clamped to grid container) ---
+  const hotspotCX = hotspotRect.left + anchor.offsetWidth / 2;
+  let viewLeft = hotspotCX - MINI_W / 2;
+  if (viewLeft < gridRect.left + OFFSET) viewLeft = gridRect.left + OFFSET;
+  if (viewLeft + MINI_W > gridRect.right - OFFSET)
+    viewLeft = gridRect.right - MINI_W - OFFSET;
+
+  // Convert viewport coords → card-relative coords
+  const top = viewTop - cardRect.top;
+  const left = viewLeft - cardRect.left;
 
   miniCard.style.top = `${top}px`;
   miniCard.style.left = `${left}px`;
-  miniCard.classList.add("show");
 
   miniCard.querySelector(".mini-view").onclick = () => {
     miniCard.classList.remove("show");
@@ -146,6 +183,14 @@ let state = {
   currentSet: null,
 };
 
+function pickVariantForColor(product, wantedColor) {
+  if (!wantedColor) return product.variants[0];
+  const match = product.variants.find(
+    (v) => (v.color || "").trim().toLowerCase() === wantedColor.toLowerCase(),
+  );
+  return match || product.variants[0];
+}
+
 function initState(set) {
   state.currentSet = set;
   state.items = [];
@@ -155,16 +200,24 @@ function initState(set) {
 
   if (hasGroups) {
     [
-      { groupType: "top", products: groups.top },
-      { groupType: "bottom", products: groups.bottom },
-    ].forEach(({ groupType, products }) => {
+      {
+        groupType: "top",
+        products: groups.top,
+        defaultColor: set.default_top_color,
+      },
+      {
+        groupType: "bottom",
+        products: groups.bottom,
+        defaultColor: set.default_bottom_color,
+      },
+    ].forEach(({ groupType, products, defaultColor }) => {
       if (!products.length) return;
       const p = products[0];
-      const firstVariant = p.variants[0];
-      const color = firstVariant.title.split("/")[0].trim();
+      const chosenVariant = pickVariantForColor(p, defaultColor);
+      const color = chosenVariant.color || chosenVariant.title.split("/")[0].trim();
       state.items.push({
         productId: p.id,
-        variantId: firstVariant.id,
+        variantId: chosenVariant.id,
         selectedColor: color,
         price: p.price,
         groupType,
@@ -173,7 +226,7 @@ function initState(set) {
 
     groups.other.forEach((p) => {
       const firstVariant = p.variants[0];
-      const color = firstVariant.title.split("/")[0].trim();
+      const color = firstVariant.color || firstVariant.title.split("/")[0].trim();
       state.items.push({
         productId: p.id,
         variantId: firstVariant.id,
@@ -185,7 +238,7 @@ function initState(set) {
   } else {
     set.products.forEach((p) => {
       const firstVariant = p.variants[0];
-      const color = firstVariant.title.split("/")[0].trim();
+      const color = firstVariant.color || firstVariant.title.split("/")[0].trim();
       state.items.push({
         productId: p.id,
         variantId: firstVariant.id,
@@ -297,16 +350,20 @@ function renderAlsoPairWith(products, set) {
         set.image;
       const typeLabel = p.groupType === "top" ? "Top" : "Bottom";
 
+      const productUrl = p.url || `/products/${p.handle}`;
+
       return `
-        <button class="also-pair-item" data-product-id="${p.id}" data-group="${p.groupType}">
-          <div class="also-pair-img-wrap">
-            <img src="${img}" alt="${p.title}" loading="lazy" />
-          </div>
-          <div class="also-pair-info">
-            <span class="also-pair-name">${p.title}</span>
-            <span class="also-pair-type">${typeLabel}</span>
-          </div>
-        </button>
+        <div class="also-pair-item" data-product-id="${p.id}" data-group="${p.groupType}">
+          <button class="also-pair-swap" data-product-id="${p.id}" data-group="${p.groupType}" aria-label="Swap to ${p.title}">
+            <div class="also-pair-img-wrap">
+              <img src="${img}" alt="${p.title}" loading="lazy" />
+            </div>
+            <div class="also-pair-info">
+              <span class="also-pair-name">${p.title}</span>
+              <span class="also-pair-type">${typeLabel}</span>
+            </div>
+          </button>
+        </div>
       `;
     })
     .join("");
@@ -328,7 +385,8 @@ function renderDrawerItem(p, groupType, set) {
 
   const colorMap = {};
   p.variants.forEach((v) => {
-    const [color, size] = v.title.split("/").map((s) => s.trim());
+    const color = v.color || v.title.split("/")[0].trim();
+    const size = v.size || v.title.split("/").slice(1).join("/").trim();
     if (!colorMap[color]) colorMap[color] = [];
     colorMap[color].push({ id: v.id, size, available: v.available });
   });
@@ -342,15 +400,21 @@ function renderDrawerItem(p, groupType, set) {
     p.featured_image ||
     set.image;
 
+  const productUrl = p.url || `/products/${p.handle}`;
+
   return `
     <div class="drawer-item" data-product="${p.id}" data-group="${groupType || ""}">
-      <img
-        src="${img}"
-        alt="${p.title}"
-        data-product-img="${p.id}"
-      />
+      <a href="${productUrl}" class="drawer-item-img-link" aria-label="View ${p.title}">
+        <img
+          src="${img}"
+          alt="${p.title}"
+          data-product-img="${p.id}"
+        />
+      </a>
       <div class="drawer-info">
-        <div class="drawer-name">${p.title}</div>
+        <div class="drawer-name">
+          <a href="${productUrl}" class="drawer-name-link">${p.title}</a>
+        </div>
         <div class="color-row">
           ${colors
             .map(
@@ -390,7 +454,7 @@ function renderDrawerItem(p, groupType, set) {
 // ================= SWAP LOGIC =================
 
 function attachSwapLogic() {
-  document.querySelectorAll(".also-pair-item").forEach((btn) => {
+  document.querySelectorAll(".also-pair-swap").forEach((btn) => {
     btn.addEventListener("click", () => {
       const productId = btn.dataset.productId;
       const groupType = btn.dataset.group;
@@ -399,7 +463,7 @@ function attachSwapLogic() {
       if (!newProduct) return;
 
       const firstVariant = newProduct.variants[0];
-      const color = firstVariant.title.split("/")[0].trim();
+      const color = firstVariant.color || (firstVariant.title || "").split("/")[0].trim();
 
       const idx = state.items.findIndex((i) => i.groupType === groupType);
       const newItem = {
@@ -448,18 +512,19 @@ function attachColorLogic() {
 
       // Rebuild size buttons for selected color
       const filtered = product.variants.filter(
-        (v) => v.title.split("/")[0].trim() === selectedColor,
+        (v) => (v.color || v.title.split("/")[0].trim()) === selectedColor,
       );
       parent.querySelector(".variant-row").innerHTML = filtered
         .map((v, i) => {
           const available = v.available !== false;
+          const sizeLabel = v.size || v.title.split("/").slice(1).join("/").trim();
           return `
             <button
               class="variant-btn ${i === 0 ? "active" : ""} ${!available ? "disabled" : ""}"
               data-variant="${v.id}"
               data-product="${productId}"
               ${!available ? "disabled" : ""}>
-              ${v.title.split("/").pop().trim()}
+              ${sizeLabel}
             </button>
           `;
         })

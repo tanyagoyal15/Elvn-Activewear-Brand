@@ -348,7 +348,7 @@
         return;
       }
 
-      console.log("ADDING VARIANT:", variant);
+      // console.log("ADDING VARIANT:", variant);
 
       this.isAdding = true;
       this.addBtn.disabled = true;

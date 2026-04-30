@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "background_video_EjnfpG": {
@@ -186,9 +195,9 @@
           "settings": {
             "image": "shopify://shop_images/PURPLELEGGINGS.jpg",
             "title": "Yoga",
+            "cta": "Shop Now",
             "link": "shopify://collections/yoga-pilates",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         },
@@ -197,9 +206,9 @@
           "settings": {
             "image": "shopify://shop_images/134_9abf475b-3d2f-4592-8c31-a99e8b7a6370.png",
             "title": "Gym",
+            "cta": "Shop Now",
             "link": "shopify://collections/gym",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         },
@@ -208,9 +217,9 @@
           "settings": {
             "image": "shopify://shop_images/DRU0537.jpg",
             "title": "Court",
+            "cta": "Shop Now",
             "link": "shopify://collections/court",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         },
@@ -219,9 +228,9 @@
           "settings": {
             "image": "shopify://shop_images/DRU0929.jpg",
             "title": "Lifestyle",
+            "cta": "Shop Now",
             "link": "shopify://collections/lifestyle",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         }
@@ -234,13 +243,98 @@
       ],
       "name": "Custom Grid",
       "settings": {
+        "section_heading": "Shop by Activity",
+        "section_subheading": "Discover styles for your every move",
+        "view_all_url": "",
+        "view_all_text": "Shop all",
         "grid_type": "4",
         "layout_style": "uniform",
         "full_width": true,
         "gap": 12,
         "aspect_ratio": "portrait",
-        "section_heading": "Shop by Activity",
-        "section_subheading": "Discover styles for your every move"
+        "show_arrow": false
+      }
+    },
+    "matching-sets": {
+      "type": "matching-sets",
+      "blocks": {
+        "matching_set_Ggad9R": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": ""
+          }
+        },
+        "matching_set_T8pFWM": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "contrastsculpt-it-girl-top-shorts"
+          }
+        },
+        "matching_set_wYe3hw": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "powercurve-long-sleeves-top-leggings"
+          }
+        },
+        "matching_set_CkXV4m": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "trueperformance-sports-bra-flared-pants"
+          }
+        },
+        "matching_set_VYbEWg": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "halter-flow-halterflow-top-halterflow-sweatpants"
+          }
+        },
+        "matching_set_gkGiJU": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "trueperformance-v-neck-sports-bra-shorts"
+          }
+        },
+        "matching_set_9X9CdY": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "powercurve-top-leggings"
+          }
+        },
+        "matching_set_Ai4KiU": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "advantage-halter-top-skirt"
+          }
+        },
+        "matching_set_xf4d6N": {
+          "type": "matching_set",
+          "settings": {
+            "matching_set": "matchpoint-tank-top-skirt"
+          }
+        }
+      },
+      "block_order": [
+        "matching_set_Ggad9R",
+        "matching_set_T8pFWM",
+        "matching_set_wYe3hw",
+        "matching_set_CkXV4m",
+        "matching_set_VYbEWg",
+        "matching_set_gkGiJU",
+        "matching_set_9X9CdY",
+        "matching_set_Ai4KiU",
+        "matching_set_xf4d6N"
+      ],
+      "name": "Matching sets",
+      "settings": {
+        "display_mode": "home_editorial",
+        "eyebrow": "Explore",
+        "section_heading": "Matching sets",
+        "section_subheading": "Coordinated looks made for movement, easy mornings, and everything your day turns into.",
+        "button_label": "Shop all matching sets",
+        "button_link": "",
+        "sets_to_show": 6,
+        "columns_desktop": 3,
+        "columns_mobile": "2"
       }
     },
     "collection_list_irDAQm": {
@@ -359,9 +453,9 @@
           "settings": {
             "image": "shopify://shop_images/LINEN_BRA_2.jpg",
             "title": "Sports Bra",
+            "cta": "Shop Now",
             "link": "shopify://collections/sports-bra",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         },
@@ -370,9 +464,9 @@
           "settings": {
             "image": "shopify://shop_images/Elvn_lookBook_0393_0e8d5822-ed87-4d4c-8431-c1d5bae636c1.jpg",
             "title": "Tshirts / Top",
+            "cta": "Shop Now",
             "link": "",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         },
@@ -381,9 +475,9 @@
           "settings": {
             "image": "shopify://shop_images/214.png",
             "title": "Leggings",
+            "cta": "Shop Now",
             "link": "",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         },
@@ -392,9 +486,9 @@
           "settings": {
             "image": "shopify://shop_images/Elvn_lookBook_0365.jpg",
             "title": "Flared Pants",
+            "cta": "Shop Now",
             "link": "",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         },
@@ -403,9 +497,9 @@
           "settings": {
             "image": "shopify://shop_images/19._LINEN_SHORTS_2.jpg",
             "title": "Shorts",
+            "cta": "Shop Now",
             "link": "",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         },
@@ -414,9 +508,9 @@
           "settings": {
             "image": "shopify://shop_images/244.png",
             "title": "Skirts",
+            "cta": "Shop Now",
             "link": "shopify://collections/skirts",
             "overlay_position": "center",
-            "dark_overlay": false,
             "span": "1"
           }
         }
@@ -431,13 +525,28 @@
       ],
       "name": "Custom Grid",
       "settings": {
+        "section_heading": "Shop the Essentials",
+        "section_subheading": "The pieces you'll reach for every day",
+        "view_all_url": "",
+        "view_all_text": "Shop all",
         "grid_type": "6",
         "layout_style": "uniform",
         "full_width": true,
         "gap": 12,
         "aspect_ratio": "portrait",
-        "section_heading": "Shop the Essentials",
-        "section_subheading": "The pieces you'll reach for every day"
+        "show_arrow": false
+      }
+    },
+    "shop_by_color_main": {
+      "type": "shop-by-color",
+      "name": "Shop by Color",
+      "settings": {
+        "color_menu": "color-menu",
+        "subheading": "Explore",
+        "heading": "Shop by Color",
+        "text_alignment": "start",
+        "cta_text": "Shop [color]",
+        "color_scheme": "scheme-1"
       }
     },
     "product_list_AYJEk9": {
@@ -619,26 +728,6 @@
         "icon_position": "above",
         "height": "py-6",
         "color_scheme": ""
-      }
-    },
-    "matching-sets": {
-      "type": "matching-sets",
-      "name": "Matching sets",
-      "settings": {
-        "section_heading": "Matching sets",
-        "section_subheading": "Coordinated looks made for movement, easy mornings, and everything your day turns into."
-      }
-    },
-    "shop_by_color_main": {
-      "type": "shop-by-color",
-      "name": "Shop by Color",
-      "settings": {
-        "color_menu": "color-menu",
-        "subheading": "Explore",
-        "heading": "Shop by Color",
-        "text_alignment": "start",
-        "cta_text": "Shop [color]",
-        "color_scheme": "scheme-1"
       }
     }
   },
