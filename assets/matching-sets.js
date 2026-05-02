@@ -78,6 +78,14 @@ document.addEventListener("DOMContentLoaded", () => {
 //   return card;
 // }
 
+function findColorImage(colorImages, color) {
+  if (!colorImages || !color) return null;
+  if (colorImages[color]) return colorImages[color];
+  const lower = color.toLowerCase();
+  const key = Object.keys(colorImages).find((k) => k.toLowerCase() === lower);
+  return key ? colorImages[key] : null;
+}
+
 function showMiniCard(set, type, anchor) {
   const product =
     type === "top" ? set.products[0] : set.products[1] || set.products[0];
@@ -98,7 +106,7 @@ function showMiniCard(set, type, anchor) {
   const defaultColor =
     type === "top" ? set.default_top_color : set.default_bottom_color;
   const thumbImg =
-    (defaultColor && product.colorImages?.[defaultColor]) ||
+    findColorImage(product.colorImages, defaultColor) ||
     product.featured_image ||
     set.image;
 
@@ -214,7 +222,8 @@ function initState(set) {
       if (!products.length) return;
       const p = products[0];
       const chosenVariant = pickVariantForColor(p, defaultColor);
-      const color = chosenVariant.color || chosenVariant.title.split("/")[0].trim();
+      const color =
+        chosenVariant.color || chosenVariant.title.split("/")[0].trim();
       state.items.push({
         productId: p.id,
         variantId: chosenVariant.id,
@@ -226,7 +235,8 @@ function initState(set) {
 
     groups.other.forEach((p) => {
       const firstVariant = p.variants[0];
-      const color = firstVariant.color || firstVariant.title.split("/")[0].trim();
+      const color =
+        firstVariant.color || firstVariant.title.split("/")[0].trim();
       state.items.push({
         productId: p.id,
         variantId: firstVariant.id,
@@ -238,7 +248,8 @@ function initState(set) {
   } else {
     set.products.forEach((p) => {
       const firstVariant = p.variants[0];
-      const color = firstVariant.color || firstVariant.title.split("/")[0].trim();
+      const color =
+        firstVariant.color || firstVariant.title.split("/")[0].trim();
       state.items.push({
         productId: p.id,
         variantId: firstVariant.id,
@@ -463,7 +474,8 @@ function attachSwapLogic() {
       if (!newProduct) return;
 
       const firstVariant = newProduct.variants[0];
-      const color = firstVariant.color || (firstVariant.title || "").split("/")[0].trim();
+      const color =
+        firstVariant.color || (firstVariant.title || "").split("/")[0].trim();
 
       const idx = state.items.findIndex((i) => i.groupType === groupType);
       const newItem = {
@@ -517,7 +529,8 @@ function attachColorLogic() {
       parent.querySelector(".variant-row").innerHTML = filtered
         .map((v, i) => {
           const available = v.available !== false;
-          const sizeLabel = v.size || v.title.split("/").slice(1).join("/").trim();
+          const sizeLabel =
+            v.size || v.title.split("/").slice(1).join("/").trim();
           return `
             <button
               class="variant-btn ${i === 0 ? "active" : ""} ${!available ? "disabled" : ""}"
