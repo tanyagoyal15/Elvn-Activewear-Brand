@@ -231,8 +231,12 @@
                                       </summary>
                                       <ul class="mobile-submenu mobile-color-grid level-2">
                                         {% for color_link in child_link.links %}
+                                          {%- assign _cl_url = color_link.url -%}
+                                          {%- if _cl_url == '/' or _cl_url == blank -%}
+                                            {%- assign _cl_url = '/collections/' | append: color_link.title | handleize -%}
+                                          {%- endif -%}
                                           <li>
-                                            <a class="mobile-color-link" href="{{ color_link.url }}">
+                                            <a class="mobile-color-link" href="{{ _cl_url }}">
                                               {% render 'color-nav-item', link: color_link, compact: true, show_image: false %}
                                             </a>
                                           </li>
@@ -549,8 +553,14 @@
 
                                       <ul{% if child_link.title == 'Shop By Color' %} class="color-nav-list"{% endif %}>
                                         {% for grandchild_link in child_link.links %}
+                                          {%- assign _gcl_url = grandchild_link.url -%}
+                                          {%- if child_link.title == 'Shop By Color' -%}
+                                            {%- if _gcl_url == '/' or _gcl_url == blank -%}
+                                              {%- assign _gcl_url = '/collections/' | append: grandchild_link.title | handleize -%}
+                                            {%- endif -%}
+                                          {%- endif -%}
                                           <li>
-                                            <a class="child-nav__item{% if child_link.title == 'Shop By Color' %} child-nav__item--color{% endif %}" href="{{ grandchild_link.url }}">
+                                            <a class="child-nav__item{% if child_link.title == 'Shop By Color' %} child-nav__item--color{% endif %}" href="{{ _gcl_url }}">
                                               {% if child_link.title == 'Shop By Color' %}
                                                 {% render 'color-nav-item', link: grandchild_link, show_image: false %}
                                               {% else %}
