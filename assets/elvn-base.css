@@ -10,7 +10,7 @@
    Total visual gap between two sections = pad × 2.
    15px × 2 = 30px gap mobile.  18px × 2 = 36px gap desktop. */
 :root {
-  --elvn-section-pad: 15px;   /* mobile  → 15 + 15 = 30px gap */
+  --elvn-section-pad: 15px; /* mobile  → 15 + 15 = 30px gap */
 }
 @media (min-width: 1024px) {
   :root {
@@ -50,13 +50,13 @@
   --elvn-heading-font: var(--body-font-family);
 
   /* ── Size tokens ── */
-  --elvn-heading-size:    20px;   /* mobile */
-  --elvn-subheading-size: 14px;   /* mobile + desktop */
+  --elvn-heading-size: 20px; /* mobile */
+  --elvn-subheading-size: 14px; /* mobile + desktop */
 }
 
 @media (min-width: 1024px) {
   :root {
-    --elvn-heading-size: 28px;    /* desktop */
+    --elvn-heading-size: 28px; /* desktop */
   }
 }
 
@@ -108,9 +108,9 @@
 .template-index .section--padded-large,
 .template-index .section--padded-more,
 .template-index .section--standard {
-  padding-top:    var(--elvn-section-pad) !important;
+  padding-top: var(--elvn-section-pad) !important;
   padding-bottom: var(--elvn-section-pad) !important;
-  margin-top:    0 !important;
+  margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
 
@@ -123,37 +123,37 @@
 
 /* collection-list renders as class="section pt-10 ..."          */
 .template-index .section.pt-10 {
-  padding-top:    var(--elvn-section-pad) !important;
+  padding-top: var(--elvn-section-pad) !important;
   padding-bottom: var(--elvn-section-pad) !important;
 }
 
 /* 2. icons-with-text                                            */
 .template-index .icons-with-text.section {
-  padding-top:    var(--elvn-section-pad) !important;
+  padding-top: var(--elvn-section-pad) !important;
   padding-bottom: var(--elvn-section-pad) !important;
 }
 
 /* 3. custom-grid — all four sides                               */
 .template-index .custom-grid-wrapper {
-  padding-top:    var(--elvn-section-pad) !important;
+  padding-top: var(--elvn-section-pad) !important;
   padding-bottom: var(--elvn-section-pad) !important;
-  padding-left:   var(--gutter) !important;
-  padding-right:  var(--gutter) !important;
+  padding-left: var(--gutter) !important;
+  padding-right: var(--gutter) !important;
 }
 
 /* 4. matching-sets                                              */
 .template-index .shopify-section:has(.matching-sets-wrapper) {
-  padding-top:    var(--elvn-section-pad);
+  padding-top: var(--elvn-section-pad);
   padding-bottom: var(--elvn-section-pad);
 }
 .template-index .matching-sets-wrapper {
-  padding-left:  var(--gutter) !important;
+  padding-left: var(--gutter) !important;
   padding-right: var(--gutter) !important;
 }
 
 /* 5. shop-by-color                                              */
 .section-spacing {
-  padding-top:    var(--elvn-section-pad);
+  padding-top: var(--elvn-section-pad);
   padding-bottom: var(--elvn-section-pad);
 }
 
@@ -207,4 +207,33 @@
   flex-shrink: 0;
   padding-bottom: 3px;
   white-space: nowrap;
+}
+
+.returnprime .card__btn {
+  width: auto;
+  height: auto;
+}
+
+.returnprime .customer .order__card .order__card-wrapper {
+  flex-direction: column;
+  align-items: flex-start !important;
+}
+
+.returnprime .customer .order__card .card__desc {
+  flex: none !important;
+}
+
+.returnprime .customer .order__card .card__btn {
+  margin: 12px 0 0 !important;
+}
+
+.returnprime .customer .order__card .card__btn {
+  flex-direction: row !important;
+  /* justify-content: center; */
+  gap: 12px !important;
+  flex: none !important;
+}
+
+.returnprime .customer .exchange__btn {
+  margin-bottom: 0 !important;
 }
