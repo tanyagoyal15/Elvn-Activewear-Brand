@@ -300,7 +300,7 @@
                         <summary class="main-nav__summary js-toggle" aria-label="{{ 'accessibility.toggle_submenu' | t: title: link.title }}">
                           {%- render 'icon-chevron-down' -%}
                         </summary>
-                        <div class="main-nav__child{% if mega_menu_block %} mega-nav{% endif %}">
+                        <div class="main-nav__child{% if mega_menu_block or link.title == 'Activities' %} mega-nav{% endif %}">
                           {% if mega_menu_block %}<div class="mega-nav__grid {{ mega_menu_block.type }} container lg:px-14" {{ mega_menu_block.shopify_attributes }}>{% endif %}
                             <ul class="child-nav">
                               <li class="lg:hidden">
@@ -403,166 +403,69 @@
                                     endif
                                   endif
                                 -%}
-                                {% comment %} {%- for child_link in link.links -%}
-                                  <li style="--column-index: {{ forloop.index0 }}">
-                                    {%- if mega_menu_block and mega_menu_block.type == 'mega-menu-coll-cards' and child_link.type == 'collection_link' -%}
-                                      {%- render 'collection-card',
-                                          collection: child_link.object,
-                                          image_ratio: coll_image_ratio,
-                                          style: mega_menu_block.settings.card_style,
-                                          show_count: mega_menu_block.settings.card_show_count,
-                                          compact: mega_menu_block.settings.card_compact,
-                                          disable_animate: true,
-                                          color_scheme: card_color_scheme
-                                      -%}
 
-                                    {%- elsif child_link.links == blank -%}
-                                      {%- assign _nav_color = child_link.object.metafields.custom.color -%}
-                                      <a class="main-nav__item child-nav__item{% if _nav_color != blank %} child-nav__item--has-swatch{% endif %}" href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
-                                        {%- if _nav_color != blank -%}
-                                          <span class="nav-color-swatch" style="background:{{ _nav_color }};"></span>
-                                        {%- endif -%}
-                                        {{- child_link.title | escape -}}
-                                      </a>
+                                {% if link.title == 'Activities' %}
 
-                                    {%- else -%}
-                                      <a class="main-nav__item child-nav__item" href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
-                                        {%- if mega_menu_block and mega_menu_block.type == 'mega-menu-columns' and mega_menu_block.settings.show_collection_images and child_link.type == 'collection_link' %}
-                                          {%- liquid
-                                            assign column_image = false
-                                            if mega_menu_block.settings.collection_image_source == 'featured'
-                                              assign column_image = child_link.object.featured_image
-                                            elsif mega_menu_block.settings.collection_image_source == 'metafield'
-                                              assign column_image = child_link.object.metafields.theme.icon
-                                            endif
-                                          -%}
-                                          {%- if column_image -%}
-                                            <div class="main-nav__item-image relative lg:mb-4 custom-aspect-ratio" style="--ratio: {{ mega_menu_block.settings.collection_image_ratio }};">
-                                              {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: 1, sm: 2, lg: 3, xl: 4 %}{% endcapture -%}
-                                              {%- liquid
-                                                assign class = 'img-fit'
-                                                if settings.coll_card_image_fit == 'contain'
-                                                  assign class = 'img-fit img-fit--contain'
-                                                else
-                                                  assign class = 'img-fit ' | append: settings.coll_image_align
-                                                endif
-                                              -%}
-                                              {%- render 'image',
-                                                image: column_image,
-                                                widths: '320, 460, 600, 700, 800, 900, 1200',
-                                                src_width: 460,
-                                                sizes: sizes,
-                                                class: class
-                                              -%}
-                                            </div>
-                                          {%- endif -%}
-                                        {% endif -%}
-                                        <span class="{% if mega_menu_block %}main-nav__heading{% endif %}" role="heading" aria-level="2">{{- child_link.title | escape -}}</span>
-                                      </a>
-                                      
-                                      <details open>
-                                        <summary class="main-nav__summary js-toggle" aria-label="{{ 'accessibility.toggle_submenu' | t: title: child_link.title }}">
-                                          {%- render 'icon-chevron-right' -%}
-                                        </summary>
-                                        <ul class="main-nav__grandchild{% if mega_menu_block %} mega-nav__list{% endif %}">
-                                          {%- for grandchild_link in child_link.links -%}
-                                            {%- liquid
-                                              assign _gc_color = grandchild_link.object.metafields.custom.color
-                                              if _gc_color == blank
-                                                assign _gc_title = grandchild_link.title | downcase | strip
-                                                if _gc_title == 'black'
-                                                  assign _gc_color = '#111111'
-                                                elsif _gc_title == 'white'
-                                                  assign _gc_color = '#f5f0e8'
-                                                elsif _gc_title == 'purple'
-                                                  assign _gc_color = '#9333ea'
-                                                elsif _gc_title == 'pink'
-                                                  assign _gc_color = '#f472b6'
-                                                elsif _gc_title == 'red'
-                                                  assign _gc_color = '#ef4444'
-                                                elsif _gc_title == 'butter yellow' or _gc_title == 'yellow'
-                                                  assign _gc_color = '#fcd34d'
-                                                elsif _gc_title == 'green'
-                                                  assign _gc_color = '#22c55e'
-                                                elsif _gc_title == 'brown'
-                                                  assign _gc_color = '#92400e'
-                                                elsif _gc_title == 'blue'
-                                                  assign _gc_color = '#3b82f6'
-                                                elsif _gc_title == 'beige'
-                                                  assign _gc_color = '#d2b896'
-                                                elsif _gc_title == 'orange'
-                                                  assign _gc_color = '#f97316'
-                                                elsif _gc_title == 'grey' or _gc_title == 'gray'
-                                                  assign _gc_color = '#9ca3af'
-                                                elsif _gc_title == 'navy'
-                                                  assign _gc_color = '#1e3a5f'
-                                                elsif _gc_title == 'maroon' or _gc_title == 'burgundy'
-                                                  assign _gc_color = '#7f1d1d'
-                                                elsif _gc_title == 'lavender'
-                                                  assign _gc_color = '#c4b5fd'
-                                                elsif _gc_title == 'mint'
-                                                  assign _gc_color = '#6ee7b7'
-                                                elsif _gc_title == 'coral'
-                                                  assign _gc_color = '#fb7185'
-                                                elsif _gc_title == 'olive'
-                                                  assign _gc_color = '#6b7a3e'
-                                                elsif _gc_title == 'teal'
-                                                  assign _gc_color = '#14b8a6'
-                                                elsif _gc_title == 'cream' or _gc_title == 'ivory'
-                                                  assign _gc_color = '#fbfaf2'
-                                                endif
-                                              endif
-                                            -%}
+                                  <!-- ACTIVITIES DESKTOP IMAGE GRID -->
+                                  <li class="activities-desktop-panel">
+                                    <div class="activities-desktop-grid">
+                                      {% for child_link in link.links %}
+                                        {% assign collection = child_link.object %}
+                                        <a href="{{ child_link.url }}" class="activities-desktop-card">
+                                          {% if collection.featured_image %}
+                                            <img
+                                              src="{{ collection.featured_image | image_url: width: 600 }}"
+                                              alt="{{ child_link.title }}"
+                                              width="600"
+                                              height="800"
+                                              loading="eager"
+                                            />
+                                          {% endif %}
+                                          <span class="activities-desktop-card__label">{{ child_link.title }}</span>
+                                        </a>
+                                      {% endfor %}
+                                    </div>
+                                  </li>
+
+                                {% else %}
+
+                                  <!-- LEFT COLUMN -->
+                                  <li class="mega-column mega-column--flat">
+                                    {% for child_link in link.links %}
+                                      {% if child_link.links == blank %}
+                                        <a class="main-nav__item child-nav__item" href="{{ child_link.url }}">
+                                          {{ child_link.title }}
+                                        </a>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </li>
+
+                                  <!-- SUBMENU COLUMNS -->
+                                  {% for child_link in link.links %}
+                                    {% if child_link.links != blank %}
+                                      <li class="mega-column{% if child_link.title == 'Shop By Color' %} mega-column--colors{% endif %}">
+                                        <span class="main-nav__heading">
+                                          {{ child_link.title }}
+                                        </span>
+
+                                        <ul{% if child_link.title == 'Shop By Color' %} class="color-nav-list"{% endif %}>
+                                          {% for grandchild_link in child_link.links %}
                                             <li>
-                                              <a class="main-nav__item{% if mega_menu_block %} mega-nav__item{% endif %}{% if _gc_color != blank %} nav-item--has-swatch{% endif %}" href="{{ grandchild_link.url }}"{% if grandchild_link.current %} aria-current="page"{% endif %}>
-                                                {%- if _gc_color != blank -%}
-                                                  <span class="nav-color-swatch" style="background:{{ _gc_color }};"></span>
-                                                {%- endif -%}
-                                                {{- grandchild_link.title | escape -}}
+                                              <a class="child-nav__item{% if child_link.title == 'Shop By Color' %} child-nav__item--color{% endif %}" href="{{ grandchild_link.url }}">
+                                                {% if child_link.title == 'Shop By Color' %}
+                                                  {% render 'color-nav-item', link: grandchild_link, show_image: false %}
+                                                {% else %}
+                                                  {{ grandchild_link.title }}
+                                                {% endif %}
                                               </a>
                                             </li>
-                                          {%- endfor -%}
+                                          {% endfor %}
                                         </ul>
-                                      </details>
-                                    {%- endif -%}
-                                  </li>
-                                {%- endfor -%} {% endcomment %}
-
-                                <!-- LEFT COLUMN -->
-                                <li class="mega-column mega-column--flat">
-                                  {% for child_link in link.links %}
-                                    {% if child_link.links == blank %}
-                                      <a class="main-nav__item child-nav__item" href="{{ child_link.url }}">
-                                        {{ child_link.title }}
-                                      </a>
+                                      </li>
                                     {% endif %}
                                   {% endfor %}
-                                </li>
 
-                                <!-- SUBMENU COLUMNS -->
-                                {% for child_link in link.links %}
-                                  {% if child_link.links != blank %}
-                                    <li class="mega-column{% if child_link.title == 'Shop By Color' %} mega-column--colors{% endif %}">
-                                      <span class="main-nav__heading">
-                                        {{ child_link.title }}
-                                      </span>
-
-                                      <ul{% if child_link.title == 'Shop By Color' %} class="color-nav-list"{% endif %}>
-                                        {% for grandchild_link in child_link.links %}
-                                          <li>
-                                            <a class="child-nav__item{% if child_link.title == 'Shop By Color' %} child-nav__item--color{% endif %}" href="{{ grandchild_link.url }}">
-                                              {% if child_link.title == 'Shop By Color' %}
-                                                {% render 'color-nav-item', link: grandchild_link, show_image: false %}
-                                              {% else %}
-                                                {{ grandchild_link.title }}
-                                              {% endif %}
-                                            </a>
-                                          </li>
-                                        {% endfor %}
-                                      </ul>
-                                    </li>
-                                  {% endif %}
-                                {% endfor %}
+                                {% endif %}
 
                               {%- endif -%}
                             </ul>
@@ -1161,6 +1064,64 @@
 
   .no-child-link {
     font-weight: 600;
+  }
+
+  .activities-desktop-panel {
+    width: 100%;
+    padding: 28px 0;
+    list-style: none;
+  }
+
+  .activities-desktop-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    width: 100%;
+    padding: 0 24px;
+    box-sizing: border-box;
+  }
+
+  .activities-desktop-card {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 4px;
+    aspect-ratio: 3 / 4;
+    text-decoration: none;
+  }
+
+  .activities-desktop-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .activities-desktop-card:hover img {
+    transform: scale(1.04);
+  }
+
+  .activities-desktop-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .activities-desktop-card__label {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    z-index: 1;
   }
 </style>
   
