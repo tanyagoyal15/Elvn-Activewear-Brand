@@ -534,9 +534,9 @@
                         {%- if block.settings.size_chart_source == 'section' or block.settings.size_chart_page != blank -%}
                           <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
                           <script src="{{ 'open-or-scroll-to.js' | asset_url }}" defer></script>
-                          <open-or-scroll-to data-target-id="size-chart-{{ product.id }}">
+                          <open-or-scroll-to data-target-id="size-chart-{{ product.id }}" data-product-type="{{ product.type | downcase }}">
                             <button type="button" class="link block text-sm size-chart-link">
-                              <span class="size-chart-link__text">{{- block.settings.size_chart_label -}}</span>
+                              <span class="size-chart-link__text">Find my size</span>
                             </button>
                           </open-or-scroll-to>
                         {%- endif -%}
@@ -1033,24 +1033,16 @@
 
   <div data-dynamic-product-content="{{ section.id }}-modals">
     {%- if show_size_chart -%}
-      <modal-dialog class="modal invisible fixed top-0 left-0 w-full h-full flex items-center justify-center" id="size-chart-{{ product.id }}" role="dialog" aria-label="{{ pages[size_chart_block.settings.size_chart_page].title | escape }}" aria-modal="true" tabindex="-1">
+      <modal-dialog class="modal invisible fixed top-0 left-0 w-full h-full flex items-center justify-center" id="size-chart-{{ product.id }}" role="dialog" aria-label="Size guide" aria-modal="true" tabindex="-1">
         <div class="modal__window relative bg-theme-bg text-theme-text text-start overflow-hidden has-motion">
           <button type="button" class="modal__close-btn absolute js-close-modal" aria-label="{{ 'accessibility.close' | t }}">
             {% render 'icon-close' %}
           </button>
-          <div class="modal__content flex-auto h-full rte">
-            {{ pages[size_chart_block.settings.size_chart_page].content }}
+          <div class="modal__content flex-auto h-full">
+            {% render 'elvn-size-guide', product: product %}
           </div>
         </div>
       </modal-dialog>
-      <script>
-        document.querySelectorAll('#size-chart .modal__content table').forEach((table) => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'scrollable-table';
-          table.parentNode.insertBefore(wrapper, table);
-          wrapper.appendChild(table);
-        });
-      </script>
     {%- endif -%}
   </div>
 {%- endif -%}
