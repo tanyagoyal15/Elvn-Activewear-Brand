@@ -159,6 +159,14 @@
   {%- endif -%}
 </head>
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7QZS18SX8R"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7QZS18SX8R');
+</script>
+
 <body class="template-{{ template | split: '.' | first | handle }}
     {%- if template.suffix %} template-suffix-{{ template.suffix }}{% endif %}
     {%- if settings.enable_animations != 'disabled' %} cc-animate-enabled{% endif %}

@@ -839,7 +839,7 @@
   }
 
   /* ── Show result panel ── */
-  function showResult(sg, result, m1Raw, m2Raw) {
+  function showResult(sg, result, m1Raw, m2Raw, fitPref) {
     var bottoms = isBottoms();
     var displaySize = (result.size === 'L' || result.size === 'XL') ? 'L / XL' : result.size;
 
@@ -883,6 +883,28 @@
     sg.querySelector('#elvn-sg-select-btn').textContent = 'Select ' + displaySize + ' & continue';
     sg.querySelector('.elvn-sg__finder-form').style.display = 'none';
     sg.querySelector('#elvn-sg-result').classList.add('is-visible');
+
+    /* ── GA4 tracking ── */
+    if (typeof gtag === 'function') {
+      var trackData = {
+        product_id:       '{{ product.id }}',
+        product_name:     '{{ product.title | escape }}',
+        product_type:     bottoms ? 'bottoms' : 'tops',
+        recommended_size: displaySize,
+        confidence:       result.confidence,
+        fit_preference:   fitPref,
+        unit:             finderUnit
+      };
+      if (bottoms) {
+        trackData.waist    = m1Raw || null;
+        trackData.hips     = m2Raw || null;
+        trackData.height_cm = result.heightCat !== 'regular' ? Math.round(getHeightCm(sg) || 0) || null : null;
+      } else {
+        trackData.bust      = m1Raw || null;
+        trackData.underbust = m2Raw || null;
+      }
+      gtag('event', 'size_recommendation', trackData);
+    }
   }
 
   /* ── Pre-select size on product page ── */
@@ -949,7 +971,7 @@
       }
       var fitPref = (sg.querySelector('input[name="elvn-fit"]:checked') || {}).value || 'standard';
       var heightCm = bottoms ? getHeightCm(sg) : null;
-      showResult(sg, recommend(toInches(m1), m2 ? toInches(m2) : null, fitPref, heightCm), m1, m2);
+      showResult(sg, recommend(toInches(m1), m2 ? toInches(m2) : null, fitPref, heightCm), m1, m2, fitPref);
       return;
     }
 
