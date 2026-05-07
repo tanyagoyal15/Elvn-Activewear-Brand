@@ -327,13 +327,15 @@
       const { variants } = this.variantData;
 
       const variant = variants.find((v) => {
+        const sizeMatch =
+          this.normalize(v.size) === this.normalize(selectedSize);
+        if (!activeColor) return sizeMatch;
         return (
-          this.normalize(v.color) === this.normalize(activeColor) &&
-          this.normalize(v.size) === this.normalize(selectedSize)
+          this.normalize(v.color) === this.normalize(activeColor) && sizeMatch
         );
       });
 
-      return variant;
+      return variant || null;
     }
 
     async handleAdd() {
