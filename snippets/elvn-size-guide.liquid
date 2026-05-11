@@ -11,6 +11,8 @@
     assign is_bottoms = true
   endif
   assign fit_note = product.metafields.custom.fit_notes
+  assign size_option = product.options_with_values | where: "name", "Size" | first
+  assign available_sizes_str = size_option.values | join: ","
 -%}
 
 <style>
@@ -432,7 +434,7 @@
   }
 </style>
 
-<div class="elvn-sg" data-is-bottoms="{{ is_bottoms }}">
+<div class="elvn-sg" data-is-bottoms="{{ is_bottoms }}" data-available-sizes="{{ available_sizes_str }}">
 
   <!-- ── Tabs ── -->
   <div class="elvn-sg__tabs" role="tablist">
@@ -489,7 +491,7 @@
       {% endif %}
 
       <div class="elvn-sg__field">
-        <label>Height <span style="color:#aaa;font-weight:400;">— optional</span></label>
+        <label>Height</label>
         <div class="elvn-sg__height-imperial">
           <div class="elvn-sg__height-ft-in">
             <input type="number" id="elvn-sg-height-ft" placeholder="5" min="4" max="7" step="1">
@@ -619,7 +621,7 @@
     {% endif %}
 
     <div class="elvn-sg__chart-note">
-      <strong>True to size.</strong> If you're between sizes, size down for a compressive fit or size up for more coverage.
+      <strong>True to size.</strong> If you're between sizes, size down for a compressive fit or size up for a more relaxed fit.
       {%- if fit_note != blank %}<br><br>{{ fit_note }}{%- endif %}
     </div>
 
@@ -680,6 +682,43 @@
     { size: 'L',  overbust: [36, 38], underbust: [32, 34] },
     { size: 'XL', overbust: [38, 40], underbust: [34, 36] },
   ];
+
+  function buildProductSizes() {
+    var el = root();
+    var raw = el ? (el.dataset.availableSizes || '') : '';
+    var bottoms = isBottoms();
+    var base = bottoms ? BOTTOMS : TOPS;
+    var key1 = bottoms ? 'waist' : 'overbust';
+    var key2 = bottoms ? 'hip'   : 'underbust';
+
+    if (!raw) return base;
+
+    var result = [];
+    raw.split(',').forEach(function(psize) {
+      psize = psize.trim();
+      if (!psize) return;
+      var parts = psize.split('/').map(function(p) { return p.trim().toUpperCase(); });
+      var entries = [];
+      for (var pi = 0; pi < parts.length; pi++) {
+        for (var bi = 0; bi < base.length; bi++) {
+          if (base[bi].size === parts[pi]) { entries.push(base[bi]); break; }
+        }
+      }
+      if (!entries.length) return;
+      var entry = { size: psize };
+      entry[key1] = [
+        Math.min.apply(null, entries.map(function(e) { return e[key1][0]; })),
+        Math.max.apply(null, entries.map(function(e) { return e[key1][1]; }))
+      ];
+      entry[key2] = [
+        Math.min.apply(null, entries.map(function(e) { return e[key2][0]; })),
+        Math.max.apply(null, entries.map(function(e) { return e[key2][1]; }))
+      ];
+      result.push(entry);
+    });
+
+    return result.length ? result : base;
+  }
 
   /* ── Persistent state (survives DOM replacement) ── */
   var finderUnit = 'in';
@@ -768,12 +807,12 @@
   /* ── Recommendation logic ── */
   function recommend(m1, m2, fitPref) {
     var bottoms = isBottoms();
-    var data = bottoms ? BOTTOMS : TOPS;
+    var data = buildProductSizes();
     var key1 = bottoms ? 'waist' : 'overbust';
     var key2 = bottoms ? 'hip'   : 'underbust';
 
-    if (m1 < data[0][key1][0])             return { size: data[0].size,             confidence: 'good', border: null };
-    if (m1 > data[data.length-1][key1][1]) return { size: data[data.length-1].size, confidence: 'good', border: null };
+    if (m1 < data[0][key1][0])             return { size: data[0].size,             confidence: 'good', border: null, edge: 'under' };
+    if (m1 > data[data.length-1][key1][1]) return { size: data[data.length-1].size, confidence: 'good', border: null, edge: 'over' };
 
     var matchIdx = -1;
     for (var i = 0; i < data.length; i++) {
@@ -814,9 +853,11 @@
   /* ── Show result panel ── */
   function showResult(sg, result, m1Raw, m2Raw, fitPref, heightCm) {
     var bottoms = isBottoms();
-    var displaySize = (result.size === 'L' || result.size === 'XL') ? 'L / XL' : result.size;
+    var displaySize = result.size.indexOf('/') !== -1 ? result.size.replace('/', ' / ') : result.size;
 
-    sg.querySelector('#elvn-sg-result-value').textContent = displaySize;
+    var resultValueEl = sg.querySelector('#elvn-sg-result-value');
+    resultValueEl.textContent = displaySize;
+    resultValueEl.dataset.rawSize = result.size;
     sg.querySelector('#elvn-sg-confidence-fill').style.width = result.confidence === 'strong' ? '90%' : '60%';
     sg.querySelector('#elvn-sg-confidence-label').textContent = result.confidence === 'strong' ? 'Strong match' : 'Good match';
 
@@ -842,16 +883,24 @@
     */
 
     var betEl = sg.querySelector('#elvn-sg-between-note');
-    if (result.border) {
-      var dlo = (result.border.lower === 'L' || result.border.lower === 'XL') ? 'L/XL' : result.border.lower;
-      var dhi = (result.border.upper === 'L' || result.border.upper === 'XL') ? 'L/XL' : result.border.upper;
-      betEl.innerHTML = 'Your measurements sit between <strong>' + dlo + '</strong> and <strong>' + dhi + '</strong>.<br>' +
-        'For a compressive fit → stay with <strong>' + dlo + '</strong><br>' +
-        'For more comfort → go with <strong>' + dhi + '</strong>';
-      betEl.classList.add('is-visible');
+    var betData = buildProductSizes();
+    var betIdx = -1;
+    for (var bi = 0; bi < betData.length; bi++) { if (betData[bi].size === result.size) { betIdx = bi; break; } }
+    var isLast = betIdx === betData.length - 1;
+    if (result.edge === 'under') {
+      betEl.innerHTML = '<strong>' + result.size + '</strong> is the smallest size in this product, we recommend going with ' + result.size + '.';
+    } else if (result.edge === 'over' || isLast) {
+      betEl.innerHTML = '<strong>' + result.size + '</strong> is the largest size in this product, we recommend going with ' + result.size + '.';
+    } else if (result.border) {
+      betEl.innerHTML = 'Your measurements sit between <strong>' + result.border.lower + '</strong> and <strong>' + result.border.upper + '</strong>.<br>' +
+        'For a compressive fit → stay with <strong>' + result.border.lower + '</strong><br>' +
+        'For more comfort → go with <strong>' + result.border.upper + '</strong>';
     } else {
-      betEl.classList.remove('is-visible');
+      var nxt = betData[betIdx + 1].size;
+      betEl.innerHTML = 'For a compressive fit → stay with <strong>' + result.size + '</strong><br>' +
+        'For more comfort → go with <strong>' + nxt + '</strong>';
     }
+    betEl.classList.add('is-visible');
 
     sg.querySelector('#elvn-sg-select-btn').textContent = 'Select ' + displaySize + ' & continue';
     sg.querySelector('.elvn-sg__finder-form').style.display = 'none';
@@ -882,11 +931,8 @@
 
   /* ── Pre-select size on product page ── */
   function preselectOnPage(size) {
-    var targets = [size, (size === 'L' || size === 'XL') ? 'LXL' : size];
-    for (var t = 0; t < targets.length; t++) {
-      var input = document.querySelector('input.opt-btn[value="' + targets[t] + '"]');
-      if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); return; }
-    }
+    var input = document.querySelector('input.opt-btn[value="' + size + '"]');
+    if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
   }
 
   /* ── Document-level click delegation (works even after DOM replacement) ── */
@@ -944,14 +990,19 @@
       }
       var fitPref = (sg.querySelector('input[name="elvn-fit"]:checked') || {}).value || 'standard';
       var heightCm = getHeightCm(sg);
+      if (!heightCm) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Please enter your height.';
+        return;
+      }
       showResult(sg, recommend(toInches(m1), m2 ? toInches(m2) : null, fitPref), m1, m2, fitPref, heightCm);
       return;
     }
 
     /* Select & continue */
     if (e.target.closest('#elvn-sg-select-btn') && sg.contains(e.target)) {
-      var sizeText = sg.querySelector('#elvn-sg-result-value').textContent.trim();
-      preselectOnPage(sizeText === 'L / XL' ? 'LXL' : sizeText);
+      var rawSize = sg.querySelector('#elvn-sg-result-value').dataset.rawSize || sg.querySelector('#elvn-sg-result-value').textContent.trim();
+      preselectOnPage(rawSize);
       var modal = sg.closest('modal-dialog');
       if (modal) { var cb = modal.querySelector('.js-close-modal'); if (cb) cb.click(); else modal.removeAttribute('open'); }
       return;
