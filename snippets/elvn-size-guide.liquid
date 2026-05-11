@@ -473,21 +473,6 @@
           </div>
         </div>
 
-        <div class="elvn-sg__field">
-          <label>Height <span style="color:#aaa;font-weight:400;">— optional</span></label>
-          <div class="elvn-sg__height-imperial">
-            <div class="elvn-sg__height-ft-in">
-              <input type="number" id="elvn-sg-height-ft" placeholder="5" min="4" max="7" step="1">
-              <span class="elvn-sg__height-sep">ft</span>
-              <input type="number" id="elvn-sg-height-in-part" placeholder="7" min="0" max="11" step="1">
-              <span class="elvn-sg__height-sep">in</span>
-            </div>
-          </div>
-          <div class="elvn-sg__height-metric" style="display:none;">
-            <input type="number" id="elvn-sg-height-cm" placeholder="e.g. 170" min="100" max="220" step="1" style="width:100%;max-width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:4px;font-size:14px;color:#111;background:#fff;appearance:textfield;-moz-appearance:textfield;box-sizing:border-box;">
-          </div>
-        </div>
-
       {% else %}
 
         <div class="elvn-sg__fields-row">
@@ -502,6 +487,21 @@
         </div>
 
       {% endif %}
+
+      <div class="elvn-sg__field">
+        <label>Height <span style="color:#aaa;font-weight:400;">— optional</span></label>
+        <div class="elvn-sg__height-imperial">
+          <div class="elvn-sg__height-ft-in">
+            <input type="number" id="elvn-sg-height-ft" placeholder="5" min="4" max="7" step="1">
+            <span class="elvn-sg__height-sep">ft</span>
+            <input type="number" id="elvn-sg-height-in-part" placeholder="7" min="0" max="11" step="1">
+            <span class="elvn-sg__height-sep">in</span>
+          </div>
+        </div>
+        <div class="elvn-sg__height-metric" style="display:none;">
+          <input type="number" id="elvn-sg-height-cm" placeholder="e.g. 170" min="100" max="220" step="1" style="width:100%;max-width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:4px;font-size:14px;color:#111;background:#fff;appearance:textfield;-moz-appearance:textfield;box-sizing:border-box;">
+        </div>
+      </div>
 
       <div class="elvn-sg__fit-label">How do you like your fit?</div>
       <div class="elvn-sg__fit-options">
@@ -729,14 +729,6 @@
     return (ft * 30.48) + (inch * 2.54);
   }
 
-  /* ── Height category ── */
-  function heightCat(heightCm) {
-    if (!heightCm) return 'regular';
-    if (heightCm < 158) return 'petite';   /* < 5'2"        */
-    if (heightCm <= 170) return 'regular'; /* 5'2" – 5'7"   */
-    return 'tall';                          /* > 5'7"        */
-  }
-
   /* ── Show form / hide result ── */
   function showForm(sg) {
     var form = sg.querySelector('.elvn-sg__finder-form');
@@ -774,15 +766,14 @@
   function toInches(val) { return finderUnit === 'cm' ? val / 2.54 : val; }
 
   /* ── Recommendation logic ── */
-  function recommend(m1, m2, fitPref, heightCm) {
+  function recommend(m1, m2, fitPref) {
     var bottoms = isBottoms();
     var data = bottoms ? BOTTOMS : TOPS;
     var key1 = bottoms ? 'waist' : 'overbust';
     var key2 = bottoms ? 'hip'   : 'underbust';
-    var hCat = bottoms ? heightCat(heightCm) : 'regular';
 
-    if (m1 < data[0][key1][0])             return { size: data[0].size,             confidence: 'good', border: null, heightCat: hCat };
-    if (m1 > data[data.length-1][key1][1]) return { size: data[data.length-1].size, confidence: 'good', border: null, heightCat: hCat };
+    if (m1 < data[0][key1][0])             return { size: data[0].size,             confidence: 'good', border: null };
+    if (m1 > data[data.length-1][key1][1]) return { size: data[data.length-1].size, confidence: 'good', border: null };
 
     var matchIdx = -1;
     for (var i = 0; i < data.length; i++) {
@@ -796,50 +787,32 @@
       if (atUpperBound && matchIdx < data.length - 1) {
         var lo = data[matchIdx].size, hi = data[matchIdx + 1].size;
         confidence = 'good';
-        /* Height overrides fit preference at boundary */
-        if (hCat === 'petite')      rec = lo;
-        else if (hCat === 'tall')   rec = hi;
-        else rec = fitPref === 'relaxed' ? hi : lo;
+        rec = fitPref === 'relaxed' ? hi : lo;
         border = { lower: lo, upper: hi };
       }
 
       if (m2 && m2 > 0) {
         var r2 = data[matchIdx][key2];
-        if (r2) {
-          var hipsTooLarge = m2 > r2[1] + 1;
-          var hipsTooSmall = m2 < r2[0] - 1;
-          if (hipsTooLarge || hipsTooSmall) {
-            confidence = 'good';
-            /* Height helps resolve waist/hip conflict */
-            if (bottoms && hipsTooLarge && hCat === 'tall' && matchIdx < data.length - 1) {
-              rec = data[matchIdx + 1].size;
-              border = { lower: data[matchIdx].size, upper: data[matchIdx + 1].size };
-            } else if (bottoms && hipsTooSmall && hCat === 'petite' && matchIdx > 0) {
-              rec = data[matchIdx - 1].size;
-              border = { lower: data[matchIdx - 1].size, upper: data[matchIdx].size };
-            }
-          }
+        if (r2 && (m2 > r2[1] + 1 || m2 < r2[0] - 1)) {
+          confidence = 'good';
         }
       }
 
-      return { size: rec, confidence: confidence, border: border, heightCat: hCat };
+      return { size: rec, confidence: confidence, border: border };
     }
 
     for (var j = 0; j < data.length - 1; j++) {
       if (m1 > data[j][key1][1] && m1 < data[j+1][key1][0]) {
         var blo = data[j].size, bhi = data[j+1].size;
-        var boundaryRec;
-        if (hCat === 'petite')    boundaryRec = blo;
-        else if (hCat === 'tall') boundaryRec = bhi;
-        else boundaryRec = fitPref === 'relaxed' ? bhi : blo;
-        return { size: boundaryRec, confidence: 'good', border: { lower: blo, upper: bhi }, heightCat: hCat };
+        var boundaryRec = fitPref === 'relaxed' ? bhi : blo;
+        return { size: boundaryRec, confidence: 'good', border: { lower: blo, upper: bhi } };
       }
     }
-    return { size: data[0].size, confidence: 'good', border: null, heightCat: hCat };
+    return { size: data[0].size, confidence: 'good', border: null };
   }
 
   /* ── Show result panel ── */
-  function showResult(sg, result, m1Raw, m2Raw, fitPref) {
+  function showResult(sg, result, m1Raw, m2Raw, fitPref, heightCm) {
     var bottoms = isBottoms();
     var displaySize = (result.size === 'L' || result.size === 'XL') ? 'L / XL' : result.size;
 
@@ -895,10 +868,10 @@
         fit_preference:   fitPref,
         unit:             finderUnit
       };
+      trackData.height_cm = heightCm ? Math.round(heightCm) : null;
       if (bottoms) {
-        trackData.waist    = m1Raw || null;
-        trackData.hips     = m2Raw || null;
-        trackData.height_cm = result.heightCat !== 'regular' ? Math.round(getHeightCm(sg) || 0) || null : null;
+        trackData.waist = m1Raw || null;
+        trackData.hips  = m2Raw || null;
       } else {
         trackData.bust      = m1Raw || null;
         trackData.underbust = m2Raw || null;
@@ -970,8 +943,8 @@
         return;
       }
       var fitPref = (sg.querySelector('input[name="elvn-fit"]:checked') || {}).value || 'standard';
-      var heightCm = bottoms ? getHeightCm(sg) : null;
-      showResult(sg, recommend(toInches(m1), m2 ? toInches(m2) : null, fitPref, heightCm), m1, m2, fitPref);
+      var heightCm = getHeightCm(sg);
+      showResult(sg, recommend(toInches(m1), m2 ? toInches(m2) : null, fitPref), m1, m2, fitPref, heightCm);
       return;
     }
 

@@ -51,14 +51,6 @@
   /* z-index: 1; */
 }
 
-.card__media a {
-  pointer-events: none;
-}
-
-.card__media img {
-  pointer-events: auto;
-}
-
 .card__title a {
   position: relative;
   z-index: 1;

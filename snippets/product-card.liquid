@@ -178,9 +178,9 @@
       {%- # Media -%}
       <div class="card__media{% if show_hover_image %} has-hover-image{% endif %} has-motion relative">
         {%- if card_type == 'related' -%}
-          <div class="media relative{% if settings.blend_product_images and disable_image_blending == false %} image-blend{% endif %} custom-aspect-ratio" style="--ratio: {{ featured_media.aspect_ratio | default: 1.77 }};">
+          <a href="{{ product_url }}" class="media relative{% if settings.blend_product_images and disable_image_blending == false %} image-blend{% endif %} custom-aspect-ratio js-prod-link" style="--ratio: {{ featured_media.aspect_ratio | default: 1.77 }};" tabindex="-1" aria-label="{{ product.title | escape }}">
             {% render 'image', image: featured_media, src_width: 78, srcset_2x: true, class: 'img-fit' %}
-          </div>
+          </a>
         {%- else -%}
           <a href="{{ product_url }}" class="media block relative{% if settings.blend_product_images and disable_image_blending == false %} image-blend{% endif %} custom-aspect-ratio js-prod-link" style="--ratio: {{ image_ratio }};" tabindex="-1" aria-label="{{ product.title | escape }}">
             {%- if featured_media -%}
