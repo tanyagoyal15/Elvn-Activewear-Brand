@@ -187,6 +187,130 @@
           </details-disclosure>
         {%- endif -%}
 
+        {%- comment -%} Extract Size and Color active values from native filters for checked state {%- endcomment -%}
+        {%- assign size_active_values = '' -%}
+        {%- assign color_active_values = '' -%}
+        {%- for filter in results.filters -%}
+          {%- if filter.label == 'Size' -%}
+            {%- for av in filter.active_values -%}
+              {%- assign size_active_values = size_active_values | append: av.value | append: '||' -%}
+            {%- endfor -%}
+          {%- endif -%}
+          {%- if filter.label == 'Color' -%}
+            {%- for av in filter.active_values -%}
+              {%- assign color_active_values = color_active_values | append: av.value | append: '||' -%}
+            {%- endfor -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- comment -%} Pull Size and Color sub-menus from the nav menu used in the header {%- endcomment -%}
+        {%- assign size_nav_links = nil -%}
+        {%- assign color_nav_links = nil -%}
+        {%- assign _nav_linklist = linklists['main-menu-1'] -%}
+        {%- if _nav_linklist == blank or _nav_linklist.links.size == 0 -%}
+          {%- assign _nav_linklist = linklists['main-menu'] -%}
+        {%- endif -%}
+        {%- for link in _nav_linklist.links -%}
+          {%- assign link_title_lc = link.title | downcase | strip -%}
+          {%- if link_title_lc == 'shop by size' -%}
+            {%- assign size_nav_links = link.links -%}
+          {%- endif -%}
+          {%- if link_title_lc == 'shop by color' or link_title_lc == 'shop by colour' -%}
+            {%- assign color_nav_links = link.links -%}
+          {%- endif -%}
+          {%- for child in link.links -%}
+            {%- assign child_title_lc = child.title | downcase | strip -%}
+            {%- if child_title_lc == 'shop by size' -%}
+              {%- assign size_nav_links = child.links -%}
+            {%- endif -%}
+            {%- if child_title_lc == 'shop by color' or child_title_lc == 'shop by colour' -%}
+              {%- assign color_nav_links = child.links -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+
+        {%- comment -%} Size Filter {%- endcomment -%}
+        {%- if size_nav_links != nil and size_nav_links.size > 0 -%}
+          <details-disclosure>
+            <details class="filter disclosure" id="filter-size-menu" data-type="list" data-index="50"{% if section.settings.expand_filters %} open{% endif %}>
+              <summary class="filter__toggle">
+                <div class="flex items-center">
+                  <span class="filter__heading font-heading leading-normal font-normal mb-0 me-2">Size</span>
+                  <span class="disclosure__toggle">
+                    {%- if settings.disclosure_toggle == 'plus' -%}
+                      {% render 'icon-plus' %}
+                    {%- else -%}
+                      {% render 'icon-chevron-down' %}
+                    {%- endif -%}
+                  </span>
+                </div>
+              </summary>
+              <div class="disclosure__panel has-motion">
+                <div class="disclosure__content">
+                  <div class="filter__content">
+                    <ul class="filter__list" role="list">
+                      {%- for size_link in size_nav_links -%}
+                        <li>
+                          <input type="checkbox"
+                            class="checkbox visually-hidden focus-label-before"
+                            id="filter-size-menu-{{ forloop.index }}"
+                            name="filter.p.option.Size"
+                            value="{{ size_link.title | escape }}"
+                            {% if size_active_values contains size_link.title %}checked{% endif %}>
+                          <label for="filter-size-menu-{{ forloop.index }}" class="filter__label flex items-start w-full m-0">
+                            <span class="filter__text flex-auto text-sm">{{ size_link.title }}</span>
+                          </label>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </details-disclosure>
+        {%- endif -%}
+
+        {%- comment -%} Color Filter {%- endcomment -%}
+        {%- if color_nav_links != nil and color_nav_links.size > 0 -%}
+          <details-disclosure>
+            <details class="filter disclosure" id="filter-color-menu" data-type="list" data-index="51"{% if section.settings.expand_filters %} open{% endif %}>
+              <summary class="filter__toggle">
+                <div class="flex items-center">
+                  <span class="filter__heading font-heading leading-normal font-normal mb-0 me-2">Color</span>
+                  <span class="disclosure__toggle">
+                    {%- if settings.disclosure_toggle == 'plus' -%}
+                      {% render 'icon-plus' %}
+                    {%- else -%}
+                      {% render 'icon-chevron-down' %}
+                    {%- endif -%}
+                  </span>
+                </div>
+              </summary>
+              <div class="disclosure__panel has-motion">
+                <div class="disclosure__content">
+                  <div class="filter__content">
+                    <ul class="filter__list" role="list">
+                      {%- for color_link in color_nav_links -%}
+                        <li>
+                          <input type="checkbox"
+                            class="checkbox visually-hidden focus-label-before"
+                            id="filter-color-menu-{{ forloop.index }}"
+                            name="filter.p.option.Color"
+                            value="{{ color_link.title | escape }}"
+                            {% if color_active_values contains color_link.title %}checked{% endif %}>
+                          <label for="filter-color-menu-{{ forloop.index }}" class="filter__label flex items-start w-full m-0">
+                            <span class="filter__text flex-auto text-sm">{{ color_link.title }}</span>
+                          </label>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </details-disclosure>
+        {%- endif -%}
+
         {%- if section.settings.enable_filtering -%}
           {%- for filter in results.filters -%}
             {%- liquid

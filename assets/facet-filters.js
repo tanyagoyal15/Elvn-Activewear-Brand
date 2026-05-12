@@ -248,6 +248,18 @@ if (!customElements.get('facet-filters')) {
           // Update the filters.
           this.form.innerHTML = tmpl.content.getElementById('facets').innerHTML;
 
+          // Restore checked state for custom nav-menu Size/Color filters.
+          // Shopify's results.filters only tracks natively-configured storefront filters,
+          // so we must manually sync checked state from the submitted params.
+          const activeParams = new URLSearchParams(searchParams);
+          ['filter.p.option.Size', 'filter.p.option.Color'].forEach((paramName) => {
+            const activeValues = activeParams.getAll(paramName);
+            if (activeValues.length === 0) return;
+            this.form.querySelectorAll(`input[name="${paramName}"]`).forEach((checkbox) => {
+              if (activeValues.includes(checkbox.value)) checkbox.checked = true;
+            });
+          });
+
           // Update the label of the "Show X results" button.
           closeBtn.innerText = tmpl.content.querySelector('.facets__footer .js-close-drawer').innerText;
 
