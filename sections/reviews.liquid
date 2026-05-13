@@ -1,0 +1,337 @@
+<link rel="stylesheet" href="{{ 'reviews.css' | asset_url }}">
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+{%- if section.blocks.size > 0 -%}
+  <div class="reviews reviews--loading section color-scheme color-scheme--{{ color_scheme }}" id="{{ section.id }}">
+    <div class="container">
+
+      {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+        <div class="reviews__header text-center mb-8 md:mb-10">
+          {%- if section.settings.subheading != blank -%}
+            <p class="reviews__subheading">{{ section.settings.subheading | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.heading != blank -%}
+            <h2 class="reviews__heading {{ section.settings.heading_size }} mb-0">{{ section.settings.heading | escape }}</h2>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <carousel-slider class="carousel block relative" inactive>
+        <div class="slider-nav slider-nav--alt flex justify-between absolute no-js-hidden">
+          <button type="button" class="slider-nav__btn btn text-current has-ltr-icon" name="prev" aria-controls="reviews-slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+            {% render 'icon-chevron-left' %}
+          </button>
+          <button type="button" class="slider-nav__btn btn text-current has-ltr-icon" name="next" aria-controls="reviews-slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+            {% render 'icon-chevron-right' %}
+          </button>
+        </div>
+
+        <div class="slider slider--no-scrollbar relative reviews__slider" id="reviews-slider-{{ section.id }}">
+          <ul class="slider__grid grid grid-flow-col reviews__grid" role="list">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'review' -%}
+                <li class="slider__item reviews__item" {{ block.shopify_attributes }}>
+
+                  {%- comment -%} Shimmer skeleton – visible while carousel JS initialises {%- endcomment -%}
+                  <div class="review-card__skeleton" aria-hidden="true">
+                    <div class="review-card__skeleton-stars"></div>
+                    <div class="review-card__skeleton-lines">
+                      <div class="review-card__skeleton-line"></div>
+                      <div class="review-card__skeleton-line review-card__skeleton-line--mid"></div>
+                      <div class="review-card__skeleton-line review-card__skeleton-line--short"></div>
+                    </div>
+                    <div class="review-card__skeleton-author">
+                      <div class="review-card__skeleton-avatar"></div>
+                      <div class="review-card__skeleton-name"></div>
+                    </div>
+                  </div>
+
+                  <div class="review-card h-full flex flex-col">
+
+                    {%- comment -%} Stars {%- endcomment -%}
+                    {%- assign star_rating = block.settings.rating -%}
+                    <div class="review-card__stars" aria-label="{{ star_rating }} out of 5 stars">
+                      {%- for i in (1..5) -%}
+                        <span class="review-card__star{% if i <= star_rating %} review-card__star--filled{% endif %}">★</span>
+                      {%- endfor -%}
+                    </div>
+
+                    {%- comment -%} Review text {%- endcomment -%}
+                    {%- if block.settings.review_text != blank -%}
+                      <p class="review-card__text flex-auto">"{{ block.settings.review_text | escape }}"</p>
+                    {%- endif -%}
+
+                    {%- comment -%} Author row {%- endcomment -%}
+                    {%- assign fit = block.settings.fit_rating -%}
+                    {%- liquid
+                      if fit == 'runs_small'
+                        assign fit_label = 'Runs small'
+                        assign fit_fill = '20'
+                      elsif fit == 'runs_large'
+                        assign fit_label = 'Runs large'
+                        assign fit_fill = '85'
+                      else
+                        assign fit_label = 'True to size'
+                        assign fit_fill = '55'
+                      endif
+                    -%}
+                    <div class="review-card__footer mt-auto">
+                      <div class="review-card__author-row flex items-center gap-3">
+
+                        {%- if block.settings.reviewer_image != blank -%}
+                          <div class="review-card__avatar shrink-0">
+                            {{ block.settings.reviewer_image | image_url: width: 80 | image_tag: width: 40, height: 40, loading: 'lazy', class: 'review-card__avatar-img' }}
+                          </div>
+                        {%- elsif block.settings.reviewer_name != blank -%}
+                          <div class="review-card__avatar review-card__avatar--initials shrink-0" aria-hidden="true">
+                            {{- block.settings.reviewer_name | slice: 0, 1 | upcase -}}
+                          </div>
+                        {%- endif -%}
+
+                        <div>
+                          {%- if block.settings.reviewer_name != blank -%}
+                            <p class="review-card__name font-semibold mb-0 text-sm">
+                              {{ block.settings.reviewer_name | escape }}
+                              {%- if block.settings.verified -%}
+                                <span class="review-card__verified" title="Verified Purchase">✓</span>
+                              {%- endif -%}
+                            </p>
+                          {%- endif -%}
+                          {%- if block.settings.product_name != blank -%}
+                            <p class="review-card__product text-xs opacity-60 mb-0">
+                              {%- if block.settings.product_link != blank -%}
+                                <a href="{{ block.settings.product_link }}" class="review-card__product-link">{{ block.settings.product_name | escape }}</a>
+                              {%- else -%}
+                                {{ block.settings.product_name | escape }}
+                              {%- endif -%}
+                            </p>
+                          {%- endif -%}
+                        </div>
+
+                        {%- if fit != blank and fit != 'none' -%}
+                          <div class="review-card__fit-options ms-auto shrink-0">
+
+                            {%- comment -%} Option 1: dot on track {%- endcomment -%}
+                            {% comment %} <div class="review-card__fit-marker" data-fit="{{ fit }}" aria-label="Fit: {{ fit_label }}">
+                              <span class="review-card__fit-track" aria-hidden="true">
+                                <span class="review-card__fit-dot"></span>
+                              </span>
+                              <span class="review-card__fit-hint">{{ fit_label }}</span>
+                            </div> {% endcomment %}
+
+                            {%- comment -%} Option 2: filled progress bar {%- endcomment -%}
+                            {% comment %} <div class="review-card__fit-bar-wrap" aria-label="Fit: {{ fit_label }}">
+                              <div class="review-card__fit-bar-track">
+                                <div class="review-card__fit-bar-fill" style="--fit-fill: {{ fit_fill }}%"></div>
+                              </div>
+                              <span class="review-card__fit-hint">{{ fit_label }}</span>
+                            </div> {% endcomment %}
+
+                          </div>
+                        {%- endif -%}
+
+                      </div>
+                    </div>
+
+                  </div>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      </carousel-slider>
+
+    </div>
+
+    <script>
+      (function () {
+        var sectionEl = document.getElementById('{{ section.id }}');
+        if (!sectionEl) return;
+
+        var carousel = sectionEl.querySelector('carousel-slider');
+        if (!carousel) {
+          sectionEl.classList.remove('reviews--loading');
+          return;
+        }
+
+        function done() {
+          sectionEl.classList.remove('reviews--loading');
+          observer.disconnect();
+          clearTimeout(fallback);
+        }
+
+        // Already initialised by the time the script runs
+        if (!carousel.hasAttribute('inactive')) {
+          sectionEl.classList.remove('reviews--loading');
+          return;
+        }
+
+        // Watch for carousel init (removes 'inactive')
+        var observer = new MutationObserver(function () {
+          if (!carousel.hasAttribute('inactive')) done();
+        });
+        observer.observe(carousel, { attributes: true, attributeFilter: ['inactive'] });
+
+        // Safety fallback — never leave shimmer on indefinitely
+        var fallback = setTimeout(done, 5000);
+      })();
+    </script>
+
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Reviews",
+  "tag": "section",
+  "class": "cc-reviews",
+  "settings": [
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Customer Reviews"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What our customers say"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        { "value": "h2", "label": "Large" },
+        { "value": "h3", "label": "Medium" },
+        { "value": "h4", "label": "Small" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Star rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "textarea",
+          "id": "review_text",
+          "label": "Review text",
+          "default": "Absolutely love these leggings! The fabric is so soft and they hold everything in perfectly. I wore them for a 2-hour session and they stayed in place the whole time."
+        },
+        {
+          "type": "text",
+          "id": "reviewer_name",
+          "label": "Reviewer name",
+          "default": "Priya M."
+        },
+        {
+          "type": "image_picker",
+          "id": "reviewer_image",
+          "label": "Reviewer photo (optional)"
+        },
+        {
+          "type": "checkbox",
+          "id": "verified",
+          "label": "Show verified badge",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "fit_rating",
+          "label": "Size fit",
+          "options": [
+            { "value": "none", "label": "— None —" },
+            { "value": "runs_small", "label": "Runs small" },
+            { "value": "true_to_size", "label": "True to size" },
+            { "value": "runs_large", "label": "Runs large" }
+          ],
+          "default": "true_to_size"
+        },
+        {
+          "type": "text",
+          "id": "product_name",
+          "label": "Product name",
+          "default": "PowerSculpt Leggings"
+        },
+        {
+          "type": "url",
+          "id": "product_link",
+          "label": "Product link (optional)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reviews",
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "reviewer_name": "Priya M.",
+            "review_text": "Absolutely love these leggings! The fabric is so soft and they hold everything in perfectly. I wore them for a 2-hour session and they stayed in place the whole time.",
+            "fit_rating": "true_to_size",
+            "product_name": "PowerSculpt Leggings",
+            "verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "reviewer_name": "Anika R.",
+            "review_text": "The matching set is everything — I get compliments every time I wear it to the gym. Quality is top-notch and the sizing is true to fit.",
+            "fit_rating": "true_to_size",
+            "product_name": "Court Muse Set",
+            "verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 4,
+            "reviewer_name": "Simran K.",
+            "review_text": "Really comfortable for yoga and pilates. The high waist stays up perfectly and doesn't roll down. Will definitely be ordering more colors.",
+            "fit_rating": "runs_small",
+            "product_name": "Yoga Pilates Bra",
+            "verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "reviewer_name": "Divya S.",
+            "review_text": "I was hesitant to spend this much on activewear but it is 100% worth it. The quality is so much better than anything I've tried before.",
+            "fit_rating": "runs_large",
+            "product_name": "MatchPoint Collection",
+            "verified": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
