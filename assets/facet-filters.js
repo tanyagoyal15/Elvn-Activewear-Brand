@@ -63,10 +63,10 @@ if (!customElements.get('facet-filters')) {
      * @param {object} evt - Event object.
      */
     handleFilterChange(evt) {
-      // Only allow price 'change' events
-      if (evt.type === 'change' && !(evt.target.id?.includes('price-range') || evt.target.id?.includes('sort-by'))) return;
+      // For 'input' events, only handle price-range sliders — checkboxes and radios use 'change'
+      if (evt.type === 'input' && !evt.target.id?.includes('price-range')) return;
 
-      // Dont reload when typing a price
+      // Don't reload while the user is typing a price value
       if (evt.target.id?.includes('price-range') && evt.constructor.name === 'InputEvent') return;
 
       const timeoutDelay = 500;
@@ -90,7 +90,7 @@ if (!customElements.get('facet-filters')) {
           }
 
           // Set the 'sort_by' parameter.
-          searchParams.set('sort_by', currentSortBy);
+          if (currentSortBy) searchParams.set('sort_by', currentSortBy);
         }
 
         // Get empty parameters.
@@ -248,20 +248,9 @@ if (!customElements.get('facet-filters')) {
           // Update the filters.
           this.form.innerHTML = tmpl.content.getElementById('facets').innerHTML;
 
-          // Restore checked state for custom nav-menu Size/Color filters.
-          // Shopify's results.filters only tracks natively-configured storefront filters,
-          // so we must manually sync checked state from the submitted params.
-          const activeParams = new URLSearchParams(searchParams);
-          ['filter.p.option.Size', 'filter.p.option.Color'].forEach((paramName) => {
-            const activeValues = activeParams.getAll(paramName);
-            if (activeValues.length === 0) return;
-            this.form.querySelectorAll(`input[name="${paramName}"]`).forEach((checkbox) => {
-              if (activeValues.includes(checkbox.value)) checkbox.checked = true;
-            });
-          });
-
           // Update the label of the "Show X results" button.
-          closeBtn.innerText = tmpl.content.querySelector('.facets__footer .js-close-drawer').innerText;
+          const newCloseBtn = tmpl.content.querySelector('.facets__footer .js-close-drawer');
+          if (newCloseBtn) closeBtn.innerText = newCloseBtn.innerText;
 
           // Update the results count, if its rendered.
           const newResultCount = tmpl.content.querySelector('.products-toolbar .products-toolbar__count') || tmpl.content.querySelector('.search-bar .js-result-count');
@@ -270,7 +259,8 @@ if (!customElements.get('facet-filters')) {
           }
 
           // Update the filter toggle button.
-          this.filterToggle.innerHTML = tmpl.content.querySelector('.products-toolbar .js-toggle-filters').innerHTML;
+          const newFilterToggle = tmpl.content.querySelector('.products-toolbar .js-toggle-filters');
+          if (this.filterToggle && newFilterToggle) this.filterToggle.innerHTML = newFilterToggle.innerHTML;
 
           // Preserve the CSS class of the results.
           const currentResultsUl = this.results.querySelector('ul');
