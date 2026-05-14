@@ -675,89 +675,14 @@
     },
     "reviews_elvn": {
       "type": "reviews",
-      "blocks": {
-        "review_1": {
-          "type": "review",
-          "settings": {
-            "rating": 5,
-            "reviewer_name": "Priya M.",
-            "review_text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500.",
-            "product_name": "PowerSculpt Leggings",
-            "verified": true
-          }
-        },
-        "review_2": {
-          "type": "review",
-          "settings": {
-            "rating": 5,
-            "reviewer_name": "Anika R.",
-            "review_text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500.",
-            "product_name": "Court Muse Set",
-            "verified": true
-          }
-        },
-        "review_3": {
-          "type": "review",
-          "settings": {
-            "rating": 4,
-            "reviewer_name": "Simran K.",
-            "review_text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500.",
-            "product_name": "Yoga Pilates Bra",
-            "verified": true
-          }
-        },
-        "review_4": {
-          "type": "review",
-          "settings": {
-            "rating": 5,
-            "reviewer_name": "Divya S.",
-            "review_text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500.",
-            "product_name": "MatchPoint Collection",
-            "verified": true
-          }
-        },
-        "review_5": {
-          "type": "review",
-          "settings": {
-            "rating": 5,
-            "reviewer_name": "Divya S.",
-            "review_text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500.",
-            "product_name": "MatchPoint Collection",
-            "verified": true
-          }
-        },
-        "review_6": {
-          "type": "review",
-          "settings": {
-            "rating": 5,
-            "reviewer_name": "Divya S.",
-            "review_text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500.",
-            "product_name": "MatchPoint Collection",
-            "verified": true
-          }
-        },
-        "review_7": {
-          "type": "review",
-          "settings": {
-            "rating": 5,
-            "reviewer_name": "Divya S.",
-            "review_text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500.",
-            "product_name": "MatchPoint Collection",
-            "verified": true
-          }
-        }
-      },
-      "block_order": [
-        "review_1",
-        "review_2",
-        "review_3",
-        "review_4",
-        "review_5",
-        "review_6",
-        "review_7"
-      ],
+      "blocks": {},
+      "block_order": [],
       "name": "Reviews",
       "settings": {
+        "use_judgeme_api": true,
+        "judgeme_api_token": "XgEPyOnP8cUWWuxY6IUroES8RYQ",
+        "reviews_count": 6,
+        "min_rating": "3",
         "subheading": "Customer Reviews",
         "heading": "What our customers say",
         "heading_size": "h2",
