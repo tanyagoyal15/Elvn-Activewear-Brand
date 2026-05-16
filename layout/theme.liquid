@@ -21,9 +21,7 @@
 
   <!-- Connection hints — placed early so the browser can start TCP/TLS before scripts request these origins -->
   <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
   <link rel="dns-prefetch" href="https://cdn.shopify.com">
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
 
   {%- comment -%}
     Elvn brand font — uncomment below and update --elvn-heading-font in elvn-base.css
@@ -36,12 +34,12 @@
   {%- endcomment -%}
 
   {%- style -%}
-    {{- settings.body_font | font_face: font_display: 'fallback' -}}
-    {{- body_font_bold | font_face: font_display: 'fallback' -}}
-    {{- body_font_italic | font_face: font_display: 'fallback' -}}
-    {{- body_font_bold_italic | font_face: font_display: 'fallback' -}}
+    {{- settings.body_font | font_face: font_display: 'swap' -}}
+    {{- body_font_bold | font_face: font_display: 'swap' -}}
+    {{- body_font_italic | font_face: font_display: 'swap' -}}
+    {{- body_font_bold_italic | font_face: font_display: 'swap' -}}
     {%- if settings.heading_font != settings.body_font -%}
-      {{- settings.heading_font | font_face: font_display: 'fallback' -}}
+      {{- settings.heading_font | font_face: font_display: 'swap' -}}
     {%- endif -%}
 
     {%- render 'doc-head-styles' -%}
