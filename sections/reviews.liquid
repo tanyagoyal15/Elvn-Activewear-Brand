@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{{ 'reviews.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'reviews.css' | asset_url }}" media="print" onload="this.media='all'">
 
 {%- liquid
   assign color_scheme = section.settings.color_scheme
@@ -221,15 +221,17 @@
 
         var items = sectionEl.querySelectorAll('.reviews__item');
 
-        // Fetch from pre-generated static asset (avoids CORS + keeps private token off browser)
+        // Fetch from pre-generated static asset (avoids CORS + keeps private token off browser).
+        // Deferred until the section scrolls near the viewport to avoid blocking initial load.
         var reviewsUrl = {{ 'reviews-data.json' | asset_url | json }};
 
-        fetch(reviewsUrl)
-          .then(function (res) {
-            if (!res.ok) throw new Error('reviews-data.json not found: ' + res.status);
-            return res.json();
-          })
-          .then(function (data) {
+        function doFetch() {
+          fetch(reviewsUrl)
+            .then(function (res) {
+              if (!res.ok) throw new Error('reviews-data.json not found: ' + res.status);
+              return res.json();
+            })
+            .then(function (data) {
             var reviews = (Array.isArray(data) ? data : []).slice(0, items.length);
             console.log('[Elvn Reviews] Loaded', reviews.length, 'reviews');
 
@@ -280,13 +282,26 @@
               items[j].style.display = 'none';
             }
           })
-          .catch(function (err) {
-            console.error('[Elvn Reviews] Fetch failed:', err);
-          })
-          .then(function () {
-            fetchDone = true;
-            tryReveal();
-          });
+            .catch(function (err) {
+              console.error('[Elvn Reviews] Fetch failed:', err);
+            })
+            .then(function () {
+              fetchDone = true;
+              tryReveal();
+            });
+        }
+
+        if ('IntersectionObserver' in window) {
+          var fetchObserver = new IntersectionObserver(function (entries, obs) {
+            if (entries[0].isIntersecting) {
+              obs.disconnect();
+              doFetch();
+            }
+          }, { rootMargin: '200px' });
+          fetchObserver.observe(sectionEl);
+        } else {
+          doFetch();
+        }
       })();
     </script>
 

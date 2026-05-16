@@ -172,6 +172,25 @@
     gtag('js', new Date());
     gtag('config', 'G-N5ZNM2SNDB');
   </script>
+
+  {%- comment -%}
+    Speculation Rules — prefetch collection + product pages on hover so navigation feels instant.
+    eagerness:"moderate" = Chrome starts prefetching when the user hovers a matching link
+    (not on page load), so bandwidth is only spent on pages the user is likely to visit.
+    Falls back silently in browsers that don't support the API (Firefox, Safari).
+  {%- endcomment -%}
+  <script type="speculationrules">
+    {
+      "prefetch": [
+        {
+          "where": {
+            "href_matches": ["/collections/*", "/products/*", "/pages/*"]
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
+  </script>
 </head>
 
 <body class="template-{{ template | split: '.' | first | handle }}
