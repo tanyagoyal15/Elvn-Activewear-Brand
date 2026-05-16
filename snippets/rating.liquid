@@ -12,20 +12,9 @@
 {%- endcomment -%}
 
 {%- liquid
-  assign decimal = rating_value.rating | modulo: 1
-  assign stars_rating = rating_value.rating | floor
-
-  if decimal >= 0.3 and decimal <= 0.7
-    assign stars_rating = stars_rating | plus: 0.5
-  elsif decimal > 0.7
-    assign stars_rating = rating_value.rating | ceil
-  endif
--%}
-
-{%- liquid
   if rating_value != blank
-    assign rating_max = rating_value.scale_max
-    assign decimal = rating_value.rating | modulo: 1
+    assign rating_max  = rating_value.scale_max
+    assign decimal     = rating_value.rating | modulo: 1
     assign stars_rating = rating_value.rating | floor
 
     if decimal >= 0.3 and decimal <= 0.7
@@ -34,7 +23,7 @@
       assign stars_rating = rating_value.rating | ceil
     endif
   elsif show_empty
-    assign rating_max = 5
+    assign rating_max   = 5
     assign stars_rating = 0
     assign rating_count = 0
     assign rating_value = 0

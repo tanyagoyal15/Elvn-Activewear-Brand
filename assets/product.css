@@ -540,3 +540,44 @@ quantity-input + .product-info__add-button {
     padding-top: calc(14 * var(--space-unit));
   }
 }
+
+/* ── Fit bar (true to size indicator) ── */
+.product-fit {
+  margin-bottom: calc(4 * var(--space-unit));
+}
+.product-fit__heading {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.product-fit__track {
+  position: relative;
+  height: 4px;
+  background: rgb(var(--text-color) / 0.15);
+  border-radius: 2px;
+  margin-bottom: 8px;
+}
+.product-fit__dot {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  background: rgb(var(--text-color));
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px rgb(var(--background-color));
+}
+.product-fit__labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: rgb(var(--text-color) / 0.5);
+}
+.product-fit__label--active {
+  color: rgb(var(--text-color));
+  font-weight: 600;
+}
+
+/* ── Reviews block ── */
+.product-reviews-block__heading {
+  margin-bottom: calc(3 * var(--space-unit));
+}

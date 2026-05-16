@@ -1,0 +1,49 @@
+{%- comment -%}
+  Renders a "Fits true to size" scale bar above product reviews.
+  Reads from metafields: reviews.fit_small, reviews.fit_true, reviews.fit_large
+  These are populated automatically by Judge.me.
+{%- endcomment -%}
+
+{%- liquid
+  assign fit_small = product.metafields.reviews.fit_small | plus: 0
+  assign fit_true  = product.metafields.reviews.fit_true  | plus: 0
+  assign fit_large = product.metafields.reviews.fit_large | plus: 0
+  assign total     = fit_small | plus: fit_true | plus: fit_large
+-%}
+
+{%- if total > 0 -%}
+  {%- liquid
+    assign small_pct = fit_small | times: 100.0 | divided_by: total | round
+    assign true_pct  = fit_true  | times: 100.0 | divided_by: total | round
+    assign large_pct = fit_large | times: 100.0 | divided_by: total | round
+
+    # Indicator position: small=0%, true=50%, large=100%
+    assign pos_true      = fit_true  | times: 50
+    assign pos_large     = fit_large | times: 100
+    assign indicator_pos = pos_true  | plus: pos_large | divided_by: total
+
+    if true_pct >= small_pct and true_pct >= large_pct
+      assign fit_label = 'Fits true to size'
+    elsif small_pct > large_pct
+      assign fit_label = 'Runs small'
+    else
+      assign fit_label = 'Runs large'
+    endif
+  -%}
+
+  <div class="product-fit">
+    <p class="product-fit__heading text-sm font-bold mb-3">{{ fit_label }}</p>
+    <div
+      class="product-fit__track"
+      role="img"
+      aria-label="Fit: {{ small_pct }}% runs small, {{ true_pct }}% true to size, {{ large_pct }}% runs large"
+    >
+      <div class="product-fit__dot" style="left: {{ indicator_pos }}%"></div>
+    </div>
+    <div class="product-fit__labels">
+      <span class="text-xs{% if fit_label == 'Runs small' %} product-fit__label--active{% endif %}">Small</span>
+      <span class="text-xs{% if fit_label == 'Fits true to size' %} product-fit__label--active{% endif %}">True to size</span>
+      <span class="text-xs{% if fit_label == 'Runs large' %} product-fit__label--active{% endif %}">Large</span>
+    </div>
+  </div>
+{%- endif -%}
