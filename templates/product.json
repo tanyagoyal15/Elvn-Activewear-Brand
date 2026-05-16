@@ -28,6 +28,15 @@
           "type": "rating",
           "settings": {}
         },
+        "reviews": {
+          "type": "reviews",
+          "settings": {
+            "heading": "Customer Reviews",
+            "show_fit_rating": true,
+            "show_reviews_container": false,
+            "custom_reviews": ""
+          }
+        },
         "price": {
           "type": "price",
           "settings": {
@@ -220,6 +229,7 @@
         "collapsible_content_rPxErm",
         "collapsible_content_zyQcar",
         "collapsible_content_xFkWGX",
+        "reviews",
         "complementary",
         "sa_variants_product_swatch_block_Xgj8iX",
         "cashfree_codfirm_checkout_otp_login_ecom_mx4V6K",

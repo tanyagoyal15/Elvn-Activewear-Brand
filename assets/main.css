@@ -6206,6 +6206,9 @@ product-swiper:has(.swiper-interactions-disabled) .slider-nav__btn {
     padding-right: var(--gutter);
     padding-left: var(--gutter);
   }
+  .cc-product-recommendations .carousel__header {
+    padding-inline: var(--gutter);
+  }
 }
 .social {
   margin: -10px;

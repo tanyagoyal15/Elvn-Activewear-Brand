@@ -2,9 +2,18 @@
 
 {%- liquid
   assign color_scheme = section.settings.color_scheme
+  assign use_api = section.settings.use_judgeme_api
+  assign api_token = section.settings.judgeme_api_token
+  assign api_count = section.settings.reviews_count | default: 6
+  assign show_section = false
+  if use_api and api_token != blank
+    assign show_section = true
+  elsif section.blocks.size > 0
+    assign show_section = true
+  endif
 -%}
 
-{%- if section.blocks.size > 0 -%}
+{%- if show_section -%}
   <div class="reviews reviews--loading section color-scheme color-scheme--{{ color_scheme }}" id="{{ section.id }}">
     <div class="container">
 
@@ -31,11 +40,10 @@
 
         <div class="slider slider--no-scrollbar relative reviews__slider" id="reviews-slider-{{ section.id }}">
           <ul class="slider__grid grid grid-flow-col reviews__grid" role="list">
-            {%- for block in section.blocks -%}
-              {%- if block.type == 'review' -%}
-                <li class="slider__item reviews__item" {{ block.shopify_attributes }}>
 
-                  {%- comment -%} Shimmer skeleton – visible while carousel JS initialises {%- endcomment -%}
+            {%- if use_api and api_token != blank -%}
+              {%- for i in (1..api_count) -%}
+                <li class="slider__item reviews__item">
                   <div class="review-card__skeleton" aria-hidden="true">
                     <div class="review-card__skeleton-stars"></div>
                     <div class="review-card__skeleton-lines">
@@ -48,98 +56,85 @@
                       <div class="review-card__skeleton-name"></div>
                     </div>
                   </div>
+                  <div class="review-card h-full flex flex-col"></div>
+                </li>
+              {%- endfor -%}
 
-                  <div class="review-card h-full flex flex-col">
-
-                    {%- comment -%} Stars {%- endcomment -%}
-                    {%- assign star_rating = block.settings.rating -%}
-                    <div class="review-card__stars" aria-label="{{ star_rating }} out of 5 stars">
-                      {%- for i in (1..5) -%}
-                        <span class="review-card__star{% if i <= star_rating %} review-card__star--filled{% endif %}">★</span>
-                      {%- endfor -%}
-                    </div>
-
-                    {%- comment -%} Review text {%- endcomment -%}
-                    {%- if block.settings.review_text != blank -%}
-                      <p class="review-card__text flex-auto">"{{ block.settings.review_text | escape }}"</p>
-                    {%- endif -%}
-
-                    {%- comment -%} Author row {%- endcomment -%}
-                    {%- assign fit = block.settings.fit_rating -%}
-                    {%- liquid
-                      if fit == 'runs_small'
-                        assign fit_label = 'Runs small'
-                        assign fit_fill = '20'
-                      elsif fit == 'runs_large'
-                        assign fit_label = 'Runs large'
-                        assign fit_fill = '85'
-                      else
-                        assign fit_label = 'True to size'
-                        assign fit_fill = '55'
-                      endif
-                    -%}
-                    <div class="review-card__footer mt-auto">
-                      <div class="review-card__author-row flex items-center gap-3">
-
-                        {%- if block.settings.reviewer_image != blank -%}
-                          <div class="review-card__avatar shrink-0">
-                            {{ block.settings.reviewer_image | image_url: width: 80 | image_tag: width: 40, height: 40, loading: 'lazy', class: 'review-card__avatar-img' }}
-                          </div>
-                        {%- elsif block.settings.reviewer_name != blank -%}
-                          <div class="review-card__avatar review-card__avatar--initials shrink-0" aria-hidden="true">
-                            {{- block.settings.reviewer_name | slice: 0, 1 | upcase -}}
-                          </div>
-                        {%- endif -%}
-
-                        <div>
-                          {%- if block.settings.reviewer_name != blank -%}
-                            <p class="review-card__name font-semibold mb-0 text-sm">
-                              {{ block.settings.reviewer_name | escape }}
-                              {%- if block.settings.verified -%}
-                                <span class="review-card__verified" title="Verified Purchase">✓</span>
-                              {%- endif -%}
-                            </p>
-                          {%- endif -%}
-                          {%- if block.settings.product_name != blank -%}
-                            <p class="review-card__product text-xs opacity-60 mb-0">
-                              {%- if block.settings.product_link != blank -%}
-                                <a href="{{ block.settings.product_link }}" class="review-card__product-link">{{ block.settings.product_name | escape }}</a>
-                              {%- else -%}
-                                {{ block.settings.product_name | escape }}
-                              {%- endif -%}
-                            </p>
-                          {%- endif -%}
-                        </div>
-
-                        {%- if fit != blank and fit != 'none' -%}
-                          <div class="review-card__fit-options ms-auto shrink-0">
-
-                            {%- comment -%} Option 1: dot on track {%- endcomment -%}
-                            {% comment %} <div class="review-card__fit-marker" data-fit="{{ fit }}" aria-label="Fit: {{ fit_label }}">
-                              <span class="review-card__fit-track" aria-hidden="true">
-                                <span class="review-card__fit-dot"></span>
-                              </span>
-                              <span class="review-card__fit-hint">{{ fit_label }}</span>
-                            </div> {% endcomment %}
-
-                            {%- comment -%} Option 2: filled progress bar {%- endcomment -%}
-                            {% comment %} <div class="review-card__fit-bar-wrap" aria-label="Fit: {{ fit_label }}">
-                              <div class="review-card__fit-bar-track">
-                                <div class="review-card__fit-bar-fill" style="--fit-fill: {{ fit_fill }}%"></div>
-                              </div>
-                              <span class="review-card__fit-hint">{{ fit_label }}</span>
-                            </div> {% endcomment %}
-
-                          </div>
-                        {%- endif -%}
-
+            {%- else -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'review' -%}
+                  <li class="slider__item reviews__item" {{ block.shopify_attributes }}>
+                    <div class="review-card__skeleton" aria-hidden="true">
+                      <div class="review-card__skeleton-stars"></div>
+                      <div class="review-card__skeleton-lines">
+                        <div class="review-card__skeleton-line"></div>
+                        <div class="review-card__skeleton-line review-card__skeleton-line--mid"></div>
+                        <div class="review-card__skeleton-line review-card__skeleton-line--short"></div>
+                      </div>
+                      <div class="review-card__skeleton-author">
+                        <div class="review-card__skeleton-avatar"></div>
+                        <div class="review-card__skeleton-name"></div>
                       </div>
                     </div>
+                    <div class="review-card h-full flex flex-col">
+                      {%- assign star_rating = block.settings.rating -%}
+                      <div class="review-card__stars" aria-label="{{ star_rating }} out of 5 stars">
+                        {%- for i in (1..5) -%}
+                          <span class="review-card__star{% if i <= star_rating %} review-card__star--filled{% endif %}">★</span>
+                        {%- endfor -%}
+                      </div>
+                      {%- if block.settings.review_text != blank -%}
+                        <p class="review-card__text flex-auto">"{{ block.settings.review_text | escape }}"</p>
+                      {%- endif -%}
+                      {%- assign fit = block.settings.fit_rating -%}
+                      {%- liquid
+                        if fit == 'runs_small'
+                          assign fit_label = 'Runs small'
+                        elsif fit == 'runs_large'
+                          assign fit_label = 'Runs large'
+                        else
+                          assign fit_label = 'True to size'
+                        endif
+                      -%}
+                      <div class="review-card__footer mt-auto">
+                        <div class="review-card__author-row flex items-center gap-3">
+                          {%- if block.settings.reviewer_image != blank -%}
+                            <div class="review-card__avatar shrink-0">
+                              {{ block.settings.reviewer_image | image_url: width: 80 | image_tag: width: 40, height: 40, loading: 'lazy', class: 'review-card__avatar-img' }}
+                            </div>
+                          {%- elsif block.settings.reviewer_name != blank -%}
+                            <div class="review-card__avatar review-card__avatar--initials shrink-0" aria-hidden="true">
+                              {{- block.settings.reviewer_name | slice: 0, 1 | upcase -}}
+                            </div>
+                          {%- endif -%}
+                          <div>
+                            {%- if block.settings.reviewer_name != blank -%}
+                              <p class="review-card__name font-semibold mb-0 text-sm">
+                                {{ block.settings.reviewer_name | escape }}
+                                {%- if block.settings.verified -%}<span class="review-card__verified" title="Verified Purchase">✓</span>{%- endif -%}
+                              </p>
+                            {%- endif -%}
+                            {%- if block.settings.product_name != blank -%}
+                              <p class="review-card__product text-xs opacity-60 mb-0">
+                                {%- if block.settings.product_link != blank -%}
+                                  <a href="{{ block.settings.product_link }}" class="review-card__product-link">{{ block.settings.product_name | escape }}</a>
+                                {%- else -%}
+                                  {{ block.settings.product_name | escape }}
+                                {%- endif -%}
+                              </p>
+                            {%- endif -%}
+                          </div>
+                          {%- if fit != blank and fit != 'none' -%}
+                            <div class="review-card__fit-badge ms-auto shrink-0">{{ fit_label }}</div>
+                          {%- endif -%}
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
 
-                  </div>
-                </li>
-              {%- endif -%}
-            {%- endfor -%}
           </ul>
         </div>
       </carousel-slider>
@@ -152,31 +147,102 @@
         if (!sectionEl) return;
 
         var carousel = sectionEl.querySelector('carousel-slider');
+        var useApi = {{ use_api | json }};
+        var items = sectionEl.querySelectorAll('.reviews__item');
+
+        var carouselReady = false;
+        var fetchDone = false;
+
+        function tryReveal() {
+          if (carouselReady && fetchDone) {
+            sectionEl.classList.remove('reviews--loading');
+          }
+        }
+
+        // Track carousel init
         if (!carousel) {
-          sectionEl.classList.remove('reviews--loading');
+          carouselReady = true;
+        } else if (!carousel.hasAttribute('inactive')) {
+          carouselReady = true;
+        } else {
+          var obs = new MutationObserver(function () {
+            if (!carousel.hasAttribute('inactive')) {
+              carouselReady = true;
+              obs.disconnect();
+              tryReveal();
+            }
+          });
+          obs.observe(carousel, { attributes: true, attributeFilter: ['inactive'] });
+          setTimeout(function () { carouselReady = true; tryReveal(); }, 2000);
+        }
+
+        if (!useApi) {
+          fetchDone = true;
+          tryReveal();
           return;
         }
 
-        function done() {
-          sectionEl.classList.remove('reviews--loading');
-          observer.disconnect();
-          clearTimeout(fallback);
-        }
+        var reviewsUrl = {{ 'reviews-data.json' | asset_url | json }};
 
-        // Already initialised by the time the script runs
-        if (!carousel.hasAttribute('inactive')) {
-          sectionEl.classList.remove('reviews--loading');
-          return;
-        }
+        fetch(reviewsUrl)
+          .then(function (res) {
+            if (!res.ok) throw new Error('Reviews asset error: ' + res.status);
+            return res.json();
+          })
+          .then(function (data) {
+            var reviews = (Array.isArray(data) ? data : []).slice(0, items.length);
+            console.log('[Elvn Reviews] Loaded', reviews.length, 'reviews');
 
-        // Watch for carousel init (removes 'inactive')
-        var observer = new MutationObserver(function () {
-          if (!carousel.hasAttribute('inactive')) done();
-        });
-        observer.observe(carousel, { attributes: true, attributeFilter: ['inactive'] });
+            reviews.forEach(function (review, idx) {
+              if (idx >= items.length) return;
+              var card = items[idx].querySelector('.review-card');
+              if (!card) return;
 
-        // Safety fallback — never leave shimmer on indefinitely
-        var fallback = setTimeout(done, 5000);
+              var rating = Math.round(review.rating) || 5;
+              var stars = '';
+              for (var i = 1; i <= 5; i++) {
+                stars += '<span class="review-card__star' + (i <= rating ? ' review-card__star--filled' : '') + '">★</span>';
+              }
+
+              var name = (review.reviewer && review.reviewer.name) || 'Customer';
+              var initial = name.charAt(0).toUpperCase();
+              var verified = review.verified_buyer
+                ? '<span class="review-card__verified" title="Verified Purchase">✓</span>'
+                : '';
+              var body = review.body || '';
+              if (body.length > 220) body = body.substring(0, 220) + '…';
+              var productTitle = review.product_title
+                ? '<p class="review-card__product text-xs opacity-60 mb-0">' + review.product_title + '</p>'
+                : '';
+
+              card.innerHTML =
+                '<div class="review-card__stars" aria-label="' + rating + ' out of 5 stars">' + stars + '</div>'
+                + (body ? '<p class="review-card__text flex-auto">“' + body + '”</p>' : '')
+                + '<div class="review-card__footer mt-auto">'
+                +   '<div class="review-card__author-row flex items-center gap-3">'
+                +     '<div class="review-card__avatar review-card__avatar--initials shrink-0" aria-hidden="true">' + initial + '</div>'
+                +     '<div>'
+                +       '<p class="review-card__name font-semibold mb-0 text-sm">' + name + verified + '</p>'
+                +       productTitle
+                +     '</div>'
+                +   '</div>'
+                + '</div>';
+            });
+
+            // Hide unused placeholder items if fewer reviews returned than slots
+            if (reviews.length < items.length) {
+              for (var j = reviews.length; j < items.length; j++) {
+                items[j].style.display = 'none';
+              }
+            }
+          })
+          .catch(function (err) {
+            console.error('[Elvn Reviews] Fetch failed:', err);
+          })
+          .then(function () {
+            fetchDone = true;
+            tryReveal();
+          });
       })();
     </script>
 
@@ -189,6 +255,48 @@
   "tag": "section",
   "class": "cc-reviews",
   "settings": [
+    {
+      "type": "header",
+      "content": "Judge.me Auto-fetch"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_judgeme_api",
+      "label": "Auto-fetch from Judge.me",
+      "info": "When ON, reviews are pulled live from Judge.me. Manual review blocks below are ignored.",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "judgeme_api_token",
+      "label": "Judge.me Public API Token",
+      "info": "Find it in Judge.me → Settings → Integrations → Developers → Public API Token"
+    },
+    {
+      "type": "range",
+      "id": "reviews_count",
+      "label": "Number of reviews to show",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "select",
+      "id": "min_rating",
+      "label": "Minimum star rating to show",
+      "options": [
+        { "value": "1", "label": "All reviews (1★+)" },
+        { "value": "3", "label": "3 stars and above" },
+        { "value": "4", "label": "4 stars and above" },
+        { "value": "5", "label": "5 stars only" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "header",
+      "content": "Section content"
+    },
     {
       "type": "text",
       "id": "subheading",

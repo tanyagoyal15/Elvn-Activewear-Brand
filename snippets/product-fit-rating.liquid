@@ -1,0 +1,59 @@
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - fit_small {Number} - Count of customers saying runs small (optional, falls back to metafield reviews.fit_small).
+  - fit_true {Number} - Count saying true to size (optional, falls back to reviews.fit_true).
+  - fit_large {Number} - Count saying runs large (optional, falls back to reviews.fit_large).
+{%- endcomment -%}
+
+{%- liquid
+  assign fit_small = fit_small | default: product.metafields.reviews.fit_small
+  assign fit_true = fit_true | default: product.metafields.reviews.fit_true
+  assign fit_large = fit_large | default: product.metafields.reviews.fit_large
+  assign total = fit_small | plus: fit_true | plus: fit_large
+-%}
+
+{%- if total > 0 -%}
+  {%- liquid
+    assign small_pct = fit_small | times: 100 | divided_by: total
+    assign true_pct = fit_true | times: 100 | divided_by: total
+    assign large_pct = fit_large | times: 100 | divided_by: total
+
+    assign fit_large_100 = fit_large | times: 100
+    assign pos_num = fit_true | times: 50
+    assign pos_num = pos_num | plus: fit_large_100
+    assign indicator_pos = pos_num | divided_by: total
+
+    if true_pct >= small_pct and true_pct >= large_pct
+      assign fit_summary = 'true'
+    elsif small_pct > large_pct
+      assign fit_summary = 'small'
+    else
+      assign fit_summary = 'large'
+    endif
+  -%}
+
+  <div class="product-fit">
+    <p class="product-fit__heading text-sm font-bold mb-3">How does it fit?</p>
+    <div class="product-fit__scale">
+      <div class="product-fit__track" role="img" aria-label="Fit scale: {{ small_pct }}% runs small, {{ true_pct }}% true to size, {{ large_pct }}% runs large">
+        <div class="product-fit__fill" style="width: {{ indicator_pos }}%"></div>
+        <div class="product-fit__dot" style="left: {{ indicator_pos }}%"></div>
+      </div>
+      <div class="product-fit__labels">
+        <span class="text-xs{% if fit_summary == 'small' %} product-fit__label--active{% endif %}">Runs small</span>
+        <span class="text-xs{% if fit_summary == 'true' %} product-fit__label--active{% endif %}">True to size</span>
+        <span class="text-xs{% if fit_summary == 'large' %} product-fit__label--active{% endif %}">Runs large</span>
+      </div>
+    </div>
+    <p class="product-fit__summary text-sm mt-3">
+      {%- if fit_summary == 'small' -%}
+        {{ small_pct }}% of reviewers say this runs small
+      {%- elsif fit_summary == 'large' -%}
+        {{ large_pct }}% of reviewers say this runs large
+      {%- else -%}
+        {{ true_pct }}% of reviewers say this fits true to size
+      {%- endif -%}
+    </p>
+  </div>
+{%- endif -%}
