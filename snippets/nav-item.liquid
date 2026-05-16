@@ -1,0 +1,51 @@
+{% comment %}
+Reusable nav item
+Usage:
+{% render 'nav-item', link: child_link, level: 1 %}
+{% endcomment %}
+
+<li class="nav-level-{{ level }}">
+    {%- liquid
+      assign nav_color_hex = link.object.metafields.custom.color_hex.value | default: link.object.metafields.custom.color.value
+      if nav_color_hex == blank
+        assign _lc = link.title | downcase | strip
+        if _lc == 'black' or _lc == 'white' or _lc == 'ivory' or _lc == 'cream' or _lc == 'purple' or _lc == 'pink' or _lc == 'red' or _lc == 'butter yellow' or _lc == 'yellow' or _lc == 'green' or _lc == 'brown' or _lc == 'blue' or _lc == 'beige' or _lc == 'orange' or _lc == 'grey' or _lc == 'gray' or _lc == 'navy' or _lc == 'maroon' or _lc == 'burgundy' or _lc == 'lavender' or _lc == 'mint' or _lc == 'coral' or _lc == 'olive' or _lc == 'teal'
+          assign nav_color_hex = 'name-fallback'
+        endif
+      endif
+    -%}
+
+    {% if link.links != blank %}
+  
+      <details class="mobile-accordion">
+        
+        <summary class="flex justify-between items-center">
+          {% if link.object and link.object.url and nav_color_hex != blank %}
+            {% render 'color-nav-item', link: link, compact: true, show_image: false %}
+          {% else %}
+            <span>{{ link.title }}</span>
+          {% endif %}
+          <span class="icon">{% render 'icon-chevron-down' %}</span>
+        </summary>
+  
+        <ul class="mobile-submenu level-{{ level | plus: 1 }}">
+          {% for child in link.links %}
+            {% render 'nav-item', link: child, level: level | plus: 1 %}
+          {% endfor %}
+        </ul>
+  
+      </details>
+  
+    {% else %}
+  
+      <a href="{{ link.url }}" class="no-child-link {% if link.object and link.object.url and nav_color_hex != blank %}mobile-color-link{% endif %}">
+        {% if link.object and link.object.url and nav_color_hex != blank %}
+          {% render 'color-nav-item', link: link, compact: true, show_image: false %}
+        {% else %}
+          {{ link.title }}
+        {% endif %}
+      </a>
+  
+    {% endif %}
+  
+  </li>

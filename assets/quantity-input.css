@@ -1,0 +1,120 @@
+.qty-input {
+  --padding: 5px;
+  --size: calc((var(--btn-border-width) + var(--padding)) * 2 + 2.4rem);
+}
+
+.qty-input__input {
+  width: var(--size);
+  margin: 0;
+  padding-top: var(--padding);
+  padding-bottom: var(--padding);
+  border: var(--btn-border-width) solid rgba(var(--input-text-color)/0.8);
+  text-align: center;
+}
+
+.qty-input__btn {
+  position: relative;
+  z-index: 1;
+  width: var(--size);
+  height: var(--size);
+  padding: 0;
+  border: var(--btn-border-width) solid rgba(var(--input-text-color)/0.8);
+  border-radius: var(--btn-border-radius, 0);
+  background-color: rgba(var(--input-bg-color, 0.8));
+  color: rgb(var(--input-text-color));
+}
+
+.btn--minus::before, .btn--minus::after,
+.btn--plus::before,
+.btn--plus::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  width: 12px;
+  height: 2px;
+  transform: translate(50%, -50%);
+  background-color: currentColor;
+}
+.btn--minus::after,
+.btn--plus::after {
+  width: 2px;
+  height: 12px;
+}
+
+.btn--minus::after {
+  display: none;
+}
+
+.qty-input--joined .qty-input__input {
+  padding: var(--padding) 0;
+  border-radius: 0;
+}
+.qty-input--joined .btn--minus {
+  border-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.qty-input--joined .btn--plus {
+  border-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.js .qty-input--spaced .qty-input__input {
+  margin: 0 1rem;
+  padding: var(--padding);
+}
+
+.js .qty-input--combined {
+  border: var(--btn-border-width) solid rgba(var(--input-text-color)/0.8);
+  border-radius: var(--btn-border-radius, 0);
+  background-color: rgba(var(--input-bg-color, 0.8));
+}
+.js .qty-input--combined:focus-within {
+  border-color: rgba(var(--input-text-color));
+  box-shadow: 0 0 0 1px rgba(var(--input-text-color));
+}
+.js .qty-input--combined .qty-input__input,
+.js .qty-input--combined .qty-input__btn {
+  border: 0;
+  background: none;
+  color: rgb(var(--input-text-color));
+}
+.js .qty-input--combined .qty-input__input {
+  padding: var(--padding) 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.js .qty-input--combined .qty-input__btn {
+  width: calc(var(--padding) * 2 + 2.4rem);
+  height: calc(var(--padding) * 2 + 2.4rem);
+}
+
+.qty-input--simple .qty-input__input {
+  width: 5em;
+}
+.qty-input--simple .qty-input__btn {
+  display: none;
+}
+
+quantity-input {
+  font-size: 0;
+}
+
+.product-info__add-to-cart .qty-input {
+  height: 100%;
+}
+
+.qty-input__input {
+  flex: 1 1 auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .qty-input__btn {
+    transition: background-color 0.3s;
+  }
+  .qty-input__btn:hover::before, .qty-input__btn:hover::after {
+    background-color: rgba(var(--text-color)/0.5);
+  }
+}

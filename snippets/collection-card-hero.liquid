@@ -1,0 +1,149 @@
+{%- comment -%}
+  Parameters:
+  - collection {Object} - Collection object.
+  - image {Object} - Image object (optional).
+  - image_width {Number} - Maximum width of the image (optional).
+  - image_ratio {Number} - Aspect ratio for the image (optional).
+  - image_shadow {Boolean} - Show or hide the image shadow (optional, default is true).
+  - image_fit {String} - Image fit setting (optional).
+  - image_align {String} - Image alignment (optional).
+  - disable_focal_point {Boolean} - Disables the focussing of a spot on the image (optional, default is false).
+  - image_inset {Object} - Image object (optional).
+  - image_inset_width {Number} - Maximum width in the inset image (optional).
+  - custom_title {String} - Custom title text to replace collection title (optional).
+  - heading_size {String} - Font size of the title (optional).
+  - show_description {Boolean} - Show description (optional, default is false).
+  - custom_description {String} - Custom description text to replace collection description (optional).
+  - button_text {String} - Text for the button.
+  - button_style {String} - Style for the button.
+  - button_inline {Boolean} - Display button alongside content (optional, default is false).
+  - show_marquee_on_hover {Boolean} - Show animated text on hover (optional, default is false).
+  - color_scheme {String} - Color scheme for the card (optional).
+
+  Usage:
+  {% render 'collection-card-hero', collection: collection %}
+{%- endcomment -%}
+
+{%-liquid
+  assign image = image | default: collection.featured_image
+  assign image_width = image_width | default: 200
+  if image_ratio == blank
+    if settings.coll_card_image_ratio == 'shortest' or settings.coll_card_image_ratio == 'tallest'
+      assign image_ratio = 1
+    else
+      assign image_ratio = settings.coll_card_image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+  assign image_ratio_int = image_ratio | plus: 0
+  if image_ratio_int > 1
+    assign image_shape = 'landscape'
+  elsif image_ratio_int < 1
+    assign image_shape = 'portrait'
+  else
+    assign image_shape = 'square'
+  endif
+  assign image_shadow = image_shadow | default: true, allow_false: true
+  assign image_fit = image_fit | default: settings.coll_card_image_fit
+  assign image_align = image_align | default: settings.coll_image_align
+  assign disable_focal_point = disable_focal_point | default: false, allow_false: true
+
+  assign button_inline = button_inline | default: false, allow_false: true
+  assign title = custom_title | default: collection.title
+  if title == blank
+    assign title = 'onboarding.collection.title' | t
+  endif
+  assign show_description = show_description | default: false, allow_false: true
+  assign description = custom_description | default: collection.description
+  assign show_marquee_on_hover = show_marquee_on_hover | default: false, allow_false: true
+-%}
+
+<div class="collection-card--hero{% if color_scheme %} color-scheme color-scheme--{{ color_scheme }} color-scheme--no-bg{% endif %}">
+  <div class="card__backdrop">
+    {%- if show_marquee_on_hover -%}
+      {%- render 'marquee',
+        class: 'mb-0',
+        content_element: 'span',
+        content_class: 'h1 xxx-large-heading leading-[1.2] font-normal mb-0'
+        content: title,
+        disable_animate: true
+      -%}
+    {%- endif -%}
+  </div>
+  <div class="card__inner">
+    <div class="card__media">
+      <div class="media-container media-container--{{ image_shape | escape }}" style="--ratio: {{ image_ratio }};">
+        <div class="media-wrap" style="--width: {{ image_width }}px;">
+          <div class="media media--main{% if image_shadow %} media--shadow{% endif %} relative custom-aspect-ratio" style="--ratio: {{ image_ratio }}; --width: {{ image_width }}px;">
+            {%- if image -%}
+              {%- liquid
+                capture image_sizes
+                  render 'sizes-attribute', grid: true, min: 1, sm: 2, md: 3, max: 3
+                endcapture
+
+                assign image_class = 'img-fit'
+                if image_fit == 'contain'
+                  assign image_class = 'img-fit img-fit--contain'
+                else
+                  assign image_class = 'img-fit ' | append: image_align
+                endif
+              -%}
+              {%- render 'image',
+                image: image,
+                widths: '320, 460, 600, 700, 800, 900, 1200, 1500, 1800',
+                src_width: 460,
+                sizes: image_sizes,
+                class: image_class,
+                disable_focal_point: disable_focal_point
+              -%}
+            {%- else -%}
+              {%- capture placeholder_name -%}collection-{{ 'now' | date: '%N' | modulo: 6 | plus: 1 }}{%- endcapture -%}
+              {{- placeholder_name | placeholder_svg_tag: 'media__placeholder img-fit' -}}
+            {%- endif -%}
+          </div>
+          {%- if image_inset -%}
+            {%- liquid
+              assign image_inset_ratio = image_inset.aspect_ratio
+              assign image_inset_width = image_inset_width | default: 80
+
+              capture image_inset_sizes
+                render 'sizes-attribute', grid: true, min: 1, sm: 2, md: 3, max: 3
+              endcapture
+
+              assign image_inset_class = 'img-fit'
+              if image_fit == 'contain'
+                assign image_inset_class = 'img-fit img-fit--contain'
+              else
+                assign image_inset_class = 'img-fit ' | append: image_align
+              endif
+            -%}
+            <div class="media media--inset relative custom-aspect-ratio" style="--ratio: {{ image_inset_ratio }}; --media-inset-size: {{ image_inset_width }}px;">
+              {%- render 'image',
+                image: image_inset,
+                widths: '32, 64, 96, 128, 256, 384',
+                src_width: image_inset_width,
+                sizes: image_inset_sizes,
+                class: image_inset_class,
+                disable_focal_point: disable_focal_point
+              -%}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+    <div class="card__info{% if button_inline %} card__info--inline{% endif %}">
+      <p class="card__title card__title--collection{% if heading_size %} {{ heading_size }}{% endif %}">
+        {{- title | escape -}}
+      </p>
+      {%- if show_description and description != blank -%}
+        <div class="card__description rte">
+          {{- description -}}
+        </div>
+      {%- endif -%}
+      <a class="{{ button_style }}" {% if collection != blank %}href="{{ collection.url }}"{% else %}role="link" aria-disabled="true"{% endif %}>
+        {{- button_text -}}
+      </a>
+    </div>
+  </div>
+</div>

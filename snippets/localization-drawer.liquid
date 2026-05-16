@@ -1,0 +1,204 @@
+{%- comment -%}
+  Parameters:
+  - drawer_id {String}: ID of drawer
+
+  Usage:
+  {% render 'localization-drawer', drawer_id: 'localization-drawer-footer' %}
+{%- endcomment -%}
+
+<script src="{{ 'localization-drawer.js' | asset_url }}" defer></script>
+<link rel="stylesheet" href="{{ 'localization-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+
+{%- liquid
+  assign currencies = localization.available_countries | map: 'currency' | map: 'iso_code' | uniq
+
+  assign show_currencies = false
+  if currencies.size > 1
+    assign show_currencies = true
+  endif
+
+  assign max_visible = 12
+
+  assign form_id = 'form-' | append: drawer_id
+  assign heading_id = drawer_id | append: '-title'
+%}
+
+<localization-drawer class="localization-drawer drawer fixed top-0 right-0 flex flex-col w-full h-full has-motion color-scheme color-scheme--{{ settings.default_color_scheme.id }}"
+  id="{{ drawer_id }}"
+  data-name="{{ drawer_id }}"
+  data-triggered-by="{{ drawer_id }}"
+  role="dialog"
+  aria-labelledby="{{ heading_id }}"
+  aria-modal="true"
+  aria-hidden="true"
+  tabindex="-1">
+
+  <header class="drawer__header flex justify-between items-center">
+    <h2 class="drawer__heading mb-0 font-heading leading-normal" id="{{ heading_id }}">
+      {{ 'general.localization.region_and_language' | t }}
+    </h2>
+    <button type="button" class="drawer__close-btn js-close-drawer" aria-label="{{ 'accessibility.close' | t }}">
+      {% render 'icon-close' %}
+    </button>
+  </header>
+
+  <div class="drawer__content">
+  {%- form 'localization', id: form_id, class: 'localization-form', aria-labelledby: heading_id -%}
+
+    <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}" autocomplete="off">
+    <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}" autocomplete="off">
+
+    {% if settings.show_country %}
+    <details-disclosure>
+      <details class="disclosure disclosure--row" open>
+        <summary class="localization__toggle">
+          <div class="flex justify-between items-center">
+
+            <h3 class="disclosure__title font-heading leading-normal font-normal mb-0 me-2 country__title">{{ 'general.localization.region' | t }}</h3>
+
+            <span class="disclosure__toggle">
+              {%- if settings.disclosure_toggle == 'plus' -%}
+                {% render 'icon-plus' %}
+              {%- else -%}
+                {% render 'icon-chevron-down' %}
+              {%- endif -%}
+            </span>
+          </div>
+        </summary>
+        <div class="disclosure__panel has-motion pt-6 pb-6">
+          <div class="disclosure__content disclosure__content--country">
+            <fieldset class="localization-country" aria-label="Select your country">
+              <legend class="visually-hidden">{{ 'general.localization.accessibility_select_region' | t }}</legend>
+              <ul id="{{ section.id }}-localization-country-list" role="list" class="localization-country__list localization-country__list--{{ settings.localization_columns }} js-localization-country-list">
+                {%- for country in localization.available_countries -%}
+                  {% liquid
+                    assign aliases = ''
+                    case country.iso_code
+                      when 'US'
+                        assign aliases = aliases_us
+                      when 'GB'
+                        assign aliases = aliases_uk
+                    endcase
+
+                    assign active_country = false
+                    if country.iso_code == localization.country.iso_code
+                      assign active_country = true
+                    endif
+                  %}
+                  <li class="localization-country__item"{% if forloop.index > max_visible and active_country == false %} hidden{% endif %}>
+                    <input
+                      type="radio"
+                      name="{{ drawer_id }}-country"
+                      id="{{ drawer_id }}-country-{{ country.iso_code | downcase }}"
+                      value="{{ country.iso_code }}"
+                      class="localization-country__input js-localization-country visually-hidden focus-label{% if settings.localization_flags == 'none' %} checkbox{% endif %}"
+                      autocomplete="off"
+                      {% if active_country %} checked{% endif %}>
+                    <label for="{{ drawer_id }}-country-{{ country.iso_code | downcase }}" class="localization-country__label flex cursor-pointer">
+                      {% unless settings.localization_flags == 'none' %}
+                        <span class="localization-country__flag localization-country__flag--{{ settings.localization_flags }}" data-flag-url="{{- country | image_url: width: 32 }}"></span>
+                      {% endunless %}
+                      <span class="localization-country__name text-sm">{{- country.name -}}</span>
+                      <span class="localization-country__currency text-sm shrink-0"{% unless show_currencies %} hidden{% endunless %}>
+                        &nbsp;&#x2022; {{ country.currency.iso_code }} {{ country.currency.symbol -}}
+                      </span>
+                    </label>
+                  </li>
+                {% endfor %}
+              </ul>
+              {% if localization.available_countries.size > max_visible %}
+                <button
+                  type="button"
+                  class="link text-left mt-6 js-localization-country-toggle"
+                  aria-expanded="false"
+                  aria-controls="{{ section.id }}-localization-country-list"
+                  data-show-all="{{ 'general.localization.show_all' | t }}"
+                  data-show-less="{{ 'general.localization.show_less' | t }}"
+                >
+                  {{ 'general.localization.show_all' | t }}
+                </button>
+              {% endif %}
+            </fieldset>
+          </div>
+        </div>
+      </details>
+    </details-disclosure>
+    {% endif %}
+
+    {% if settings.show_language %}
+      <details-disclosure>
+        <details class="disclosure disclosure--row{% if settings.show_country %} disclosure--border-b{% endif %}" open>
+          <summary class="localization__toggle">
+            <div class="flex justify-between items-center">
+
+              <h3 class="disclosure__title font-heading leading-normal font-normal mb-0 me-2 language__title">{{ 'general.localization.language' | t }}</h3>
+
+              <span class="disclosure__toggle">
+                {%- if settings.disclosure_toggle == 'plus' -%}
+                  {% render 'icon-plus' %}
+                {%- else -%}
+                  {% render 'icon-chevron-down' %}
+                {%- endif -%}
+              </span>
+            </div>
+          </summary>
+          <div class="disclosure__panel has-motion pt-6 pb-6">
+            <div class="disclosure__content disclosure__content--language">
+              <fieldset class="localization-language" aria-label="Select your language">
+                <legend class="visually-hidden">{{ 'general.localization.accessibility_select_language' | t }}</legend>
+                <ul id="{{ section.id }}-localization-language-list" role="list" class="localization-language__list localization-language__list--{{ settings.localization_columns }} js-localization-language-list">
+                  {%- for language in localization.available_languages -%}
+                    {% liquid
+                      assign active_language = false
+                      if language.iso_code == localization.language.iso_code
+                        assign active_language = true
+                      endif
+                    %}
+                    <li class="localization-language__item"{% if forloop.index > max_visible and active_language == false %} hidden{% endif %}>
+                      <input
+                        type="radio"
+                        name="{{ drawer_id }}-language"
+                        id="{{ drawer_id }}-language-{{ language.iso_code | downcase }}"
+                        value="{{ language.iso_code }}"
+                        class="localization-language__input checkbox js-localization-language visually-hidden focus-label"
+                        autocomplete="off"
+                        {% if active_language %} checked{% endif %}>
+                      <label for="{{ drawer_id }}-language-{{ language.iso_code | downcase }}" class="localization-language__label cursor-pointer">
+                        <span class="text-sm">{{ language.endonym_name | capitalize }}</span>
+                      </label>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+                {% if localization.available_languages.size > max_visible %}
+                  <button
+                  type="button"
+                  class="link text-left mt-6 js-localization-language-toggle"
+                  aria-expanded="false"
+                  aria-controls="{{ section.id }}-localization-language-list"
+                  data-show-all="{{ 'general.localization.show_all' | t }}"
+                  data-show-less="{{ 'general.localization.show_less' | t }}"
+                >
+                  {{ 'general.localization.show_all' | t }}
+                </button>
+                {% endif %}
+              </fieldset>
+            </div>
+          </div>
+        </details>
+      </details-disclosure>
+    {% endif %}
+
+  {%- endform -%}
+  </div>
+
+  <footer class="drawer__footer">
+    <div class="localization-drawer__footer">
+      <button class="{{ settings.localization_button_style }} md:px-12 js-localization-submit" aria-label="Submit Form">
+        {{ 'general.localization.submit' | t }}
+      </button>
+    </div>
+  </footer>
+
+</localization-drawer>
+
+<div class="overlay fixed top-0 right-0 bottom-0 left-0 js-localization-overlay"></div>

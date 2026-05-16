@@ -1,0 +1,23 @@
+.icons-with-text .carousel:not([inactive]) .slider {
+  width: calc(100% - (var(--gutter) + 12px) * 2);
+  margin: 0 calc(var(--gutter) + 12px);
+}
+
+.icons-with-text .slider-nav {
+  top: 50%;
+  right: -16px;
+  left: -16px;
+  height: auto;
+  transform: translateY(-50%);
+}
+.icons-with-text .slider-nav__btn:last-child {
+  margin-inline-end: 0;
+}
+
+.icons-with-text__text:not(.text-center) {
+  margin-inline-start: 20px;
+}
+
+.icons-with-text__text > p {
+  margin: 0;
+}

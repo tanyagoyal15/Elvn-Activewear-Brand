@@ -1,0 +1,1151 @@
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'pattern' -%}
+      @media (min-width: 768px) {
+        #{{ section.id }} .parallax-paths {
+          {%- case block.settings.style -%}
+            {%- when '1' -%}
+              --parallax-offset: 0.5;
+            {%- when '2' -%}
+              --parallax-offset: 1
+            {%- when '3' -%}
+              --parallax-offset: 0.5;
+            {%- when '4' -%}
+              --parallax-offset: 0.5;
+          {%- endcase -%}
+        }
+      }
+    {%- endif -%}
+    {%- if block.type == 'roundel' -%}
+      #{{ section.id }} .roundel {
+        --roundel-size: {{ block.settings.roundel_size }}px;
+      }
+
+      #{{ section.id }} .parallax__roundel {
+        {%- if block.settings.roundel_position == 'left' -%}
+          left: {{ block.settings.roundel_size | times: -0.2 }}px;
+        {%- else -%}
+          right: {{ block.settings.roundel_size | times: -0.2 }}px;
+        {%- endif -%}
+      }
+
+      @media (min-width: 768px) {
+        #{{ section.id }} .primary-image .media-container { position: relative; }
+        #{{ section.id }} .parallax__roundel {
+          {%- if block.settings.roundel_position == 'left' -%}
+            left: {{ block.settings.roundel_size | times: -0.6 }}px;
+          {%- else -%}
+            right: {{ block.settings.roundel_size | times: -0.6 }}px;
+          {%- endif -%}
+        }
+      }
+    {%- endif -%}
+  {%- endfor -%}
+
+  #{{ section.id }} .primary-image {
+    margin-top: {{ section.settings.image_overlap_desktop }}px;
+  }
+
+  #{{ section.id }} .media-container,
+  #{{ section.id }} .media {
+    max-width: min({{ section.settings.image_width_desktop }}px, calc(var(--ratio) * 55vh));
+  }
+
+
+  @media (max-width: 767.8px) {
+    #{{ section.id }} .primary-image {
+      --parallax-offset: -5vh;
+      margin-top: {{ section.settings.image_overlap_mobile }}px;
+    }
+
+    #{{ section.id }} .media-container,
+    #{{ section.id }} .media {
+      max-width: min({{ section.settings.image_width_mobile }}px, calc(var(--ratio) * 55vh));
+    }
+  }
+
+  {%- if section.settings.text_width_override -%}
+    #{{ section.id }} {
+      --reading-width: {{ section.settings.text_max_width }}px;
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+<parallax-container>
+  <div id="{{ section.id }}" class="section
+                                    relative
+                                    pb-20
+                                    md:pb-26
+                                    lg:pb-30
+                                    color-scheme
+                                    color-scheme--{{ color_scheme }}">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'pattern' -%}
+        {%- assign svg_rgbhex = block.settings.color | color_to_hex | remove: '#' -%}
+        <div class="absolute top-[-100vh] left-0 w-full h-[300vh] parallax pointer-events-none" style="--parallax-speed: 0; opacity: {{ block.settings.opacity | divided_by: 100.0 }}" {{ block.shopify_attributes }}>
+          <div class="sticky top-0 h-[100vh]">
+            {%- case block.settings.style -%}
+              {%- when '1' -%}
+                <svg class="absolute left-0 w-full bottom-[-2vh] parallax-paths" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin slice" viewBox="0 0 1231.93 1346.36" fill="none" stroke="#{{ svg_rgbhex }}" stroke-miterlimit="10">
+                  <path d="M.11,297.03s576.48,124.38,1231.73,0" style="--path-length: 1239px" />
+                  <path d="M.11.49s452.73,94.71,422.07,665.4c0,0-28.17,467.82-422.07,554.17" style="--path-length: 1605px" />
+                  <ellipse cx="619.5" cy="357.77" rx="218.14" ry="267.67" style="--path-length: 1530px" />
+                  <path d="M1231.68,665.89c-394.03-159.69-641.43,0-641.43,0,0,0-321.76,139.21-321.76,680.32" style="--path-length: 1453px" />
+                  <path d="M.11,786.87s497.05,50.27,666.82,559.33" style="--path-length: 9188px" />
+                </svg>
+              {%- when '2' -%}
+                <svg class="absolute left-0 w-full bottom-[-2vh] parallax-paths" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin slice" viewBox="0 0 1333.88 425.44" fill="none" stroke="#{{ svg_rgbhex }}" stroke-miterlimit="10">
+                  <path d="M90.93,412.24S235.11,2.46,690.41.57c0,0,390.8-15.18,550.16,411.67" style="--path-length: 1506px" />
+                  <path d="M745.96,425.24s73.68-179.87,306.34-180.7c0,0,199.7-6.66,281.13,180.7" style="--path-length: 730px" />
+                  <path d="M.46,425.24s73.68-179.87,306.34-180.7c0,0,199.7-6.66,281.13,180.7" style="--path-length: 730px" />
+                  <path d="M372.02,425.24s73.68-179.87,306.34-180.7c0,0,199.7-6.66,281.13,180.7" style="--path-length: 730px" />
+                </svg>
+              {%- when '3' -%}
+                <svg class="absolute left-0 w-full bottom-[-2vh] parallax-paths" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin slice" viewBox="0 0 1231.93 666.33" fill="none" stroke="#{{ svg_rgbhex }}" stroke-miterlimit="10">
+                  <path d="M.11,297.03s576.48,124.38,1231.73,0" style="--path-length: 1239px" />
+                  <path d="M.11.49s452.73,94.71,422.07,665.4" style="--path-length: 858px" />
+                  <ellipse cx="619.5" cy="357.77" rx="218.14" ry="267.67" style="--path-length: 1530px" />
+                  <path d="M590.25,665.89s266.49-159.88,575.43,0" style="--path-length: 599px" />
+                </svg>
+              {%- when '4' -%}
+                <svg class="absolute left-0 w-full bottom-[-2vh] parallax-paths" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin slice" viewBox="0 0 1231.65 648.67" fill="none" stroke="#{{ svg_rgbhex }}" stroke-miterlimit="10">
+                  <path d="M.01,603.96S524.11,592,678.29.13" style="--path-length: 973px" />
+                  <path d="M3.02,615.52S658.25,663.32,824.77.13" style="--path-length: 1118px" />
+                  <path d="M824.77.13s77.87,368.7,406.66,529.05" style="--path-length: 689px" />
+                  <path d="M445.68,648.51s178.18-516.81,785.75-486.97" style="--path-length: 990px" />
+                </svg>
+            {%- endcase -%}
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    <div class="container text-center relative z-1" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+      <div class="pt-8 lg:pt-32 md:min-h-[110vh]">
+        <div class="sticky-top">
+          {%- liquid
+            assign tag = 'h2'
+            if section.settings.heading_h1
+              assign tag = 'h1'
+            endif
+          -%}
+          <{{ tag }} class="section__block
+                section__block--heading
+                pt-12
+                relative
+                md:{{ section.settings.heading_size_desktop }}
+                {{ section.settings.heading_size_mobile }}
+                {%- if section.settings.image_overlap_mode contains 'front' %} z-1{% endif %}
+                {%- if section.settings.image_overlap_mode contains 'front ' %} {{ section.settings.image_overlap_mode | remove: 'front ' }}{% endif %}">
+            {%- if section.settings.heading_line_1 != blank -%}
+              <span class="md:block parallax-in-left parallax-not-mobile" style="--parallax-offset: -15vh">{{ section.settings.heading_line_1 }}</span>
+            {% endif -%}
+            {%- if section.settings.heading_line_2 != blank -%}
+              <span class="md:block parallax-in-right parallax-not-mobile" style="--parallax-offset: -15vh">{{ section.settings.heading_line_2 }}</span>
+            {%- endif -%}
+          </{{ tag }}>
+
+          <div class="primary-image parallax-up-stop relative">
+            {%- if section.settings.image_link != blank -%}
+              <a href="{{ section.settings.image_link }}">
+            {%- endif -%}
+
+            <div class="mx-auto media-container" style="--ratio: {{ section.settings.image.aspect_ratio | default: 1 }};">
+              <div class="media relative custom-aspect-ratio mx-auto
+                          {%- if section.settings.enable_image_shadow %} shadow-lg{% endif %}
+                          {%- if section.settings.enable_rounded_corners %} rounded-content{% endif %}"
+                   style="--ratio: {{ section.settings.image.aspect_ratio | default: 1 }};">
+
+                {%- liquid
+                  if section.settings.image != blank
+                    render 'image', image: section.settings.image, src_width: section.settings.image_width_desktop, srcset_2x: true, lazy_load: false
+                  else
+                    assign placeholder_tag_classes = 'media__placeholder media__placeholder--transparent media__placeholder--bordered img-fit'
+                    if section.settings.enable_rounded_corners
+                      assign placeholder_tag_classes = placeholder_tag_classes | append: ' rounded-content'
+                    endif
+                    echo 'image' | placeholder_svg_tag: placeholder_tag_classes
+                  endif
+                -%}
+              </div>
+
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'roundel' -%}
+                  <div class="parallax__roundel absolute z-10 parallax" style="--roundel-offset: 0; --parallax-speed: -0.8; color: {{ block.settings.color }}" {{ block.shopify_attributes }}>
+                    {%-
+                      render 'roundel',
+                        uid: block.id,
+                        spin: block.settings.spin,
+                        outer_frame: block.settings.enable_outer_frame,
+                        inner_frame: block.settings.enable_inner_frame,
+                        outer_text: block.settings.outer_text,
+                        outer_text_line_offset: block.settings.outer_text_line_offset,
+                        outer_text_letter_spacing: block.settings.outer_text_letter_spacing,
+                        inner_type: block.settings.inner_type,
+                        inner_text_1: block.settings.inner_text_1,
+                        inner_text_1_size: block.settings.inner_text_1_size,
+                        inner_text_2: block.settings.inner_text_2,
+                        inner_text_2_size: block.settings.inner_text_2_size,
+                        inner_text_font: block.settings.inner_text_font,
+                        icon: block.settings.icon
+                        usp_icon: block.settings.usp_icon
+                    -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- if section.settings.image_link != blank -%}
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reading-width max-md:px-6">
+        {%- if section.settings.text != blank -%}
+          <div class="mt-18 rte mx-auto{% if section.settings.enlarge_text %} enlarge-text{% endif %}">
+            {{- section.settings.text -}}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.button_1_label != blank or section.settings.button_2_label != blank -%}
+          <div class="mt-8 inline-flex flex-wrap gap-4 justify-center">
+            {%- if section.settings.button_1_label != blank %}
+              <a class="{{ section.settings.button_1_style }}" {% if section.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ section.settings.button_1_link }}"{% endif %}>
+                {{- section.settings.button_1_label | escape -}}
+              </a>
+            {%- endif -%}
+            {%- if section.settings.button_2_label != blank %}
+              <a class="{{ section.settings.button_2_style }}" {% if section.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ section.settings.button_2_link }}"{% endif %}>
+                {{- section.settings.button_2_label | escape -}}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</parallax-container>
+
+{% schema %}
+{
+  "name": "Parallax image with text",
+  "tag": "section",
+  "class": "cc-parallax-image-with-text non-join",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_1",
+      "label": "Heading line 1",
+      "default": "Parallax"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_2",
+      "label": "Heading line 2",
+      "default": "Banner"
+    },
+    {
+      "type": "select",
+      "id": "heading_size_desktop",
+      "label": "Heading size (desktop)",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "xx-large-heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "x-large-heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_h1",
+      "label": "Set as page heading (uses h1 tag)",
+      "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "range",
+      "id": "image_width_desktop",
+      "min": 200,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "label": "Image width - desktop",
+      "info": "Image is also constrained to the height of the screen.",
+      "default": 760
+    },
+    {
+      "type": "range",
+      "id": "image_overlap_desktop",
+      "min": -400,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Space above image - desktop",
+      "default": -100
+    },
+    {
+      "type": "range",
+      "id": "image_width_mobile",
+      "min": 100,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Image width - mobile",
+      "default": 260
+    },
+    {
+      "type": "range",
+      "id": "image_overlap_mobile",
+      "min": -400,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Space above image - mobile",
+      "default": -100
+    },
+    {
+      "type": "url",
+      "id": "image_link",
+      "label": "Image link"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_image_shadow",
+      "label": "Enable image shadow",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_rounded_corners",
+      "label": "Enable round corners",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_overlap_mode",
+      "label": "Overlap mode",
+      "info": "When image overlaps heading",
+      "default": "behind",
+      "options": [
+        {
+          "value": "behind",
+          "label": "Text behind"
+        },
+        {
+          "value": "front",
+          "label": "Text in front"
+        },
+        {
+          "value": "front mix-blend-plus-lighter",
+          "label": "Text in front - blend 1"
+        },
+        {
+          "value": "front mix-blend-exclusion",
+          "label": "Text in front - blend 2"
+        },
+        {
+          "value": "front mix-blend-screen",
+          "label": "Text in front - blend 3"
+        }
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Share information about your store with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "enlarge_text",
+      "label": "Enlarge text",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "text_width_override",
+      "label": "Custom text width",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.text_width_override }}",
+      "type": "range",
+      "id": "text_max_width",
+      "min": 400,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "label": "Maximum text width",
+      "default": 640
+    },
+    {
+      "type": "text",
+      "id": "button_1_label",
+      "label": "Button 1 label",
+      "default": "Optional button"
+    },
+    {
+      "type": "url",
+      "id": "button_1_link",
+      "label": "Button 1 link"
+    },
+    {
+      "type": "select",
+      "id": "button_1_style",
+      "label": "Button 1 style",
+      "options": [
+        {
+          "value": "link",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--primary"
+    },
+    {
+      "type": "text",
+      "id": "button_2_label",
+      "label": "Button 2 label",
+      "default": "Optional button"
+    },
+    {
+      "type": "url",
+      "id": "button_2_link",
+      "label": "Button 2 link"
+    },
+    {
+      "type": "select",
+      "id": "button_2_style",
+      "label": "Button 2 style",
+      "options": [
+        {
+          "value": "link",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--primary"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "roundel",
+      "name": "Roundel",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Color",
+          "default": "#b28362"
+        },
+        {
+          "type": "header",
+          "content": "Roundel: Outer"
+        },
+        {
+          "type": "text",
+          "id": "outer_text",
+          "label": "Outer text",
+          "default": "YOUR TEXT HERE - YOUR TEXT HERE -"
+        },
+        {
+          "type": "range",
+          "id": "outer_text_line_offset",
+          "min": 0,
+          "max": 5,
+          "step": 0.1,
+          "label": "Line height",
+          "default": 2.7
+        },
+        {
+          "type": "range",
+          "id": "outer_text_letter_spacing",
+          "min": 0,
+          "max": 6,
+          "step": 0.1,
+          "label": "Letter spacing",
+          "default": 2.6
+        },
+        {
+          "type": "header",
+          "content": "Roundel: Inner"
+        },
+        {
+          "type": "select",
+          "id": "inner_type",
+          "label": "Content type",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "icon_basic",
+              "label": "Icon - Basic"
+            },
+            {
+              "value": "icon_cosmetic",
+              "label": "Icon - Cosmetics"
+            }
+          ],
+          "default": "text"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' }}",
+          "type": "text",
+          "id": "inner_text_1",
+          "default": "Inner",
+          "label": "Line 1"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' and block.settings.inner_text_1 != blank }}",
+          "type": "range",
+          "id": "inner_text_1_size",
+          "min": 14,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 20
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' }}",
+          "type": "text",
+          "id": "inner_text_2",
+          "default": "Text",
+          "label": "Line 2"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' and block.settings.inner_text_2 != blank }}",
+          "type": "range",
+          "id": "inner_text_2_size",
+          "min": 14,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 26
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' }}",
+          "type": "select",
+          "id": "inner_text_font",
+          "label": "Font",
+          "options": [
+            {
+              "value": "heading",
+              "label": "Heading"
+            },
+            {
+              "value": "body",
+              "label": "Body"
+            }
+          ],
+          "default": "body"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'icon_basic' }}",
+          "type": "select",
+          "id": "icon",
+          "label": "Basic icon",
+          "options": [
+            {
+              "value": "",
+              "label": "None"
+            },
+            {
+              "value": "award",
+              "label": "Award"
+            },
+            {
+              "value": "box",
+              "label": "Box"
+            },
+            {
+              "value": "briefcase",
+              "label": "Briefcase"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "chat_bubble",
+              "label": "Chat bubble"
+            },
+            {
+              "value": "check_mark",
+              "label": "Check mark"
+            },
+            {
+              "value": "check_mark_in_circle",
+              "label": "Check mark in circle"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            },
+            {
+              "value": "credit_card",
+              "label": "Credit card"
+            },
+            {
+              "value": "dollar_sign",
+              "label": "Dollar sign"
+            },
+            {
+              "value": "dryer",
+              "label": "Dryer"
+            },
+            {
+              "value": "eye",
+              "label": "Eye"
+            },
+            {
+              "value": "feather",
+              "label": "Feather"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "heart",
+              "label": "Heart"
+            },
+            {
+              "value": "iron",
+              "label": "Iron"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "leather",
+              "label": "Leather"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "map_pin",
+              "label": "Map pin"
+            },
+            {
+              "value": "pants",
+              "label": "Pants"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "plane",
+              "label": "Plane"
+            },
+            {
+              "value": "price_tag",
+              "label": "Price tag"
+            },
+            {
+              "value": "question_mark",
+              "label": "Question mark"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "ruler",
+              "label": "Ruler"
+            },
+            {
+              "value": "scissors",
+              "label": "Scissors"
+            },
+            {
+              "value": "shirt",
+              "label": "Shirt"
+            },
+            {
+              "value": "shoe",
+              "label": "Shoe"
+            },
+            {
+              "value": "silhouette",
+              "label": "Silhouette"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "washing",
+              "label": "Washing"
+            }
+          ],
+          "default": "box"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'icon_cosmetic' }}",
+          "type": "select",
+          "id": "usp_icon",
+          "label": "Cosmetics icon",
+          "default": "beauty-routine",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Roundel: Layout"
+        },
+        {
+          "type": "select",
+          "id": "roundel_position",
+          "label": "Position",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "right"
+        },
+        {
+          "type": "range",
+          "id": "roundel_size",
+          "min": 100,
+          "max": 200,
+          "step": 10,
+          "label": "Roundel size",
+          "default": 160
+        },
+        {
+          "type": "select",
+          "id": "spin",
+          "label": "Spin",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "scroll",
+              "label": "On scroll"
+            },
+            {
+              "value": "slow",
+              "label": "Slow"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "fast",
+              "label": "Fast"
+            }
+          ],
+          "default": "scroll"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_inner_frame",
+          "label": "Enable inner outline",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_outer_frame",
+          "label": "Enable outer outline",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "pattern",
+      "name": "Pattern",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "default": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            },
+            {
+              "value": "4",
+              "label": "4"
+            }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Color",
+          "default": "#999999"
+        },
+        {
+          "type": "range",
+          "id": "opacity",
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "label": "Opacity",
+          "default": 25
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Parallax image with text",
+      "category": "Feature",
+      "blocks": [
+        {
+          "type": "roundel"
+        },
+        {
+          "type": "pattern"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

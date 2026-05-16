@@ -1,0 +1,87 @@
+{%- comment -%}
+  Parameters:
+  - uid {String} - Unique ID for use in an HTML ID - typically a section or block ID.
+  - spin {String} - 'none' or 'scroll' or 'slow' or 'medium' or 'fast'
+  - outer_frame {Boolean} - Show the outer frame or not.
+  - inner_frame {Boolean} - Show the inner frame or not.
+  - outer_text {String} - Text to show in a circle around the roundel. Maintains double spaces.
+  - inner_type {String} - Determines what content fills the circle: Text, Basic Icon, Cosmetic Icon
+  - inner_text_1 {String} - First line of text within the roundel (optional).
+  - inner_text_1_size {Number} - Size of the first line of text within the roundel (required if inner_text_1 present).
+  - inner_text_2 {String} - Second line of text within the roundel (optional).
+  - inner_text_2_size {Number} - Size of the first line of text within the roundel (required if inner_text_2 present).
+  - inner_text_font {String} - Inner text font type - 'body' or 'heading'
+  - icon {String} - Name of icon to show within the roundel, using icon snippet (optional).
+  - usp_icon {String} - Name of USP icon to show within the roundel, using icon-usp snippet (optional).
+  - outer_text_line_offset {Number} - Vertical alignment offset for outer text (default is 2.5).
+  - outer_text_letter_spacing {Number} - Letter spacing for outer text.
+  - in_parallax {Boolean} - Is this inside a parallax container, does not need its own if so (default is false).
+
+  Usage:
+  {% render 'roundel',
+    uid: block.id,
+    spin: 'slow',
+    outer_frame: true,
+    inner_frame: true,
+    outer_text: 'KNEEL BEFORE ZOD',
+    outer_text_line_offset: 2.5,
+    outer_text_letter_spacing: 0,
+    inner_type: "text",
+    inner_text_1: 'KNEEL',
+    inner_text_1_size: 16,
+    inner_text_2: 'NOW',
+    inner_text_2_size: 20,
+    inner_text_font: 'body',
+    icon: 'calendar'
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  assign outer_text_line_offset = outer_text_line_offset | minus: 2.5
+  assign outer_text_line_radius = 37 | plus: outer_text_line_offset
+  assign outer_text_line_edge_x_offset = 50 | minus: outer_text_line_radius
+-%}
+
+{%- unless spin != 'scroll' or in_parallax -%}<parallax-container>{%- endunless -%}
+<div class="roundel{% unless spin == 'scroll' %} roundel--spin-{{ spin }}{% endunless %} relative">
+  <svg class="roundel__outer absolute inset-0 pointer-events-none{% if spin == 'scroll' %} parallax-spin{% endif %}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    {%- if outer_frame -%}<circle cx="50" cy="50" r="49" stroke="currentColor" stroke-width="0.5" fill="none" />{%- endif -%}
+    {%- if inner_frame -%}<circle cx="50" cy="50" r="33" stroke="currentColor" stroke-width="0.5" fill="none" />{%- endif -%}
+    <path
+      id="RoundelTextPath-{{ uid }}"
+      fill="none"
+      stroke="none"
+      d="
+        M {{ outer_text_line_edge_x_offset }},50
+        A {{ outer_text_line_radius }} {{ outer_text_line_radius }} 0 1 1 {{ 100 | minus: outer_text_line_edge_x_offset }} 50
+        A {{ outer_text_line_radius }} {{ outer_text_line_radius }} 0 1 1 {{ outer_text_line_edge_x_offset }} 50" />
+    <text class="roundel__outer-text" fill="currentColor" style="letter-spacing: {{ outer_text_letter_spacing }}px">
+      <textPath href="#RoundelTextPath-{{ uid }}">{{ outer_text | replace: '  ', '&nbsp;&nbsp;' }}</textPath>
+    </text>
+  </svg>
+  {% if inner_type == "text" %}
+    {%- if inner_text_1 != blank or inner_text_2 != blank -%}
+      <div class="roundel__inner text-center absolute inset-0 h-full flex flex-col items-center justify-center font-{{ inner_text_font }}">
+        {%- if inner_text_1 != blank %}<div class="roundel__inner-1 leading-none" style="font-size: {{ inner_text_1_size }}px">{{ inner_text_1 }}</div>{% endif %}
+        {% if inner_text_2 != blank %}<div class="roundel__inner-2 leading-none" style="font-size: {{ inner_text_2_size }}px">{{ inner_text_2 }}</div>{% endif -%}
+      </div>
+    {%- endif -%}
+  {% endif %}
+
+  {% if inner_type == "icon_cosmetic" %}
+    {%- if usp_icon != 'none' -%}
+      <div class="roundel__icon absolute inset-0 flex items-center justify-center">
+        {%- render 'icon-usp', icon: usp_icon, width: 68, height: 68 -%}
+      </div>
+    {%- endif -%}
+  {% endif %}
+
+  {% if inner_type == "icon_basic" %}
+    {%- if icon != blank -%}
+      <div class="roundel__icon absolute inset-0 flex items-center justify-center">
+        {%- render 'icon', icon: icon, width: 68, height: 68 -%}
+      </div>
+    {%- endif -%}
+  {% endif %}
+</div>
+{%- unless spin != 'scroll' or in_parallax -%}</parallax-container>{%- endunless -%}

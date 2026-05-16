@@ -1,0 +1,647 @@
+<link rel="stylesheet" href="{{ 'before-after-image-slider.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+<link rel="stylesheet" href="{{ 'before-after.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+<script src="{{ 'before-after.js' | asset_url }}" defer></script>
+
+{%- liquid
+  # constants
+  assign gutter_lg = 56
+  assign breakpoint_sm = 480
+  assign breakpoint_xxl = 1536
+  assign breakpoint_page = settings.max_page_width | default: 1320 | plus: gutter_lg | plus: gutter_lg
+-%}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+  assign quality = settings.image_quality
+
+  assign content_classes = 'col-span-full'
+  assign slider_classes = 'col-span-full'
+  if section.settings.image_position == 'left' or section.settings.image_position == 'right'
+    assign content_classes = content_classes | append: ' xl:col-span-4'
+    assign slider_classes = slider_classes | append: ' xl:col-span-7'
+    if section.settings.image_position == 'left'
+      assign content_classes = content_classes | append: ' xl:col-start-9'
+    else
+      assign slider_classes = slider_classes | append: ' xl:col-start-6'
+    endif
+  endif
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  {%- if section.settings.height_mode == 'fixed' -%}
+    #{{ section.id }} before-after {
+      min-height: {{ section.settings.fixed_height_mobile }}px;
+    }
+    @media (min-width: {{ breakpoint_sm }}px) {
+      #{{ section.id }} before-after {
+        min-height: min({{ section.settings.fixed_height_desktop }}px, calc({{ section.settings.fixed_height_mobile }}px + ({{ section.settings.fixed_height_desktop }} - {{ section.settings.fixed_height_mobile }}) * ((100vw - {{ breakpoint_sm }}px) / {{ breakpoint_xxl | minus: breakpoint_sm }})));
+      }
+    }
+    @media (min-width: {{ breakpoint_page }}px) {
+      #{{ section.id }} before-after {
+        min-height: {{ section.settings.fixed_height_desktop }}px;
+      }
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+{%- capture content_markup -%}
+  <div class="reading-width--inline {{ section.settings.text_align }}{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'heading' -%}
+          {%- if block.settings.heading != blank -%}
+            <{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__block section__block--heading {{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+              {{- block.settings.heading | escape -}}
+            </{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+          {%- endif -%}
+
+        {%- when 'subheading' -%}
+          {%- if block.settings.text != blank -%}
+            <p class="section__block section__block--subheading subheading" {{ block.shopify_attributes }}>
+              {{- block.settings.text | escape -}}
+            </p>
+          {%- endif -%}
+
+        {%- when 'text' -%}
+          {%- if block.settings.text != blank -%}
+            <div class="section__block rte{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}{% if block.settings.enlarge_text %} enlarge-text{% endif %}" {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </div>
+          {%- endif -%}
+
+        {%- when 'button' -%}
+          {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+            <div class="section__block section__block--buttons flex flex-wrap {% if section.settings.text_align == 'text-start' %} justify-start{% elsif section.settings.text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %} items-center" {{ block.shopify_attributes }}>
+              {%- if block.settings.button_1_label != blank %}
+                <a class="{{ block.settings.button_1_style }}" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
+                  {{- block.settings.button_1_label | escape -}}
+                </a>
+              {%- endif -%}
+              {%- if block.settings.button_2_label != blank %}
+                <a class="{{ block.settings.button_2_style }}" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
+                  {{- block.settings.button_2_label | escape -}}
+                </a>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+{%- endcapture -%}
+
+<div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  <div class="flex{% if section.settings.full_width == false %} container{% endif %}">
+    <div class="section section--full-width
+                {%- if section.settings.full_width %} section--padded{% else %} section--standard{% endif %}
+                {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                z-3
+                {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                color-scheme
+                {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                color-scheme--{{ color_scheme }}">
+      <div class="container" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+        <div class="before-after-image-slider{% if section.settings.image_position == 'above' or section.settings.image_position == 'below' %} before-after-image-slider--stacked{% endif %} grid grid-cols-12 gap-y-8 md:gap-y-16 lg:gap-y-20 xl:items-center">
+          {%- if section.settings.image_position == 'below' or section.settings.image_position == 'right' -%}
+            <div class="before-after-image-slider__content {{ content_classes }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+              {{ content_markup }}
+            </div>
+          {%- endif -%}
+          <div class="before-after-image-slider__slider {{ slider_classes }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+            <before-after class="before-after img--border-radius-small{% if section.settings.height_mode == 'auto' %} custom-aspect-ratio{% endif %}{% if section.settings.image_position == 'right' %} xl:ms-auto{% endif %}{% if section.settings.animate_on_load %} before-after--animate has-motion{% endif %}"{% if section.settings.height_mode == 'auto' %} style="--ratio: {{ section.settings.image_before.aspect_ratio | default: 1.77 }};"{% endif %}>
+              {%- capture sizes -%}
+                {%- if section.settings.image_position == 'above' or section.settings.image_position == 'below' -%}
+                  {%- render 'sizes-attribute', min: 'page', sm: 'page', md: 'page', lg: 'page', xl: '1072px', max: '1200px' -%}
+                {%- else -%}
+                  {%- render 'sizes-attribute', min: 'page', sm: 'page', md: 'page', lg: 'page', xl: '626px', max: '817px' -%}
+                {%- endif -%}
+              {%- endcapture -%}
+              <div class="before-after__image before-after__image--before{% if section.settings.animate_on_load %} has-motion{% endif %}">
+                {%- if section.settings.image_before -%}
+                  {%- render 'image',
+                    image: section.settings.image_before,
+                    class: 'img-fit',
+                    quality: quality,
+                    widths: '1200, 1400, 1600, 1920, 2560, 3200',
+                    mobile_widths: '480, 980, 1200',
+                    src_width: 1200,
+                    sizes: sizes,
+                    section_index: section.index
+                  -%}
+                {%- else -%}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'media__placeholder' }}
+                {%- endif -%}
+                {%- if section.settings.image_before_caption != blank -%}
+                  <div class="before-after__caption{% unless section.settings.show_captions_on_mobile %} hidden sm:block{% endunless %}">
+                    {{- section.settings.image_before_caption -}}
+                  </div>
+                {%- endif -%}
+              </div>
+              <div class="before-after__image before-after__image--after{% if section.settings.animate_on_load %} has-motion{% endif %}">
+                {%- if section.settings.image_after -%}
+                  {%- render 'image',
+                    image: section.settings.image_after,
+                    class: 'img-fit',
+                    quality: quality,
+                    widths: '536, 800, 1072, 1280',
+                    mobile_widths: '690, 800',
+                    src_width: 536,
+                    sizes: sizes,
+                    section_index: section.index
+                  -%}
+                {%- else -%}
+                  {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder' }}
+                {%- endif -%}
+                {%- if section.settings.image_after_caption != blank -%}
+                  <div class="before-after__caption{% unless section.settings.show_captions_on_mobile %} hidden sm:block{% endunless %}">
+                    {{- section.settings.image_after_caption -}}
+                  </div>
+                {%- endif -%}
+              </div>
+              <div class="before-after__divider{% if section.settings.animate_on_load %} has-motion{% endif %}" tabindex="0">
+                <div class="before-after__btn">
+                  <span class="sr-only">{{ 'general.icon_labels.drag' | t }}</span>
+                  {% render 'icon-chevrons' %}
+                </div>
+              </div>
+            </before-after>
+          </div>
+          {%- if section.settings.image_position == 'above' or section.settings.image_position == 'left' -%}
+            <div class="before-after-image-slider__content {{ content_classes }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+              {{ content_markup }}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Before/after image slider",
+  "class": "cc-before-after-image-slider",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "animate_on_load",
+      "label": "Animate on load",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_before",
+      "label": "Image before"
+    },
+    {
+      "type": "text",
+      "id": "image_before_caption",
+      "label": "Image before caption",
+      "default": "Image before"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_after",
+      "label": "Image after"
+    },
+    {
+      "type": "text",
+      "id": "image_after_caption",
+      "label": "Image after caption",
+      "default": "Image after"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_captions_on_mobile",
+      "label": "Show captions on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Image layout"
+    },
+    {
+      "type": "select",
+      "id": "height_mode",
+      "label": "Image height",
+      "info": "Restricted to 1080px maximum when using \"Original image height\".",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Original image height"
+        },
+        {
+          "value": "fixed",
+          "label": "Fixed height (set below)"
+        }
+      ],
+      "default": "fixed"
+    },
+    {
+      "visible_if": "{{ section.settings.height_mode == 'fixed' }}",
+      "type": "range",
+      "id": "fixed_height_desktop",
+      "min": 400,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "label": "Fixed height (desktop)",
+      "default": 600
+    },
+    {
+      "visible_if": "{{ section.settings.height_mode == 'fixed' }}",
+      "type": "range",
+      "id": "fixed_height_mobile",
+      "min": 250,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Fixed height (mobile)",
+      "default": 350
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "info": "Left and Right are for larger screens only.",
+      "options": [
+        {
+          "value": "above",
+          "label": "Above"
+        },
+        {
+          "value": "below",
+          "label": "Below"
+        },
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Talk about your brand"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h4",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            },
+            {
+              "value": "x-large-heading",
+              "label": "Large"
+            },
+            {
+              "value": "xx-large-heading",
+              "label": "Extra large"
+            }
+          ],
+          "default": "x-large-heading"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_h1",
+          "label": "Set as page heading (uses h1 tag)",
+          "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subheading",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_text",
+          "label": "Enlarge text",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "Button 1 label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button 1 link"
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button 1 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Button 2 label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Button 2 link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Button 2 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Before/after image slider",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

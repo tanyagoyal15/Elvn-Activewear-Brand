@@ -1,0 +1,149 @@
+{%- liquid
+  if settings.currency_code_enabled
+    assign gift_card_balance = gift_card.balance | money_with_currency
+  else
+    assign gift_card_balance = gift_card.balance | money
+  endif
+-%}
+
+<div class="gift-card color-scheme color-scheme--{{ section.settings.color_scheme }}" id="{{ section.id }}">
+  <div class="container">
+    <div class="section section--standard flex flex-col items-center text-center">
+      <div class="gift-card__logo logo text-center{% if section.settings.logo %} mb-12{% endif %}">
+        {%- if section.settings.logo -%}
+        {%- liquid
+          assign logo_width = section.settings.logo_width
+          if section.settings.logo.width < logo_width
+            assign logo_width = section.settings.logo.width
+          endif
+          assign alt_text = section.settings.logo.alt | default: shop.name
+        -%}
+        <div class="gift-card__image mx-auto" style="width: {{ section.settings.logo_width | plus: 0 }}px;">
+          {% render 'image',
+          image: section.settings.logo,
+          src_width: logo_width,
+          srcset_2x: true,
+          lazy_load: false,
+          alt_text: alt_text
+          %}
+        </div>
+        {%- else -%}
+        <h1 class="gift-card__text h2">{{ shop.name }}</h1>
+        {%- endif -%}
+      </div>
+
+      {%- if section.settings.logo -%}
+        <h1 class="gift-card__title h1 font-bold">{{ 'gift_cards.issued.subtext' | t }}</h1>
+      {%-  else -%}
+        <h2 class="gift-card__title h1 font-bold">{{ 'gift_cards.issued.subtext' | t }}</h2>
+      {%- endif -%}
+
+      <div class="gift-card__value">
+        <p class="h3">
+          {%- if settings.currency_code_enabled -%}
+            {{ gift_card.initial_value | money_with_currency }}
+          {%- else -%}
+            {{ gift_card.initial_value | money }}
+          {%- endif -%}
+        </p>
+        {%- if gift_card.enabled == false or gift_card.expired -%}
+          {%- assign gift_card_expiry_date = gift_card.expires_on | date: "%d/%m/%y" -%}
+          <p>
+            {{- 'gift_cards.issued.expired' | t: expiry: gift_card_expiry_date -}}
+          </p>
+        {%- endif -%}
+      </div>
+
+      {%- if gift_card.balance != gift_card.initial_value -%}
+        <p class="gift-card__balance">{{ 'gift_cards.issued.remaining_html' | t: balance: gift_card_balance }}</p>
+      {%- endif -%}
+
+      {% if section.settings.image == blank %}
+        <img class="gift-card__image img img--border-radius-small" src="{{ 'gift-card/card.svg' | shopify_asset_url }}" loading="lazy" width="570" height="{{ 570 | divided_by: 1.5 }}" alt="">
+      {% else %}
+        <img class="gift-card__image img img--border-radius-small" src="{{ section.settings.image | image_url: width: 800 }}" loading="lazy" width="400" height="{{ 400 | divided_by: section.settings.image.aspect_ratio | ceil }}" alt="">
+      {% endif %}
+
+      {% comment %} TODO - Move this into dev library {% endcomment %}
+      <gift-card-qr-code class="gift-card__qr-code flex justify-center" data-identifier="{{ gift_card.qr_identifier }}" data-alt-text="{{ 'gift_cards.issued.qr_image_alt' | t }}"></gift-card-qr-code>
+
+      <div class="gift-card__info">
+        <input type="text" class="gift-card__number" value="{{ gift_card.code | format_code }}" aria-label="{{ 'gift_cards.issued.code' | t }}" readonly>
+        {%- if gift_card.pass_url -%}
+          <a href="{{ gift_card.pass_url }}">
+            <img src="{{ 'gift-card/add-to-apple-wallet.svg' | shopify_asset_url }}" loading="eager" width="120" height="40" alt="{{ 'gift_cards.issued.add_to_apple_wallet' | t }}">
+          </a>
+        {%- endif -%}
+      </div>
+
+      <div class="gift-card__btns">
+        <a class="btn btn--primary" href="{{ shop.url }}" target="_blank" rel="noopener">
+        {{- 'gift_cards.issued.shop_link' | t -}}
+        </a>
+        <button class="btn btn--secondary" onclick="window.print();">
+        {{- 'gift_cards.issued.print' | t -}}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% comment %} TODO - Move this into dev library {% endcomment %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof QRCode !== 'undefined' && !customElements.get('gift-card-qr-code')) {
+      class GiftCardQRCode extends HTMLElement {
+        connectedCallback() {
+          const container = document.createElement('div');
+          this.appendChild(container);
+
+          new QRCode(container, {
+            text: this.dataset.identifier,
+            width: 120,
+            height: 120,
+            imageAltText: this.dataset.altText
+          });
+        }
+      }
+      customElements.define('gift-card-qr-code', GiftCardQRCode);
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Gift card",
+  "class": "cc-gift-card",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 50,
+      "max": 450,
+      "step": 10,
+      "unit": "px",
+      "label": "Maximum logo width",
+      "default": 200
+    },
+    {
+      "type": "header",
+      "content": "Gift card"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Gift card image"
+    }
+  ]
+}
+{% endschema %}

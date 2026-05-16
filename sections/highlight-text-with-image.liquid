@@ -1,0 +1,777 @@
+<link rel="stylesheet" href="{{ 'highlight-text-with-image.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+  assign breakpoint_sm = 480
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  @media (max-width: {{ breakpoint_sm }}px) {
+    #{{ section.id }} .reading-width--fixed {
+      font-size: var({{ section.settings.mobile_text_size }});
+    }
+  }
+{%- endstyle -%}
+
+{% liquid
+  assign image_ratio = 99
+  for block in section.blocks
+    case block.type
+      when 'image'
+        if block.settings.image != blank
+          if block.settings.image.aspect_ratio < image_ratio
+            assign image_ratio = block.settings.image.aspect_ratio
+          endif
+        endif
+    endcase
+  endfor
+%}
+
+<div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  <div class="flex relative{% if section.settings.full_width == false %} container{% endif %}">
+    <div class="highlight-text section
+                {%- if section.settings.full_width %} section--full-width section--padded-more{% else %} section--standard{% endif %}
+                {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                color-scheme
+                {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                color-scheme--{{ color_scheme }}">
+      <div class="container container--text relative z-3">
+        <div class="reading-width--fixed flex flex-wrap items-center mb-0 {{ section.settings.text_align }} {{ section.settings.text_size }}{% if section.settings.mob_center_text %} md-down:justify-center{% endif %}">
+          {%- assign animate_delay = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- assign animate_delay = animate_delay | plus: 0.07 -%}
+            {%- case block.type -%}
+              {%- when 'text' -%}
+                {%- assign content_words = block.settings.text | split: ' ' -%}
+                {% for word in content_words %}
+                  {%- assign animate_delay = animate_delay | plus: 0.07 -%}
+                  {%- capture cc_animate_attr -%}data-cc-animate="fade-in-up" data-cc-animate-delay="{{ animate_delay }}s"{%- endcapture -%}
+                  <span class="highlight-text__item highlight-text__text{% if block.settings.font == 'body' %} font-body{% endif %}"{% if forloop.first %} {{ block.shopify_attributes }}{% endif %} {%- render 'animation-attrs', attrs: cc_animate_attr %}>
+                    {{- word -}}
+                  </span>
+                {% endfor %}
+
+              {%- when 'icon' -%}
+                {% style %}
+                  #{{ block.id }} {
+                    color: {{ block.settings.icon_color }};
+                  }
+                {% endstyle %}
+                {%- capture cc_animate_attr -%}data-cc-animate="fade-in-up" data-cc-animate-delay="{{ animate_delay }}s"{%- endcapture -%}
+                <span class="highlight-text__item flex" id="{{ block.id }}" {{ block.shopify_attributes }} {%- render 'animation-attrs', attrs: cc_animate_attr %}>
+                  {%- if block.settings.usp_icon != 'none' -%}
+                    {% render 'icon-usp',
+                      icon: block.settings.usp_icon,
+                      width: block.settings.icon_size,
+                      height: block.settings.icon_size
+                    %}
+                  {%- else -%}
+                    {% render 'icon',
+                      icon: block.settings.icon,
+                      width: block.settings.icon_size,
+                      height: block.settings.icon_size
+                    %}
+                  {%- endif -%}
+                </span>
+
+              {%- when 'image' -%}
+                {%- capture cc_animate_attr -%}data-cc-animate="fade-in-up" data-cc-animate-delay="{{ animate_delay }}s"{%- endcapture -%}
+                <span class="highlight-text__item highlight-text__image" style="--image-width: {{ block.settings.image_width }}px; --mob-image-width: {{ block.settings.image_width_mob }}px;" {{ block.shopify_attributes }} {%- render 'animation-attrs', attrs: cc_animate_attr %}>
+                  {%- if block.settings.link != blank -%}
+                    <a href="{{ block.settings.link }}" class="hover:grow-media">
+                  {%- endif -%}
+
+                  <span class="media block relative w-full h-full">
+                    {%- if block.settings.image != blank -%}
+                      {% render 'image', image: block.settings.image, src_width: block.settings.image_width, srcset_2x: true, lazy_load: false %}
+                    {%- else -%}
+                      {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder' }}
+                    {%- endif -%}
+                  </span>
+
+                  {%- if block.settings.link != blank -%}
+                    </a>
+                  {%- endif -%}
+                </span>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Highlight text with image",
+  "class": "cc-highlight-text-with-image",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "justify-start text-start",
+          "label": "Left"
+        },
+        {
+          "value": "justify-center text-center",
+          "label": "Center"
+        },
+        {
+          "value": "justify-end text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "justify-center text-center"
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "text_size",
+      "label": "Text size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "x-large-heading"
+    },
+    {
+      "type": "select",
+      "id": "mobile_text_size",
+      "label": "Mobile text size",
+      "options": [
+        {
+          "value": "--h4-font-size",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "--h3-font-size",
+          "label": "Extra small"
+        },
+        {
+          "value": "--h2-font-size",
+          "label": "Small"
+        },
+        {
+          "value": "--h1-font-size",
+          "label": "Medium"
+        },
+        {
+          "value": "--x-large-size",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-size",
+          "label": "Extra large"
+        }
+      ],
+      "default": "--h3-font-size"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Highlight text about your store with images"
+        },
+        {
+          "type": "select",
+          "id": "font",
+          "label": "Font",
+          "options": [
+            {
+              "label": "Heading font",
+              "value": "heading"
+            },
+            {
+              "label": "Body font",
+              "value": "body"
+            }
+          ],
+          "default": "heading"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Image link (optional)"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "min": 40,
+          "max": 320,
+          "step": 4,
+          "label": "Image width large screens",
+          "unit": "px",
+          "default": 120
+        },
+        {
+          "type": "range",
+          "id": "image_width_mob",
+          "min": 20,
+          "max": 160,
+          "step": 4,
+          "label": "Image width mobile",
+          "unit": "px",
+          "default": 80
+        }
+      ]
+    },
+    {
+      "type": "icon",
+      "name": "Icon",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Basic icon",
+          "options": [
+            {
+              "value": "award",
+              "label": "Award"
+            },
+            {
+              "value": "box",
+              "label": "Box"
+            },
+            {
+              "value": "briefcase",
+              "label": "Briefcase"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "chat_bubble",
+              "label": "Chat bubble"
+            },
+            {
+              "value": "check_mark",
+              "label": "Check mark"
+            },
+            {
+              "value": "check_mark_in_circle",
+              "label": "Check mark in circle"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            },
+            {
+              "value": "credit_card",
+              "label": "Credit card"
+            },
+            {
+              "value": "dollar_sign",
+              "label": "Dollar sign"
+            },
+            {
+              "value": "dryer",
+              "label": "Dryer"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "eye",
+              "label": "Eye"
+            },
+            {
+              "value": "feather",
+              "label": "Feather"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "heart",
+              "label": "Heart"
+            },
+            {
+              "value": "iron",
+              "label": "Iron"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "leather",
+              "label": "Leather"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "map_pin",
+              "label": "Map pin"
+            },
+            {
+              "value": "pants",
+              "label": "Pants"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "plane",
+              "label": "Plane"
+            },
+            {
+              "value": "price_tag",
+              "label": "Price tag"
+            },
+            {
+              "value": "question_mark",
+              "label": "Question mark"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "ruler",
+              "label": "Ruler"
+            },
+            {
+              "value": "scissors",
+              "label": "Scissors"
+            },
+            {
+              "value": "shirt",
+              "label": "Shirt"
+            },
+            {
+              "value": "shoe",
+              "label": "Shoe"
+            },
+            {
+              "value": "silhouette",
+              "label": "Silhouette"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "washing",
+              "label": "Washing"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "usp_icon",
+          "label": "Cosmetics Icon",
+          "info": "Replaces basic icon if added.",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "min": 20,
+          "max": 120,
+          "step": 4,
+          "label": "Icon width",
+          "unit": "px",
+          "default": 56
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Color",
+          "default": "#555555"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Highlight text with image",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "Highlight some text about your products"
+          }
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "or collections"
+          }
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "or send a brand message"
+          }
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "to your customers."
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

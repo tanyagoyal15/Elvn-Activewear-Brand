@@ -1,0 +1,1028 @@
+{% comment %}
+  Elvn Size Guide — 3-tab modal content
+  Params: product
+  Tabs: Find My Size | Size Chart
+{% endcomment %}
+
+{%- liquid
+  assign pt = product.type | downcase
+  assign is_bottoms = false
+  if pt contains 'legging' or pt contains 'short' or pt contains 'skirt' or pt contains 'flared' or pt contains 'pant' or pt contains 'bottom'
+    assign is_bottoms = true
+  endif
+  assign fit_note = product.metafields.custom.fit_notes
+  assign size_option = product.options_with_values | where: "name", "Size" | first
+  assign available_sizes_str = size_option.values | join: ","
+-%}
+
+<style>
+  /* ── Modal overrides (size guide only) ── */
+  .modal__content:has(.elvn-sg) { padding-top: 12px !important; }
+  .modal__window:has(.elvn-sg)  { border-radius: 8px !important; }
+
+  .elvn-sg { font-family: var(--body-font-family); color: var(--color-text, #111); }
+
+  .elvn-sg__tabs {
+    display: flex;
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 0;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .elvn-sg__tabs::-webkit-scrollbar { display: none; }
+  .elvn-sg__tab {
+    flex-shrink: 0;
+    padding: 12px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .elvn-sg__tab.is-active {
+    color: #111;
+    border-bottom-color: #111;
+  }
+
+  .elvn-sg__panels {
+    padding-top: 16px;
+  }
+
+  .elvn-sg__panel { display: none; }
+  .elvn-sg__panel.is-active { display: block; }
+
+  .elvn-sg__unit-btn {
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid #ddd;
+    background: none;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.15s;
+  }
+  .elvn-sg__unit-btn:first-child { border-radius: 3px 0 0 3px; }
+  .elvn-sg__unit-btn:last-child  { border-radius: 0 3px 3px 0; border-left: none; }
+  .elvn-sg__unit-btn.is-active   { background: #111; color: #fff; border-color: #111; }
+
+  .elvn-sg__chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .elvn-sg__category-label {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+  }
+  .elvn-sg__unit-group { display: flex; gap: 0; flex-shrink: 0; }
+
+  @media (max-width: 520px) {
+    .elvn-sg__chart-header { align-items: flex-start; }
+    .elvn-sg__unit-group { align-self: flex-start; }
+  }
+
+  .elvn-sg table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .elvn-sg th {
+    padding: 10px 12px;
+    background: #f5f5f5;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 11px;
+    text-align: left;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .elvn-sg td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+  }
+  .elvn-sg td:first-child { font-weight: 600; color: #111; }
+
+  .elvn-sg__chart-note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.5;
+  }
+  .elvn-sg__chart-note strong { color: #111; }
+
+  .elvn-sg__goto-finder {
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #111;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .elvn-sg__finder-intro {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  .elvn-sg__finder-unit-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .elvn-sg__finder-unit-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #888;
+  }
+  .elvn-sg__unit-inline { display: flex; gap: 0; }
+
+  .elvn-sg__fields-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 4px;
+  }
+  .elvn-sg__fields-row .elvn-sg__field {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 14px;
+  }
+  .elvn-sg__fields-row .elvn-sg__field input[type="number"] {
+    max-width: 100%;
+  }
+  @media (max-width: 520px) {
+    .elvn-sg__fields-row { flex-direction: column; gap: 0; }
+    .elvn-sg__chart-header { justify-content: flex-end; }
+    .modal__content:has(.elvn-sg) { padding-top: 40px !important; }
+  }
+
+  .elvn-sg__field { margin-bottom: 16px; }
+  .elvn-sg__field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 7px;
+  }
+  .elvn-sg__field input[type="number"] {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #111;
+    background: #fff;
+    appearance: textfield;
+    -moz-appearance: textfield;
+    box-sizing: border-box;
+  }
+  .elvn-sg__field input[type="number"]:focus {
+    outline: none;
+    border-color: #111;
+  }
+  .elvn-sg__field input[type="number"]::-webkit-inner-spin-button,
+  .elvn-sg__field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .elvn-sg__fit-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  .elvn-sg__fit-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .elvn-sg__fit-option { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+  .elvn-sg__fit-option input[type="radio"] { margin-top: 2px; accent-color: #111; flex-shrink: 0; }
+  .elvn-sg__fit-option-text { font-size: 13px; color: #333; line-height: 1.4; }
+  .elvn-sg__fit-option-text small { display: block; color: #888; font-size: 12px; }
+
+  .elvn-sg__find-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-bottom: 8px;
+  }
+  .elvn-sg__find-btn:hover { opacity: 0.85; }
+  .elvn-sg__find-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .elvn-sg__error {
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 6px;
+    display: none;
+  }
+
+  .elvn-sg__result { display: none; }
+  .elvn-sg__result.is-visible { display: block; }
+
+  .elvn-sg__result-size {
+    text-align: center;
+    padding: 24px 0 20px;
+  }
+  .elvn-sg__result-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .elvn-sg__result-value {
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #111;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .elvn-sg__result-sub {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  .elvn-sg__confidence {
+    max-width: 220px;
+    margin: 0 auto 6px;
+  }
+  .elvn-sg__confidence-bar {
+    height: 4px;
+    background: #eee;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .elvn-sg__confidence-fill {
+    height: 100%;
+    background: #111;
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+  .elvn-sg__confidence-label {
+    font-size: 11px;
+    color: #888;
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  .elvn-sg__result-note {
+    font-size: 12px;
+    color: #555;
+    text-align: center;
+    line-height: 1.55;
+    margin: 12px 0 20px;
+    padding: 0 8px;
+  }
+
+  .elvn-sg__between-note {
+    margin: 0 0 20px;
+    padding: 14px 16px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.6;
+    display: none;
+  }
+  .elvn-sg__between-note.is-visible { display: block; }
+  .elvn-sg__between-note strong { color: #111; }
+
+  .elvn-sg__select-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-bottom: 12px;
+  }
+  .elvn-sg__select-btn:hover { opacity: 0.85; }
+
+  .elvn-sg__result-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .elvn-sg__result-link {
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── Height input ── */
+  .elvn-sg__height-ft-in {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .elvn-sg__height-ft-in input[type="number"] {
+    width: 70px;
+    padding: 10px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #111;
+    background: #fff;
+    appearance: textfield;
+    -moz-appearance: textfield;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+  .elvn-sg__height-ft-in input[type="number"]:focus { outline: none; border-color: #111; }
+  .elvn-sg__height-ft-in input::-webkit-inner-spin-button,
+  .elvn-sg__height-ft-in input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .elvn-sg__height-sep { font-size: 13px; color: #888; }
+
+  /* ── How It Fits tab ── */
+  .elvn-sg__model-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px 10px;
+  }
+  .elvn-sg__model-card { display: flex; flex-direction: column; }
+  .elvn-sg__model-img {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    object-position: top center;
+    border-radius: 4px;
+    background: #f0f0f0;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .elvn-sg__model-info { font-size: 11px; line-height: 1.5; color: #555; }
+  .elvn-sg__model-name { font-weight: 600; color: #111; margin-bottom: 2px; }
+  .elvn-sg__model-measurements { color: #666; margin-bottom: 3px; }
+  .elvn-sg__model-sizes {
+    font-weight: 600;
+    color: #111;
+    letter-spacing: 0.03em;
+  }
+  /* Length note CSS — commented out, enable if needed
+  .elvn-sg__length-note {
+    margin: 0 0 14px;
+    padding: 11px 14px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.55;
+    text-align: center;
+  }
+  */
+  .elvn-sg__model-empty { font-size: 13px; color: #aaa; padding: 24px 0; text-align: center; }
+  @media (max-width: 520px) {
+    .elvn-sg__model-grid { grid-template-columns: repeat(2, 1fr); gap: 12px 8px; }
+  }
+</style>
+
+<div class="elvn-sg" data-is-bottoms="{{ is_bottoms }}" data-available-sizes="{{ available_sizes_str }}">
+
+  <!-- ── Tabs ── -->
+  <div class="elvn-sg__tabs" role="tablist">
+    <button class="elvn-sg__tab is-active" data-tab="finder" role="tab" aria-selected="true">Find My Size</button>
+    <button class="elvn-sg__tab" data-tab="chart" role="tab" aria-selected="false">Size Chart</button>
+    <button class="elvn-sg__tab" data-tab="models" role="tab" aria-selected="false">How It Fits</button>
+  </div>
+
+  <div class="elvn-sg__panels">
+
+  {% comment %} TAB 1 — FIND MY SIZE {% endcomment %}
+  <div class="elvn-sg__panel is-active" data-panel="finder">
+
+    <div class="elvn-sg__finder-form">
+
+      <p class="elvn-sg__finder-intro">
+        Enter your measurements and we'll recommend the right size for you.
+      </p>
+
+      <div class="elvn-sg__finder-unit-row">
+        <span class="elvn-sg__finder-unit-label">Unit</span>
+        <div class="elvn-sg__unit-inline">
+          <button class="elvn-sg__unit-btn is-active" data-finder-unit="in">IN</button>
+          <button class="elvn-sg__unit-btn" data-finder-unit="cm">CM</button>
+        </div>
+      </div>
+
+      {% if is_bottoms %}
+
+        <div class="elvn-sg__fields-row">
+          <div class="elvn-sg__field">
+            <label for="elvn-sg-waist">Waist <span id="elvn-sg-waist-unit" style="color:#aaa;font-weight:400;">(inches)</span></label>
+            <input type="number" id="elvn-sg-waist" placeholder="e.g. 28" min="1" step="0.5">
+          </div>
+          <div class="elvn-sg__field">
+            <label for="elvn-sg-hips">Hips <span id="elvn-sg-hips-unit" style="color:#aaa;font-weight:400;">(inches)</span></label>
+            <input type="number" id="elvn-sg-hips" placeholder="e.g. 37" min="1" step="0.5">
+          </div>
+        </div>
+
+      {% else %}
+
+        <div class="elvn-sg__fields-row">
+          <div class="elvn-sg__field">
+            <label for="elvn-sg-overbust">Bust <span id="elvn-sg-overbust-unit" style="color:#aaa;font-weight:400;">(inches)</span></label>
+            <input type="number" id="elvn-sg-overbust" placeholder="e.g. 34" min="1" step="0.5">
+          </div>
+          <div class="elvn-sg__field">
+            <label for="elvn-sg-underbust">Underbust <span id="elvn-sg-underbust-unit" style="color:#aaa;font-weight:400;">(inches)</span></label>
+            <input type="number" id="elvn-sg-underbust" placeholder="e.g. 30" min="1" step="0.5">
+          </div>
+        </div>
+
+      {% endif %}
+
+      <div class="elvn-sg__field">
+        <label>Height</label>
+        <div class="elvn-sg__height-imperial">
+          <div class="elvn-sg__height-ft-in">
+            <input type="number" id="elvn-sg-height-ft" placeholder="5" min="4" max="7" step="1">
+            <span class="elvn-sg__height-sep">ft</span>
+            <input type="number" id="elvn-sg-height-in-part" placeholder="7" min="0" max="11" step="1">
+            <span class="elvn-sg__height-sep">in</span>
+          </div>
+        </div>
+        <div class="elvn-sg__height-metric" style="display:none;">
+          <input type="number" id="elvn-sg-height-cm" placeholder="e.g. 170" min="100" max="220" step="1" style="width:100%;max-width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:4px;font-size:14px;color:#111;background:#fff;appearance:textfield;-moz-appearance:textfield;box-sizing:border-box;">
+        </div>
+      </div>
+
+      <div class="elvn-sg__fit-label">How do you like your fit?</div>
+      <div class="elvn-sg__fit-options">
+        <label class="elvn-sg__fit-option">
+          <input type="radio" name="elvn-fit" value="compressive">
+          <span class="elvn-sg__fit-option-text">
+            Compressive (close to the body)
+            <small>Like a second skin, maximum support</small>
+          </span>
+        </label>
+        <label class="elvn-sg__fit-option">
+          <input type="radio" name="elvn-fit" value="standard" checked>
+          <span class="elvn-sg__fit-option-text">
+            Standard (athletic fit)
+            <small>Snug but free to move</small>
+          </span>
+        </label>
+        <label class="elvn-sg__fit-option">
+          <input type="radio" name="elvn-fit" value="relaxed">
+          <span class="elvn-sg__fit-option-text">
+            Relaxed (comfortable, not tight)
+            <small>Easy and breathable</small>
+          </span>
+        </label>
+      </div>
+
+      <button class="elvn-sg__find-btn" id="elvn-sg-find-btn">Find My Size</button>
+      <div class="elvn-sg__error" id="elvn-sg-error">Please enter at least one measurement above.</div>
+
+    </div>
+
+    <div class="elvn-sg__result" id="elvn-sg-result">
+
+      <div class="elvn-sg__result-size">
+        <div class="elvn-sg__result-label">Your recommended size is</div>
+        <div class="elvn-sg__result-value" id="elvn-sg-result-value">M</div>
+        <div class="elvn-sg__confidence">
+          <div class="elvn-sg__confidence-bar">
+            <div class="elvn-sg__confidence-fill" id="elvn-sg-confidence-fill" style="width:80%"></div>
+          </div>
+          <div class="elvn-sg__confidence-label" id="elvn-sg-confidence-label">Strong match</div>
+        </div>
+      </div>
+
+      <p class="elvn-sg__result-note" id="elvn-sg-result-note"></p>
+
+      {% comment %} Length note — commented out, enable if needed
+      <div class="elvn-sg__length-note" id="elvn-sg-length-note" style="display:none;"></div>
+      {% endcomment %}
+
+      <div class="elvn-sg__between-note" id="elvn-sg-between-note"></div>
+
+      <button class="elvn-sg__select-btn" id="elvn-sg-select-btn">Select this size & continue</button>
+
+      <div class="elvn-sg__result-actions">
+        <button class="elvn-sg__result-link" id="elvn-sg-remeasure">← Measure again</button>
+        <button class="elvn-sg__result-link" data-goto-tab="chart">See size chart</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  {% comment %} TAB 2 — SIZE CHART {% endcomment %}
+  <div class="elvn-sg__panel" data-panel="chart">
+
+    {%- liquid
+      if is_bottoms
+        assign chart = shop.metaobjects.size_chart['bottoms'] 
+      else
+        assign chart = shop.metaobjects.size_chart['tops'] 
+      endif
+    -%}
+
+    <div class="elvn-sg__chart-header">
+      {% if is_bottoms %}
+        <div class="elvn-sg__category-label">Bottoms — Leggings / Shorts / Flared / Skirt</div>
+      {% else %}
+        <div class="elvn-sg__category-label">Tops — Sports Bra / Tank / Tee</div>
+      {% endif %}
+      <div class="elvn-sg__unit-group">
+        <button class="elvn-sg__unit-btn is-active" data-unit="in">IN</button>
+        <button class="elvn-sg__unit-btn" data-unit="cm">CM</button>
+      </div>
+    </div>
+
+    {% if chart %}
+      <table>
+        <thead>
+          <tr>
+            <th>Size</th>
+            <th>{{ chart.col1_header.value }}</th>
+            <th>{{ chart.col2_header.value }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- assign sizes = 'xs,s,m,l,xl' | split: ',' -%}
+          {% for s in sizes %}
+            {%- liquid
+              assign key_c1_in = s | append: '_col1_in'
+              assign key_c1_cm = s | append: '_col1_cm'
+              assign key_c2_in = s | append: '_col2_in'
+              assign key_c2_cm = s | append: '_col2_cm'
+            -%}
+            <tr>
+              <td>{{ s | upcase }}</td>
+              <td data-in="{{ chart[key_c1_in].value }}" data-cm="{{ chart[key_c1_cm].value }}">{{ chart[key_c1_in].value }}</td>
+              <td data-in="{{ chart[key_c2_in].value }}" data-cm="{{ chart[key_c2_cm].value }}">{{ chart[key_c2_in].value }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p style="font-size:13px;color:#888;padding:16px 0;">Size chart unavailable.</p>
+    {% endif %}
+
+    <div class="elvn-sg__chart-note">
+      <strong>True to size.</strong> If you're between sizes, size down for a compressive fit or size up for a more relaxed fit.
+      {%- if fit_note != blank %}<br><br>{{ fit_note }}{%- endif %}
+    </div>
+
+    <button class="elvn-sg__goto-finder" data-goto-tab="finder">
+      Not sure? → Find My Size
+    </button>
+
+  </div>
+
+  {% comment %} TAB 3 — HOW IT FITS {% endcomment %}
+  <div class="elvn-sg__panel" data-panel="models">
+    {%- assign model_entries = shop.metafields.custom.model_guide_images.value -%}
+    {% if model_entries and model_entries.size > 0 %}
+      <div class="elvn-sg__model-grid">
+        {% for entry in model_entries %}
+          <div class="elvn-sg__model-card">
+            {%- if entry.image.value != blank -%}
+              <img
+                class="elvn-sg__model-img"
+                src="{{ entry.image.value | image_url: width: 400 }}"
+                alt="{{ entry.name.value | escape }} — {{ entry.measurements.value | escape }}"
+                loading="lazy"
+                width="400"
+                height="auto"
+              >
+            {%- endif -%}
+            <div class="elvn-sg__model-info">
+              <div class="elvn-sg__model-name">{{ entry.name.value }} is {{ entry.height.value }}</div>
+              <div class="elvn-sg__model-measurements">{{ entry.measurements.value }}</div>
+              <div class="elvn-sg__model-sizes">Top {{ entry.top_size.value }} &nbsp;|&nbsp; Bottom {{ entry.bottom_size.value }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="elvn-sg__model-empty">Model guide coming soon.</p>
+    {% endif %}
+  </div>
+
+  </div>
+
+</div>
+
+<script>
+(function() {
+
+  /* ── Size data (inches) ── */
+  var BOTTOMS = [
+    { size: 'XS', waist: [24, 26], hip: [32, 34] },
+    { size: 'S',  waist: [26, 28], hip: [34, 36] },
+    { size: 'M',  waist: [28, 30], hip: [36, 38] },
+    { size: 'L',  waist: [30, 33], hip: [38, 40] },
+    { size: 'XL', waist: [33, 36], hip: [40, 42] },
+  ];
+  var TOPS = [
+    { size: 'XS', overbust: [30, 32], underbust: [26, 28] },
+    { size: 'S',  overbust: [32, 34], underbust: [28, 30] },
+    { size: 'M',  overbust: [34, 36], underbust: [30, 32] },
+    { size: 'L',  overbust: [36, 38], underbust: [32, 34] },
+    { size: 'XL', overbust: [38, 40], underbust: [34, 36] },
+  ];
+
+  function buildProductSizes() {
+    var el = root();
+    var raw = el ? (el.dataset.availableSizes || '') : '';
+    var bottoms = isBottoms();
+    var base = bottoms ? BOTTOMS : TOPS;
+    var key1 = bottoms ? 'waist' : 'overbust';
+    var key2 = bottoms ? 'hip'   : 'underbust';
+
+    if (!raw) return base;
+
+    var result = [];
+    raw.split(',').forEach(function(psize) {
+      psize = psize.trim();
+      if (!psize) return;
+      var parts = psize.split('/').map(function(p) { return p.trim().toUpperCase(); });
+      var entries = [];
+      for (var pi = 0; pi < parts.length; pi++) {
+        for (var bi = 0; bi < base.length; bi++) {
+          if (base[bi].size === parts[pi]) { entries.push(base[bi]); break; }
+        }
+      }
+      if (!entries.length) return;
+      var entry = { size: psize };
+      entry[key1] = [
+        Math.min.apply(null, entries.map(function(e) { return e[key1][0]; })),
+        Math.max.apply(null, entries.map(function(e) { return e[key1][1]; }))
+      ];
+      entry[key2] = [
+        Math.min.apply(null, entries.map(function(e) { return e[key2][0]; })),
+        Math.max.apply(null, entries.map(function(e) { return e[key2][1]; }))
+      ];
+      result.push(entry);
+    });
+
+    return result.length ? result : base;
+  }
+
+  /* ── Persistent state (survives DOM replacement) ── */
+  var finderUnit = 'in';
+
+  /* ── Always fetch a live reference ── */
+  function root() { return document.querySelector('.elvn-sg'); }
+  function isBottoms() { var el = root(); return el ? el.dataset.isBottoms === 'true' : false; }
+
+  /* ── Tab activation ── */
+  function activateTab(sg, target) {
+    sg.querySelectorAll('.elvn-sg__tab').forEach(function(t) {
+      var active = t.dataset.tab === target;
+      t.classList.toggle('is-active', active);
+      t.setAttribute('aria-selected', String(active));
+    });
+    sg.querySelectorAll('.elvn-sg__panel').forEach(function(p) {
+      p.classList.toggle('is-active', p.dataset.panel === target);
+    });
+  }
+
+  /* ── Unit label update ── */
+  function updateUnitLabels(sg) {
+    var label = finderUnit === 'cm' ? '(cm)' : '(inches)';
+    ['elvn-sg-waist-unit','elvn-sg-hips-unit','elvn-sg-overbust-unit','elvn-sg-underbust-unit'].forEach(function(id) {
+      var el = sg.querySelector('#' + id);
+      if (el) el.textContent = label;
+    });
+    /* Toggle height input format */
+    var imp = sg.querySelector('.elvn-sg__height-imperial');
+    var met = sg.querySelector('.elvn-sg__height-metric');
+    if (imp) imp.style.display = finderUnit === 'cm' ? 'none' : '';
+    if (met) met.style.display = finderUnit === 'cm' ? ''     : 'none';
+  }
+
+  /* ── Read height from inputs → always returns cm (or null) ── */
+  function getHeightCm(sg) {
+    if (finderUnit === 'cm') {
+      var cmEl = sg.querySelector('#elvn-sg-height-cm');
+      var v = cmEl && cmEl.value ? parseFloat(cmEl.value) : null;
+      return (v && v > 0) ? v : null;
+    }
+    var ftEl  = sg.querySelector('#elvn-sg-height-ft');
+    var inEl  = sg.querySelector('#elvn-sg-height-in-part');
+    var ft    = ftEl && ftEl.value !== '' ? parseFloat(ftEl.value) : null;
+    var inch  = inEl && inEl.value !== '' ? parseFloat(inEl.value) : 0;
+    if (ft === null) return null;
+    return (ft * 30.48) + (inch * 2.54);
+  }
+
+  /* ── Show form / hide result ── */
+  function showForm(sg) {
+    var form = sg.querySelector('.elvn-sg__finder-form');
+    var res  = sg.querySelector('#elvn-sg-result');
+    var err  = sg.querySelector('#elvn-sg-error');
+    if (form) form.style.display = '';
+    if (res)  res.classList.remove('is-visible');
+    if (err)  err.style.display = 'none';
+  }
+
+  /* ── Reset everything when modal reopens ── */
+  function resetState(sg) {
+    showForm(sg);
+    finderUnit = 'in';
+    sg.querySelectorAll('.elvn-sg__unit-btn[data-finder-unit]').forEach(function(b) {
+      b.classList.toggle('is-active', b.dataset.finderUnit === 'in');
+    });
+    updateUnitLabels(sg);
+    sg.querySelectorAll('.elvn-sg__unit-btn[data-unit]').forEach(function(b) {
+      b.classList.toggle('is-active', b.dataset.unit === 'in');
+    });
+    sg.querySelectorAll('td[data-in]').forEach(function(td) { td.textContent = td.dataset.in; });
+    /* Clear height inputs */
+    ['elvn-sg-height-ft','elvn-sg-height-in-part','elvn-sg-height-cm'].forEach(function(id) {
+      var el = sg.querySelector('#' + id); if (el) el.value = '';
+    });
+    /* Hide length note — commented out, enable if needed
+    var ln = sg.querySelector('#elvn-sg-length-note');
+    if (ln) ln.style.display = 'none';
+    */
+    activateTab(sg, 'finder');
+  }
+
+  /* ── Conversion ── */
+  function toInches(val) { return finderUnit === 'cm' ? val / 2.54 : val; }
+
+  /* ── Recommendation logic ── */
+  function recommend(m1, m2, fitPref) {
+    var bottoms = isBottoms();
+    var data = buildProductSizes();
+    var key1 = bottoms ? 'waist' : 'overbust';
+    var key2 = bottoms ? 'hip'   : 'underbust';
+
+    if (m1 < data[0][key1][0])             return { size: data[0].size,             confidence: 'good', border: null, edge: 'under' };
+    if (m1 > data[data.length-1][key1][1]) return { size: data[data.length-1].size, confidence: 'good', border: null, edge: 'over' };
+
+    var matchIdx = -1;
+    for (var i = 0; i < data.length; i++) {
+      if (m1 >= data[i][key1][0] && m1 <= data[i][key1][1]) { matchIdx = i; break; }
+    }
+
+    if (matchIdx >= 0) {
+      var rec = data[matchIdx].size, confidence = 'strong', border = null;
+      var atUpperBound = (data[matchIdx][key1][1] - m1) <= 1;
+
+      if (atUpperBound && matchIdx < data.length - 1) {
+        var lo = data[matchIdx].size, hi = data[matchIdx + 1].size;
+        confidence = 'good';
+        rec = fitPref === 'relaxed' ? hi : lo;
+        border = { lower: lo, upper: hi };
+      }
+
+      if (m2 && m2 > 0) {
+        var r2 = data[matchIdx][key2];
+        if (r2 && (m2 > r2[1] + 1 || m2 < r2[0] - 1)) {
+          confidence = 'good';
+        }
+      }
+
+      return { size: rec, confidence: confidence, border: border };
+    }
+
+    for (var j = 0; j < data.length - 1; j++) {
+      if (m1 > data[j][key1][1] && m1 < data[j+1][key1][0]) {
+        var blo = data[j].size, bhi = data[j+1].size;
+        var boundaryRec = fitPref === 'relaxed' ? bhi : blo;
+        return { size: boundaryRec, confidence: 'good', border: { lower: blo, upper: bhi } };
+      }
+    }
+    return { size: data[0].size, confidence: 'good', border: null };
+  }
+
+  /* ── Show result panel ── */
+  function showResult(sg, result, m1Raw, m2Raw, fitPref, heightCm) {
+    var bottoms = isBottoms();
+    var displaySize = result.size.indexOf('/') !== -1 ? result.size.replace('/', ' / ') : result.size;
+
+    var resultValueEl = sg.querySelector('#elvn-sg-result-value');
+    resultValueEl.textContent = displaySize;
+    resultValueEl.dataset.rawSize = result.size;
+    sg.querySelector('#elvn-sg-confidence-fill').style.width = result.confidence === 'strong' ? '90%' : '60%';
+    sg.querySelector('#elvn-sg-confidence-label').textContent = result.confidence === 'strong' ? 'Strong match' : 'Good match';
+
+    var unitStr = finderUnit === 'cm' ? 'cm' : '"';
+    var noteText = 'Based on your ' + (bottoms ? 'waist' : 'overbust') + ' (' + m1Raw + unitStr + ')';
+    if (m2Raw) noteText += ' and ' + (bottoms ? 'hips' : 'underbust') + ' (' + m2Raw + unitStr + ')';
+    sg.querySelector('#elvn-sg-result-note').textContent = noteText + '.';
+
+    /* Length note — commented out, enable if needed
+    var lengthNoteEl = sg.querySelector('#elvn-sg-length-note');
+    if (lengthNoteEl) {
+      var hc = result.heightCat;
+      if (bottoms && hc === 'petite') {
+        lengthNoteEl.textContent = 'At your height, full-length leggings may sit slightly above the ankle — a relaxed or cropped style will fit perfectly.';
+        lengthNoteEl.style.display = 'block';
+      } else if (bottoms && hc === 'tall') {
+        lengthNoteEl.textContent = 'At your height, leggings will fit at full ankle length in this size.';
+        lengthNoteEl.style.display = 'block';
+      } else {
+        lengthNoteEl.style.display = 'none';
+      }
+    }
+    */
+
+    var betEl = sg.querySelector('#elvn-sg-between-note');
+    var betData = buildProductSizes();
+    var betIdx = -1;
+    for (var bi = 0; bi < betData.length; bi++) { if (betData[bi].size === result.size) { betIdx = bi; break; } }
+    var isLast = betIdx === betData.length - 1;
+    if (result.edge === 'under') {
+      betEl.innerHTML = '<strong>' + result.size + '</strong> is the smallest size in this product, we recommend going with ' + result.size + '.';
+    } else if (result.edge === 'over' || isLast) {
+      betEl.innerHTML = '<strong>' + result.size + '</strong> is the largest size in this product, we recommend going with ' + result.size + '.';
+    } else if (result.border) {
+      betEl.innerHTML = 'Your measurements sit between <strong>' + result.border.lower + '</strong> and <strong>' + result.border.upper + '</strong>.<br>' +
+        'For a compressive fit → stay with <strong>' + result.border.lower + '</strong><br>' +
+        'For more comfort → go with <strong>' + result.border.upper + '</strong>';
+    } else {
+      var nxt = betData[betIdx + 1].size;
+      betEl.innerHTML = 'For a compressive fit → stay with <strong>' + result.size + '</strong><br>' +
+        'For more comfort → go with <strong>' + nxt + '</strong>';
+    }
+    betEl.classList.add('is-visible');
+
+    sg.querySelector('#elvn-sg-select-btn').textContent = 'Select ' + displaySize + ' & continue';
+    sg.querySelector('.elvn-sg__finder-form').style.display = 'none';
+    sg.querySelector('#elvn-sg-result').classList.add('is-visible');
+
+    /* ── GA4 tracking ── */
+    if (typeof gtag === 'function') {
+      var trackData = {
+        product_id:       '{{ product.id }}',
+        product_name:     '{{ product.title | escape }}',
+        product_type:     bottoms ? 'bottoms' : 'tops',
+        recommended_size: displaySize,
+        confidence:       result.confidence,
+        fit_preference:   fitPref,
+        unit:             finderUnit
+      };
+      trackData.height_cm = heightCm ? Math.round(heightCm) : null;
+      if (bottoms) {
+        trackData.waist = m1Raw || null;
+        trackData.hips  = m2Raw || null;
+      } else {
+        trackData.bust      = m1Raw || null;
+        trackData.underbust = m2Raw || null;
+      }
+      gtag('event', 'size_recommendation', trackData);
+    }
+  }
+
+  /* ── Pre-select size on product page ── */
+  function preselectOnPage(size) {
+    var input = document.querySelector('input.opt-btn[value="' + size + '"]');
+    if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
+  }
+
+  /* ── Document-level click delegation (works even after DOM replacement) ── */
+  document.addEventListener('click', function(e) {
+    var sg = root();
+    if (!sg) return;
+
+    /* Tab buttons */
+    var tab = e.target.closest('.elvn-sg__tab');
+    if (tab && sg.contains(tab)) { activateTab(sg, tab.dataset.tab); return; }
+
+    /* Cross-tab links */
+    var gotoBtn = e.target.closest('[data-goto-tab]');
+    if (gotoBtn && sg.contains(gotoBtn)) { activateTab(sg, gotoBtn.dataset.gotoTab); return; }
+
+    /* Unit toggle — chart */
+    var unitBtn = e.target.closest('.elvn-sg__unit-btn[data-unit]');
+    if (unitBtn && sg.contains(unitBtn)) {
+      sg.querySelectorAll('.elvn-sg__unit-btn[data-unit]').forEach(function(b) { b.classList.remove('is-active'); });
+      unitBtn.classList.add('is-active');
+      var unit = unitBtn.dataset.unit;
+      sg.querySelectorAll('td[data-in]').forEach(function(td) { td.textContent = unit === 'cm' ? td.dataset.cm : td.dataset.in; });
+      return;
+    }
+
+    /* Unit toggle — finder */
+    var funitBtn = e.target.closest('.elvn-sg__unit-btn[data-finder-unit]');
+    if (funitBtn && sg.contains(funitBtn)) {
+      finderUnit = funitBtn.dataset.finderUnit;
+      sg.querySelectorAll('.elvn-sg__unit-btn[data-finder-unit]').forEach(function(b) { b.classList.remove('is-active'); });
+      funitBtn.classList.add('is-active');
+      updateUnitLabels(sg);
+      return;
+    }
+
+    /* Find My Size button */
+    if (e.target.closest('#elvn-sg-find-btn') && sg.contains(e.target)) {
+      var bottoms = isBottoms();
+      var errEl = sg.querySelector('#elvn-sg-error');
+      errEl.style.display = 'none';
+      var m1 = null, m2 = null;
+      if (bottoms) {
+        var wEl = sg.querySelector('#elvn-sg-waist'), hEl = sg.querySelector('#elvn-sg-hips');
+        m1 = wEl && wEl.value ? parseFloat(wEl.value) : null;
+        m2 = hEl && hEl.value ? parseFloat(hEl.value) : null;
+      } else {
+        var oEl = sg.querySelector('#elvn-sg-overbust'), uEl = sg.querySelector('#elvn-sg-underbust');
+        m1 = oEl && oEl.value ? parseFloat(oEl.value) : null;
+        m2 = uEl && uEl.value ? parseFloat(uEl.value) : null;
+      }
+      if (!m1 || (!bottoms && !m2)) {
+        errEl.style.display = 'block';
+        errEl.textContent = (!bottoms && !m2 && m1) ? 'Please enter your underbust measurement.' : 'Please enter your measurements above.';
+        return;
+      }
+      var fitPref = (sg.querySelector('input[name="elvn-fit"]:checked') || {}).value || 'standard';
+      var heightCm = getHeightCm(sg);
+      if (!heightCm) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Please enter your height.';
+        return;
+      }
+      showResult(sg, recommend(toInches(m1), m2 ? toInches(m2) : null, fitPref), m1, m2, fitPref, heightCm);
+      return;
+    }
+
+    /* Select & continue */
+    if (e.target.closest('#elvn-sg-select-btn') && sg.contains(e.target)) {
+      var rawSize = sg.querySelector('#elvn-sg-result-value').dataset.rawSize || sg.querySelector('#elvn-sg-result-value').textContent.trim();
+      preselectOnPage(rawSize);
+      var modal = sg.closest('modal-dialog');
+      if (modal) { var cb = modal.querySelector('.js-close-modal'); if (cb) cb.click(); else modal.removeAttribute('open'); }
+      return;
+    }
+
+    /* Measure again */
+    if (e.target.closest('#elvn-sg-remeasure') && sg.contains(e.target)) { showForm(sg); return; }
+  });
+
+  /* ── Watch for any modal-dialog gaining 'open' anywhere on the page ── */
+  new MutationObserver(function(mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      var m = mutations[i];
+      if (m.attributeName === 'open' && m.target.tagName.toLowerCase() === 'modal-dialog' && m.target.hasAttribute('open')) {
+        var sg = root();
+        if (sg && m.target.contains(sg)) { resetState(sg); break; }
+      }
+    }
+  }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
+
+})();
+</script>

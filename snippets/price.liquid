@@ -1,0 +1,87 @@
+{% comment %}
+  Parameters:
+  - product {Object} - Product object.
+  - use_variant {Boolean} - Use variant price instead of general (optional, default is false).
+  - current_variant {Object} - Current variant, if use_variant is true.
+  - show_discount_percent {Boolean} - Shows the % saved if the item is on offer (optional, default is false).
+
+  Usage:
+  {% render 'price', product: product %}
+{% endcomment %}
+
+{%- liquid
+  assign variant = current_variant | default: product.variants | sort: 'price' | first
+
+  if use_variant
+    if current_variant == false
+      assign available = true
+    endif
+  else
+    assign use_variant = false
+    assign available = variant.available | default: false
+  endif
+
+  assign compare_at_price = variant.compare_at_price
+  assign price = variant.price | default: 1999
+
+  assign money_price = price | money
+  assign money_compare_at_price = variant.compare_at_price | money
+  if settings.show_product_currency_code
+    assign money_price = price | money_with_currency
+    assign money_compare_at_price = compare_at_price | money_with_currency
+  endif
+-%}
+
+<div class="price{%- if compare_at_price > price %} price--on-sale{% endif -%}
+                 {%- if available == false %} price--sold-out{% endif -%}">
+  <div class="price__default">
+    
+    <span class="price__current">
+      <span class="visually-hidden js-label">
+        {%- if compare_at_price and compare_at_price > price -%}
+          {{- 'products.product.price.sale_price' | t -}}
+        {%- else -%}
+          {{- 'products.product.price.regular_price' | t -}}
+        {%- endif -%}
+      </span>
+      {%- if product.price_varies -%}
+        {%- if use_variant == false -%}
+          <span class="price__from">{{ 'products.product.from' | t }}</span>
+        {%- elsif use_variant and current_variant == false -%}
+          <span class="price__from">{{ 'products.product.from' | t }}</span>
+        {%- endif -%}
+      {%- endif %}
+      <span class="js-value">
+        {{- money_price -}}
+      </span>
+    </span>
+    <span class="price__was">
+      <span class="visually-hidden js-label">
+        {%- if compare_at_price and compare_at_price > price -%}
+          {{- 'products.product.price.regular_price' | t -}}
+        {%- endif -%}
+      </span>
+      <span class="line-through js-value">
+        {%- if compare_at_price and compare_at_price > price -%}
+          {{- money_compare_at_price -}}
+        {%- endif -%}
+      </span>
+    </span>
+
+    {% if use_variant and show_discount_percent %}
+      {%- liquid
+        assign discount = 1.0 | times: variant.price | divided_by: variant.compare_at_price
+        assign discount = 1.0 | minus: discount
+        assign discount = discount | times: 100.0 | round
+      -%}
+      <span class="price__discount"{% unless discount > 0 %} hidden{% endunless %}>
+        {{ 'products.product.percent_reduction' | t: amount: discount }}
+      </span>
+    {% endif %}
+  </div>
+
+  <div class="unit-price"{% if variant.unit_price_measurement == nil %} hidden{% endif %}>
+    <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>
+    <span>{{ variant.unit_price | unit_price_with_measurement: variant.unit_price_measurement }}</span>
+  </div>
+</div>

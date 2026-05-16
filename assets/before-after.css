@@ -1,0 +1,171 @@
+.before-after {
+  --percent: 50%;
+  --btn-size: 48px;
+  --btn-cursor: grab;
+  --caption-offset: calc(2 * var(--space-unit));
+  --divider-width: 2px;
+  display: block;
+  position: relative;
+  max-width: 1200px;
+  max-height: 1080px;
+  margin-right: auto;
+  margin-left: auto;
+  overflow: hidden;
+  -webkit-user-select: none;
+          user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.before-after--animate {
+  --percent-from: 20%;
+  --percent-via: 80%;
+  --percent-to: 50%;
+  animation: beforeAfterAnimateIn 1.2s cubic-bezier(0.2, 0.6, 0.4, 1) paused;
+  animation-timing-function: ease;
+}
+
+.before-after--animating {
+  animation-play-state: running;
+}
+.before-after--animating .before-after__image--before,
+.before-after--animating .before-after__image--after,
+.before-after--animating .before-after__divider {
+  transition-duration: 0.4s;
+  transition-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  transition-timing-function: ease;
+}
+.before-after--animating .before-after__image--before,
+.before-after--animating .before-after__image--after {
+  transition-property: clip-path;
+}
+.before-after--animating .before-after__divider {
+  transition-property: inset-inline-start;
+}
+
+@keyframes beforeAfterAnimateIn {
+  0% {
+    --percent: var(--percent-from);
+  }
+  50% {
+    --percent: var(--percent-via);
+  }
+  100% {
+    --percent: var(--percent-to);
+  }
+}
+.before-after__image--before,
+.before-after__image--after {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  width: 100%;
+  height: 100%;
+}
+.before-after__image--before img,
+.before-after__image--after img {
+  max-width: none;
+}
+.before-after__image--before .media__placeholder,
+.before-after__image--after .media__placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.before-after__image--before {
+  clip-path: inset(0 calc(100% - var(--percent, 0%)) 0 0);
+}
+.before-after__image--before .before-after__caption {
+  inset-inline-start: var(--caption-offset);
+}
+[dir=rtl] .before-after__image--before {
+  clip-path: inset(0 0 0 calc(100% - var(--percent, 0%)));
+}
+
+.before-after__image--after {
+  clip-path: inset(0 0 0 var(--percent, 0%));
+}
+.before-after__image--after .before-after__caption {
+  inset-inline-end: var(--caption-offset);
+  text-align: end;
+}
+[dir=rtl] .before-after__image--after {
+  clip-path: inset(0 var(--percent, 0%) 0 0);
+}
+
+.before-after__image--before:has(.media__placeholder)::before,
+.before-after__image--after:has(.media__placeholder)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.before-after__image--after:has(.media__placeholder)::before {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.before-after__caption {
+  position: absolute;
+  z-index: 1;
+  bottom: var(--caption-offset);
+  max-width: calc(50% - var(--caption-offset) * 2);
+  padding: var(--space-unit) calc(4 * var(--space-unit));
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75em;
+}
+.before-after__caption:empty {
+  display: none;
+}
+
+.before-after__divider {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: calc(var(--percent) - var(--btn-size) / 2);
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16));
+}
+.before-after__divider::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset-inline-start: calc(var(--btn-size) / 2);
+  width: var(--divider-width);
+  height: 100%;
+  background: var(--bg-color);
+  pointer-events: none;
+}
+
+.before-after__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  border-radius: 50%;
+  background: var(--bg-color);
+  cursor: var(--btn-cursor);
+}
+.before-after__btn .icon {
+  width: 24px;
+  height: 24px;
+}
+
+@media (min-width: 480px) {
+  .before-after__caption {
+    font-size: 0.875em;
+  }
+}
+@media (min-width: 1024px) {
+  .before-after {
+    --caption-offset: calc(3 * var(--space-unit));
+  }
+}

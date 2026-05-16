@@ -1,0 +1,490 @@
+<link rel="stylesheet" href="{{ 'brands.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+<script src="{{ 'brands.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign link_grid_class = 'grid md:grid-cols-3 lg:grid-cols-4 gap-4 grid-cols-' | append: section.settings.mobile_cols
+  if section.settings.enable_grouping == false
+    assign link_grid_class = link_grid_class | append: ' mt-10'
+  endif
+
+  if section.settings.enable_grouping
+    assign all_letters = 'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0' | split: ' '
+
+    if section.settings.brands_menu == blank
+      assign vendor_initials = ''
+      for vendor in shop.vendors
+        assign initial = vendor | first | upcase
+        unless vendor_initials contains initial or '0123456789' contains initial
+          assign vendor_initials = vendor_initials | append: ' ' | append: initial
+        endunless
+      endfor
+      for vendor in shop.vendors
+        assign initial = vendor | first
+        if '0123456789' contains initial
+          assign vendor_initials = vendor_initials | append: ' 0'
+          break
+        endif
+      endfor
+      assign vendor_initials = vendor_initials | remove_first: ' ' | split: ' '
+    endif
+  endif
+
+  assign section_scheme_class = ''
+  assign content_scheme_class = ''
+
+  if section.settings.color_scheme_applies_to == 'section'
+    assign content_scheme_class = 'color-scheme color-scheme--site'
+
+    if section.settings.color_scheme == 'default'
+      assign section_scheme_class = 'bg-[rgb(var(--bg-accent-color))] text-[rgb(var(--text-accent-color))]'
+    else
+      assign section_scheme_class = 'color-scheme color-scheme--' | append: section.settings.color_scheme
+    endif
+  else
+    if section.settings.color_scheme == 'default'
+      assign content_scheme_class = 'bg-[rgb(var(--bg-accent-color))] text-[rgb(var(--text-accent-color))]'
+    else
+      assign content_scheme_class = 'color-scheme color-scheme--' | append: section.settings.color_scheme
+    endif
+  endif
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} .brands-index { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} .brands-index {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} .brands-index { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+{%- endstyle -%}
+
+<div id="{{ section.id }}">
+  <brands-index class="brands-index section {{ section_scheme_class }} pb-8 lg:pb-12 z-3 block flex {% if section.settings.enable_grouping == false and section.settings.show_search == false %}{% if section.settings.remove_top_padding %}pt-0{% else %}pt-6 md:pt-8 xl:pt-10{% endif %}{% endif %}">
+    <div class="container" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+      {%- if section.settings.heading != blank -%}
+        <{% if section.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__section section__section--heading {{ section.settings.heading_size }}" {{ section.shopify_attributes }}>
+          {{- section.settings.heading | escape -}}
+        </{% if section.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+      {%- endif -%}
+      {% if section.settings.enable_grouping %}
+        <ul class="flex justify-between overflow-auto {% if section.settings.remove_top_padding %}mt-0 mb-6{% else %}my-6{% endif %}">
+          {% if section.settings.brands_menu == blank %}
+            {% for letter in all_letters %}
+              <li class="inline">
+                {% if vendor_initials contains letter %}
+                  <a href="#{{ section.id }}-{{ letter }}" class="brand-initial large-text" aria-label="{{ 'accessibility.brands_beginning_with' | t: letter: letter | replace: '0', '0-9' }}">
+                    {{- letter | replace: '0', '0-9' -}}
+                  </a>
+                {% else %}
+                  <span class="brand-initial large-text">
+                    {{- letter | replace: '0', '0-9' -}}
+                  </span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          {% else %}
+            {%- for letter in all_letters -%}
+              {%- liquid
+                assign letter_link = false
+                for link in section.settings.brands_menu.links
+                  assign link_title_as_initial = link.title | replace: '0-9', '0'
+                  if link_title_as_initial == letter
+                    assign letter_link = true
+                  endif
+                endfor
+              -%}
+              {%- if letter_link -%}
+                <li class="inline">
+                  <a href="#{{ section.id }}-{{ letter | replace: '0', '0-9' }}" class="brand-initial large-text" aria-label="{{ 'accessibility.brands_beginning_with' | t: letter: letter | replace: '0', '0-9' }}">
+                    {{- letter | replace: '0', '0-9' -}}
+                  </a>
+                </li>
+              {%- else -%}
+                <li class="inline">
+                  <span class="brand-initial large-text">
+                    {{- letter | replace: '0', '0-9' -}}
+                  </span>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          {% endif %}
+        </ul>
+      {% endif %}
+
+      {%- if section.settings.show_search -%}
+        {%- if section.settings.enable_grouping -%}
+          <hr class="my-4 md:my-6 xl:my-8">
+        {%- endif -%}
+
+        <div class="{% if section.settings.enable_grouping == false and section.settings.remove_top_padding %}mt-0{% else %}mt-6 xl:mt-8{% endif %} mb-6 md:mb-8 xl:mb-12">
+          <div class="search-form relative">
+            <label class="visually-hidden" for="{{ section.id }}-search">
+              {{- 'general.search.input_label' | t -}}
+            </label>
+            <input id="{{ section.id }}-search" class="search__input input w-full js-brands-search" placeholder="{{ 'general.search.input_label' | t }}">
+            <div class="search__btns pointer-events-none absolute w-full flex justify-between items-center">
+              <button class="search__submit pointer-events-auto rounded-input text-current focus-inset" aria-label="{{ 'general.search.submit' | t }}">
+                {% render 'icon-search' %}
+              </button>
+              <button type="button" class="search__reset pointer-events-auto relative rounded-input text-current focus-inset js-search-reset" hidden aria-label="{{ 'general.search.reset' | t }}">
+                {% render 'icon-close' %}
+              </button>
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {% if section.settings.brands_menu == blank %}
+        {% if section.settings.enable_grouping %}
+          <div class="brand-list">
+            {% for letter in vendor_initials %}
+              <div class="brand-list__group {{ content_scheme_class }}" id="{{ section.id }}-{{ letter }}">
+                <h2 class="x-large-heading uppercase leading-none mb-3 md:mb-6">{{ letter | replace: '0', '0-9' }}</h2>
+                <ul class="{{ link_grid_class }}">
+                  {%- for vendor in shop.vendors -%}
+                    {%- liquid
+                      assign initial = vendor | first | upcase
+                      if '0123456789' contains initial
+                        assign initial = '0'
+                      endif
+                    -%}
+                    {% if initial == letter %}
+                      <li class="inline brand">{{ vendor | link_to_vendor: class: 'text-current brand-text' }}</li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+          </div>
+
+        {% else %}
+
+          <div class="brand-list {{ content_scheme_class }} px-6 md:px-10 py-6">
+            <ul class="{{ link_grid_class }}">
+              {% for vendor in shop.vendors %}
+                <li class="inline brand">{{ vendor | link_to_vendor: class: 'text-current brand-text' }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+        {% endif %}
+      {% else %}
+
+        {% if section.settings.enable_grouping %}
+          <div class="brand-list">
+            {% for link in section.settings.brands_menu.links %}
+              <div class="brand-list__group {{ content_scheme_class }}" id="{{ section.id }}-{{ link.title }}">
+                <h2 class="x-large-heading uppercase leading-none mb-3 md:mb-6">{{ link.title }}</h2>
+                <ul class="{{ link_grid_class }}">
+                  {% for vendor_link in link.links %}
+                    <li class="inline brand flex">
+                      {%- liquid
+                        assign vendor_image = false
+                        if section.settings.show_brand_images
+                          if vendor_link.object and vendor_link.object.metafields.theme.brand_logo
+                            assign vendor_image = vendor_link.object.metafields.theme.brand_logo
+                          elsif vendor_link.type == 'collection_link' and vendor_link.object.featured_image != blank
+                            assign vendor_image = vendor_link.object.featured_image
+                          endif
+                        endif
+                      -%}
+                      {%- if vendor_image -%}
+                        <div class="card relative w-full flex flex-col">
+                          <div class="card__media p-[16%] flex-1 flex items-center justify-center">
+                            {%- render 'image',
+                              image: vendor_image,
+                              src_width: 244,
+                              srcset_2x: true,
+                              class: 'object-contain aspect-[1.2/1]'
+                            -%}
+                          </div>
+                          <div class="text-center bg-theme-bg-tint px-4 md:px-8 py-2 md:py-3">
+                            <a href="{{ vendor_link.url }}" class="card-link text-current">
+                              <span class="brand-text text-sm">{{ vendor_link.title | escape }}</span>
+                            </a>
+                          </div>
+                        </div>
+                      {%- else -%}
+                        {{- vendor_link.title | link_to: vendor_link.url, class: 'text-current brand-text' -}}
+                      {%- endif -%}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="brand-list {{ content_scheme_class }} px-6 md:px-10 py-6">
+            <ul class="{{ link_grid_class }}">
+              {% for link in section.settings.brands_menu.links %}
+                {% if section.settings.brands_menu.levels == 1 %}
+                  <li class="inline">{{ link.title | link_to: link.url, class: 'text-current' }}</li>
+                {% else %}
+                  {% for vendor_link in link.links %}
+                    <li class="inline brand flex">
+                      {%- liquid
+                        assign vendor_image = false
+                        if section.settings.show_brand_images
+                          if vendor_link.object and vendor_link.object.metafields.theme.brand_logo
+                            assign vendor_image = vendor_link.object.metafields.theme.brand_logo
+                          elsif vendor_link.type == 'collection_link' and vendor_link.object.featured_image != blank
+                            assign vendor_image = vendor_link.object.featured_image
+                          endif
+                        endif
+                      -%}
+                      {%- if vendor_image -%}
+                        <div class="card relative w-full flex flex-col">
+                          <div class="card__media p-[16%] flex-1 flex items-center justify-center">
+                            {%- render 'image',
+                              image: vendor_image,
+                              src_width: 244,
+                              srcset_2x: true,
+                              class: 'object-contain aspect-[1.2/1]'
+                            -%}
+                          </div>
+                          <div class="text-center bg-theme-bg-tint px-4 md:px-8 py-2 md:py-3">
+                            <a href="{{ vendor_link.url }}" class="card-link text-current">
+                              <span class="brand-text text-sm">{{ vendor_link.title | escape }}</span>
+                            </a>
+                          </div>
+                        </div>
+                      {%- else -%}
+                        {{- vendor_link.title | link_to: vendor_link.url, class: 'text-current brand-text' -}}
+                      {%- endif -%}
+                    </li>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </brands-index>
+</div>
+
+
+{% schema %}
+{
+  "name": "Brands",
+  "class": "cc-brands non-join",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "Show search",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_grouping",
+      "label": "Group by first letter",
+      "info": "Supports A-Z, 0-9",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "mobile_cols",
+      "label": "Brands per row on mobile",
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "checkbox",
+      "id": "remove_top_padding",
+      "label": "Remove top padding",
+      "info": "Use to tidy layout when color schemes match",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "color_scheme_applies_to",
+      "label": "Color scheme applies to",
+      "default": "section",
+      "options": [
+        {
+          "value": "content",
+          "label": "Content"
+        },
+        {
+          "value": "section",
+          "label": "Section"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "type": "header",
+      "content": "Custom brands list (optional)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Create a two-tier menu with capital letters as the first-level links, and each brand as second-level links within each letter. Use parent link \"0-9\" for brands beginning with a number."
+    },
+    {
+      "type": "paragraph",
+      "content": "If empty, all store brands will appear."
+    },
+    {
+      "type": "link_list",
+      "id": "brands_menu",
+      "label": "Custom brands menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_brand_images",
+      "label": "Show images",
+      "info": "For a custom image, add a collection metafield of type \"File\" with the namespace and key \"theme.brand_logo\"",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Section heading (optional)"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "x-large-heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_h1",
+      "label": "Set as page heading (uses h1 tag)",
+      "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brands",
+      "category": "Collections"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

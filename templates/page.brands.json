@@ -1,0 +1,97 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "main-list-collections-banner",
+      "settings": {
+        "heading": "Our Brands",
+        "style": "scrolling-text",
+        "heading_marquee_speed": 15,
+        "heading_case": "none",
+        "text_align": "text-center",
+        "color_scheme": "scheme-2",
+        "fixed_height_desktop": 600,
+        "fixed_height_mobile": 350,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "show_description": true,
+        "description": "<p>Share information about your store with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+      }
+    },
+    "brands": {
+      "type": "brands",
+      "settings": {
+        "show_search": true,
+        "enable_grouping": true,
+        "mobile_cols": "2",
+        "color_scheme": "scheme-2",
+        "remove_top_padding": false,
+        "color_scheme_applies_to": "section",
+        "background_mode": "default",
+        "background_gradient_stop_1": "#f7f4f0",
+        "background_gradient_stop_2": "#f7f4f0",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "brands_menu": "",
+        "show_brand_images": false,
+        "heading": "",
+        "heading_size": "h2",
+        "heading_h1": false
+      }
+    },
+    "rich_text_B493pD": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_M7tHNG": {
+          "type": "heading",
+          "settings": {
+            "heading": "Clean skincare & makeup",
+            "heading_size": "h2",
+            "heading_h1": false
+          }
+        },
+        "text_cYDAHj": {
+          "type": "text",
+          "settings": {
+            "text": "<p>We set out to blur the conventions between <em><strong>skincare</strong></em> and <em><strong>makeup</strong></em> with our range of clean skincare products, advanced formulas and eco-friendly packaging.</p>",
+            "enlarge_text": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_M7tHNG",
+        "text_cYDAHj"
+      ],
+      "name": "Rich text",
+      "settings": {
+        "text_align": "text-center",
+        "text_width_override": true,
+        "text_max_width": 640,
+        "text_column_to_edge": false,
+        "mob_center_text": true,
+        "full_width": true,
+        "color_scheme": "scheme-2",
+        "background_mode": "default",
+        "background_color": "#f7f4f0",
+        "background_gradient_stop_1": "#ffffff",
+        "background_gradient_stop_2": "#f7f4f0",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "section_join_mode": "default"
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "brands",
+    "rich_text_B493pD"
+  ]
+}

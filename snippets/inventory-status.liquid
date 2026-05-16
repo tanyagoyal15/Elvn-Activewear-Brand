@@ -1,0 +1,19 @@
+{%- if current_variant.inventory_management != blank -%}
+  <div class="product-inventory" {{ block.shopify_attributes }}>
+    {%- if current_variant.inventory_quantity > 0 -%}
+      {%- if current_variant.inventory_quantity <= inventory_threshold or show_inventory_status == 'always' -%}
+        <div class="inventory-notice mt-6 mb-6">
+          {%- if show_inventory_count == true -%}
+            {{- 'products.inventory.only_x_left' | t: quantity: current_variant.inventory_quantity -}}
+          {%- else -%}
+            {{- 'products.inventory.low_stock' | t -}}
+          {%- endif -%}
+        </div>
+      {%- else -%}
+        <div class="inventory-notice inventory-notice--none"></div>
+      {%- endif -%}
+    {%- else -%}
+      <div class="inventory-notice inventory-notice--none"></div>
+    {%- endif -%}
+  </div>
+  {%- endif -%}

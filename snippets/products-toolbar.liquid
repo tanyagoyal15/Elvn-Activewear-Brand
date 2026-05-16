@@ -1,0 +1,108 @@
+{% comment %}
+  Parameters:
+  - results {Object} - Results object (collection or search).
+
+  Usage:
+  {% render 'products-toolbar', results: collection %}
+{% endcomment %}
+
+{%- liquid
+  assign filtering_enabled = section.settings.enable_filtering
+  if results.filters == empty
+    assign filtering_enabled = false
+  endif
+  assign sorting_enabled = section.settings.enable_sorting
+-%}
+
+<products-toolbar class="products-toolbar block mb-6 lg:mb-8" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+  <div class="flex items-center gap-x-4">
+    {%- if section.settings.show_layout_toggle -%}
+      <div class="products-toolbar__layout flex-1 flex items-center ms-auto no-js-hidden">
+        <span class="visually-hidden">{{ 'sections.collection.layout_label' | t }}</span>
+        <input type="radio" class="focus-label visually-hidden sm:hidden" name="products-layout" id="layout-opt-1" value="1">
+        <label class="relative sm:hidden" for="layout-opt-1">
+          <span class="visually-hidden">{{ 'sections.collection.layout_option_1' | t }}</span>
+          {%- render 'icon-layout-1' -%}
+          <span class="absolute top-0 end-0 text-xxxs custom-case">
+            {{ 'sections.collection.layout_option_1_short' | t }}
+          </span>
+        </label>
+        <input type="radio" class="focus-label visually-hidden" name="products-layout" id="layout-opt-2" value="2">
+        <label class="relative" for="layout-opt-2">
+          <span class="visually-hidden">{{ 'sections.collection.layout_option_2' | t }}</span>
+          {%- render 'icon-layout-2' -%}
+          <span class="absolute top-0 end-0 text-xxxs custom-case">
+            {{ 'sections.collection.layout_option_2_short' | t }}
+          </span>
+        </label>
+        <input type="radio" class="focus-label visually-hidden hidden sm:block" name="products-layout" id="layout-opt-3" value="3">
+        <label class="relative hidden sm:block" for="layout-opt-3">
+          <span class="visually-hidden">{{ 'sections.collection.layout_option_3' | t }}</span>
+          {%- render 'icon-layout-3' -%}
+          <span class="absolute top-0 end-0 text-xxxs custom-case">
+            {{ 'sections.collection.layout_option_3_short' | t }}
+          </span>
+        </label>
+        <input type="radio" class="focus-label visually-hidden hidden lg:block" name="products-layout" id="layout-opt-4" value="4">
+        <label class="relative hidden lg:block" for="layout-opt-4">
+          <span class="visually-hidden">{{ 'sections.collection.layout_option_4' | t }}</span>
+          {%- render 'icon-layout-4' -%}
+          <span class="absolute top-0 end-0 text-xxxs custom-case">
+            {{ 'sections.collection.layout_option_4_short' | t }}
+          </span>
+        </label>
+      </div>
+    {%- endif -%}
+
+    {% comment %} Count {% endcomment %}
+    {%- if section.settings.show_product_count and hide_count != true -%}
+      <div class="products-toolbar__count hidden md:block md:me-auto" role="status">
+        {%- liquid
+          if results.products_count
+            assign results_count = results.products_count
+          else
+            assign results_count = results.results_count
+          endif
+        -%}
+        {{- 'products.filtering.results_count' | t: count: results_count -}}
+      </div>
+    {%- endif -%}
+
+    {% comment %} Filter {% endcomment %}
+    {%- if filtering_enabled or sorting_enabled -%}
+      {%- liquid
+        assign filter_count = 0
+        for filter in results.filters
+          for value in filter.active_values
+            assign filter_count = filter_count | plus: 1
+          endfor
+
+          if filter.type == "price_range"
+            if filter.min_value.value != nil or filter.max_value.value != nil
+              assign filter_count = filter_count | plus: 1
+            endif
+          endif
+        endfor
+      -%}
+      <div class="products-toolbar__filter flex-1 flex justify-end md:w-auto no-js-hidden">
+        <button type="button" class="btn btn--secondary products-toolbar__filter-btn js-toggle-filters" aria-controls="facet-filters" aria-expanded="false">
+          {%- if filtering_enabled and sorting_enabled -%}
+            {%- if filter_count == 0 -%}
+              {{ 'products.filtering.filter_sort' | t }}
+            {%- else -%}
+              {{ 'products.filtering.filter_sort_count' | t: count: filter_count }}
+            {%- endif -%}
+          {%- elsif filtering_enabled -%}
+            {%- if filter_count == 0 -%}
+              {{ 'products.filtering.filter' | t }}
+            {%- else -%}
+              {{ 'products.filtering.filter_count' | t: count: filter_count }}
+            {%- endif -%}
+          {%- elsif sorting_enabled -%}
+            {{ 'products.sorting.sort_button' | t }}
+          {%- endif -%}
+        </button>
+      </div>
+    {%- endif -%}
+  </div>
+</products-toolbar>

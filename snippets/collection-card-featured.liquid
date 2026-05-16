@@ -1,0 +1,78 @@
+{%- comment -%}
+  Parameters:
+  - collection {Object} - Collection object.
+  - collection_title {String} - Replaces collection title if not left blank
+  - image {Object} - Image object (optional).
+  - image_ratio {Number} - Aspect ratio for the image (optional).
+  - link_text {String} - Text displayed in card_info div
+
+  Usage:
+  {% render 'collection-card', collection: collection %}
+{%- endcomment -%}
+
+{%- liquid
+  unless collection == empty
+    if image == blank and collection.featured_image
+      assign image = collection.featured_image
+    endif
+  endunless
+
+  if image_ratio == nil
+    if section.settings.card_image_ratio == 'shortest' or section.settings.card_image_ratio == 'tallest'
+      assign image_ratio = 1
+    else
+      assign image_ratio = section.settings.card_image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+
+  if collection_title != blank
+    assign title = collection_title
+  else
+    assign title = collection.title
+  endif
+
+-%}
+
+<div class="collection-card--featured relative flex flex-col">
+  <p class="card__title card__title--collection x-large-heading m-0 relative text-center">
+    {%- if title != blank -%}
+      <a href="{{ collection.url }}" class="card-link text-current">{{ title | escape }}</a>
+    {%- else -%}
+      {{- 'onboarding.collection.title' | t -}}
+    {%- endif -%}
+  </p>
+  <div class="card__media relative">
+    <a href="{{ collection.url }}" class="media block relative custom-aspect-ratio" tabindex="-1" style="--ratio: {{ image_ratio }};">
+      {%- if collection != empty and image != blank -%}
+        {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: 1, sm: 2, lg: 3, xl: 4 %}{% endcapture -%}
+        {%- liquid
+          assign class = 'img-fit'
+          if settings.coll_card_image_fit == 'contain'
+            assign class = 'img-fit img-fit--contain'
+          else
+            assign class = 'img-fit ' | append: settings.coll_image_align
+          endif
+        -%}
+        {% render 'image',
+          image: image,
+          widths: '320, 460, 600, 700, 800, 900, 1200',
+          src_width: 460,
+          sizes: sizes,
+          class: class
+        %}
+      {%- else -%}
+        {%- capture placeholder_name -%}collection-{{ 'now' | date: '%N' | modulo: 6 | plus: 1 }}{%- endcapture -%}
+        {{ placeholder_name | placeholder_svg_tag: 'media__placeholder img-fit' }}
+      {%- endif -%}
+    </a>
+  </div>
+  {%- if link_text != blank -%}
+    <div class="card__info relative text-center">
+      <p class="x-large-text mb-0">
+        <a href="{{ collection.url }}" class="card-link text-current">{{ link_text }}</a>
+      </p>
+    </div>
+  {%- endif -%}
+</div>

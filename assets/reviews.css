@@ -1,0 +1,295 @@
+/* ── Reviews section ─────────────────────────────────── */
+
+.reviews {
+  padding-top: calc(14 * var(--space-unit));
+  padding-bottom: calc(16 * var(--space-unit));
+}
+
+/* Header */
+.reviews__header {
+  max-width: 560px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: calc(20 * var(--space-unit));
+}
+
+.reviews__subheading {
+  display: block;
+  margin-bottom: calc(2 * var(--space-unit));
+  color: rgb(var(--text-color) / 0.5);
+  font-size: 1.1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.reviews__heading {
+  line-height: 1.1;
+}
+
+/* ── Carousel ────────────────────────────────────────── */
+
+.reviews .carousel:not([inactive]) .slider {
+  width: calc(100% - (var(--gutter) + 12px) * 2);
+  margin: 0 calc(var(--gutter) + 12px);
+}
+
+.reviews .slider-nav {
+  top: 50%;
+  right: -8px;
+  left: -8px;
+  height: auto;
+  transform: translateY(-50%);
+}
+
+/* Remove circle border from nav arrows */
+.reviews .slider-nav--alt > .slider-nav__btn {
+  padding: 2px;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* ── Shimmer skeleton ────────────────────────────────── */
+
+/* While loading: hide real cards, show skeleton */
+.reviews--loading .review-card {
+  display: none;
+}
+
+.reviews--loading .review-card__skeleton {
+  display: flex;
+}
+
+/* Once loaded: fade cards in, hide skeleton */
+.reviews:not(.reviews--loading) .review-card {
+  animation: reviews-fade-in 0.4s ease both;
+}
+
+.reviews:not(.reviews--loading) .review-card__skeleton {
+  display: none;
+}
+
+@keyframes reviews-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Skeleton card shape – mirrors review-card layout */
+.review-card__skeleton {
+  display: none;
+  flex-direction: column;
+  gap: calc(25 * var(--space-unit));
+  padding: calc(7 * var(--space-unit));
+  border: 1px solid #eee;
+  background-color: var(--bg-color);
+  box-shadow: 0 -1px 7px 0 rgba(var(--text-color) / 0.1);
+  height: 100%;
+}
+
+/* Shimmer sweep */
+@keyframes shimmer {
+  0% {
+    background-position: -300px 0;
+  }
+  100% {
+    background-position: 300px 0;
+  }
+}
+
+.review-card__skeleton-stars,
+.review-card__skeleton-line,
+.review-card__skeleton-avatar,
+.review-card__skeleton-name {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--text-color) / 0.06) 25%,
+    rgba(var(--text-color) / 0.13) 50%,
+    rgba(var(--text-color) / 0.06) 75%
+  );
+  background-size: 600px 100%;
+  border-radius: 4px;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.review-card__skeleton-stars {
+  width: 80px;
+  height: 12px;
+}
+
+.review-card__skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--space-unit));
+  flex: 1;
+}
+
+.review-card__skeleton-line {
+  height: 11px;
+}
+
+.review-card__skeleton-line--mid {
+  width: 85%;
+}
+
+.review-card__skeleton-line--short {
+  width: 60%;
+}
+
+.review-card__skeleton-author {
+  display: flex;
+  align-items: center;
+  gap: calc(3 * var(--space-unit));
+  margin-top: auto;
+}
+
+.review-card__skeleton-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.review-card__skeleton-name {
+  width: 80px;
+  height: 11px;
+}
+
+.reviews__grid {
+  grid-auto-columns: min(82vw, 300px);
+  gap: calc(5 * var(--space-unit));
+  padding-bottom: calc(1 * var(--space-unit));
+}
+
+@media (min-width: 768px) {
+  .reviews__grid {
+    grid-auto-columns: 300px;
+    gap: calc(6 * var(--space-unit));
+  }
+}
+
+@media (min-width: 1024px) {
+  .reviews__grid {
+    grid-auto-columns: 320px;
+  }
+}
+
+/* ── Card ────────────────────────────────────────────── */
+
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  padding: calc(7 * var(--space-unit)) calc(7 * var(--space-unit))
+    calc(6 * var(--space-unit));
+  border: 1px solid #eee;
+  background-color: var(--bg-color);
+  box-shadow: 0 -1px 7px 0 rgba(var(--text-color) / 0.1);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .review-card:hover {
+    border-color: rgba(var(--text-color) / 0.22);
+    box-shadow: 0 4px 20px rgba(var(--text-color) / 0.06);
+  }
+}
+
+/* Stars */
+.review-card__stars {
+  display: flex;
+  gap: 2px;
+}
+
+.review-card__star {
+  font-size: 1.4rem;
+  line-height: 1;
+  color: rgba(var(--text-color) / 0.18);
+}
+
+.review-card__star--filled {
+  color: #b8935a;
+}
+
+/* Quote text */
+.review-card__text {
+  color: rgb(var(--text-color) / 0.8);
+  font-size: 1.45rem;
+  font-style: italic;
+  line-height: 1.65;
+}
+
+/* Author */
+.review-card__name {
+  font-size: 1.3rem;
+  letter-spacing: 0.01em;
+}
+
+.review-card__verified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  margin-inline-start: 5px;
+  border-radius: 50%;
+  background-color: #b8935a;
+  color: #fff;
+  font-size: 8px;
+  font-style: normal;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.review-card__product {
+  margin-top: calc(0.5 * var(--space-unit));
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
+  opacity: 0.45;
+}
+
+.review-card__product-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Avatar – photo */
+.review-card__avatar-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Avatar – initials fallback */
+.review-card__avatar--initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: rgba(var(--text-color) / 0.08);
+  color: rgb(var(--text-color));
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ── Breakpoints ─────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .reviews {
+    padding-top: calc(16 * var(--space-unit));
+    padding-bottom: calc(18 * var(--space-unit));
+  }
+
+}

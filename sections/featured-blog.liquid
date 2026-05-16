@@ -1,0 +1,1001 @@
+<link rel="stylesheet" href="{{ 'featured-blog.css' | asset_url }}" {%- render 'lazy-stylesheet-attrs' %}>
+
+{%- liquid
+  # constants
+  assign gutter_sm = 20
+  assign breakpoint_md_down = 768 | minus: 0.02
+-%}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+
+  assign primary_image = section.settings.blog.articles[0].image
+  assign secondary_image = section.settings.blog.articles[1].image
+
+  if section.settings.image_override
+    assign primary_image = section.settings.primary_image
+    assign secondary_image = section.settings.secondary_image
+  endif
+
+  assign quality = settings.image_quality
+-%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  {%- if section.settings.roundel_enabled -%}
+    #{{ section.id }} .roundel {
+      --roundel-size: {{ section.settings.roundel_size }}px;
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+<div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  {% liquid
+    assign padding_classes = 'md:py-20'
+    if section.settings.roundel_enabled
+      assign padding_classes = padding_classes | append: ' pt-16 pb-10'
+    else
+      assign padding_classes = padding_classes | append: ' py-10'
+    endif
+  %}
+
+  <div class="featured-blog {{ padding_classes }} section z-3
+              color-scheme color-scheme--{{ color_scheme }}
+              {% if section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}">
+    <div class="container {{ section.settings.text_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+      <div class="flex flex-col md:flex-row items-start gap-16">
+
+        <div class="featured-blog__media-container w-full relative z-1">
+          {%- if section.settings.roundel_enabled -%}
+            <div class="featured-blog__roundel absolute z-10" style="color: {{ section.settings.color }}">
+              {%-
+                render 'roundel',
+                  uid: section.id,
+                  spin: section.settings.spin,
+                  outer_frame: section.settings.enable_outer_frame,
+                  inner_frame: section.settings.enable_inner_frame,
+                  outer_text: section.settings.outer_text,
+                  outer_text_line_offset: section.settings.outer_text_line_offset,
+                  outer_text_letter_spacing: section.settings.outer_text_letter_spacing,
+                  inner_type: section.settings.inner_type,
+                  inner_text_1: section.settings.inner_text_1,
+                  inner_text_1_size: section.settings.inner_text_1_size,
+                  inner_text_2: section.settings.inner_text_2,
+                  inner_text_2_size: section.settings.inner_text_2_size,
+                  inner_text_font: section.settings.inner_text_font,
+                  icon: section.settings.icon
+                  usp_icon: section.settings.usp_icon
+              -%}
+            </div>
+          {%- endif -%}
+
+          {%- capture cc_animate_attr -%}data-cc-animate="slide-in-up" data-cc-animate-delay="{{ forloop.index | times: 0.2 }}s"{%- endcapture -%}
+          <div class="featured-blog__media featured-blog__media-primary relative img--border-radius" {%- render 'animation-attrs', attrs: cc_animate_attr %} style="--slide-in-up-distance: 20%;">
+            <div class="media custom-aspect-ratio" style="--ratio: {{ primary_image.aspect_ratio | default: 0.66 }};">
+              {%- if primary_image != blank -%}
+                {%- capture sizes_md %}calc((50vw - {{ gutter_sm | times: 2 }}px) + 9px){% endcapture -%}
+                {%- capture sizes -%}
+                  {%- render 'sizes-attribute', min: 'page', sm: 'page', md: sizes_md, lg: '536px', xl: false, max: false -%}
+                {%- endcapture -%}
+                {% render 'image',
+                  image: primary_image,
+                  quality: quality,
+                  widths: '536, 800, 1072, 1280',
+                  mobile_widths: '690, 800',
+                  src_width: 536,
+                  sizes: sizes,
+                  section_index: section.index,
+                  class: 'img-fit'
+                %}
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+              {%- endif -%}
+            </div>
+          </div>
+
+          {%- if secondary_image != blank or primary_image == blank -%}
+            {%- capture cc_animate_attr -%}data-cc-animate="slide-in-up" data-cc-animate-delay="{{ forloop.index | times: 0.3 }}s"{%- endcapture -%}
+            <div class="featured-blog__media featured-blog__media-secondary absolute overflow-hidden" {%- render 'animation-attrs', attrs: cc_animate_attr %} style="--secondary-image-border-radius: {{ section.settings.secondary_image_border_radius }}px; --slide-in-up-distance: 30%;">
+              {%- if secondary_image != blank -%}
+                {%- capture sizes_md %}calc((50vw - {{ gutter_sm | times: 2 }}px) + 9px){% endcapture -%}
+                {%- capture sizes -%}
+                  {%- render 'sizes-attribute', min: 'page', sm: 'page', md: sizes_md, lg: '536px', xl: false, max: false -%}
+                {%- endcapture -%}
+                {% render 'image',
+                  image: secondary_image,
+                  quality: quality,
+                  widths: '536, 800, 1072, 1280',
+                  mobile_widths: '690, 800',
+                  src_width: 536,
+                  sizes: sizes,
+                  section_index: section.index
+                %}
+              {%- else -%}
+                {{ 'product-2' | placeholder_svg_tag: 'media__placeholder' }}
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+        {% liquid
+          assign content_classes = "w-50 w-full flex flex-col justify-center"
+
+          if section.settings.enable_color_scheme
+            assign content_classes = content_classes | append: " color-scheme color-scheme--" | append: color_scheme
+          endif
+        %}
+
+        <div class="featured-blog__content {{ content_classes }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+
+          <div class="featured-blog__content-container">
+            <div class="reading-width--inline">
+                {%- for block in section.blocks -%}
+                  {%- case block.type -%}
+                    {%- when 'heading' -%}
+                      {% liquid
+                        assign heading = section.settings.blog.title
+                        if block.settings.heading_override
+                          assign heading = block.settings.heading
+                        endif
+                      %}
+                      {%- if heading != blank -%}
+                        <{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__block section__block--heading {{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+                          {{- heading | escape -}}
+                        </{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+                      {%- endif -%}
+
+                    {%- when 'subheading' -%}
+                      {%- if block.settings.text != blank -%}
+                        <p class="section__block section__block--subheading subheading" {{ block.shopify_attributes }}>
+                          {{- block.settings.text | escape -}}
+                        </p>
+                      {%- endif -%}
+
+                    {%- when 'text' -%}
+                      {%- if block.settings.text != blank -%}
+                        <div class="section__block rte{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}{% if block.settings.enlarge_text %} enlarge-text{% endif %}" {{ block.shopify_attributes }}>
+                          {{ block.settings.text }}
+                        </div>
+                      {%- endif -%}
+
+                    {%- when 'button' -%}
+                      {%- if block.settings.button_label != blank -%}
+                        <div class="section__block section__block--buttons flex flex-wrap {% if section.settings.text_align == 'text-start' %} justify-start{% elsif section.settings.text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mob_center_text %} md-down:justify-center{% endif %}" {{ block.shopify_attributes }}>
+                          <a class="{{ block.settings.button_style }}" {% if section.settings.blog == blank %}role="link" aria-disabled="true"{% else %}href="{{ section.settings.blog.url }}"{% endif %}>
+                            {{- block.settings.button_label | escape -}}
+                          </a>
+                        </div>
+                      {%- endif -%}
+                  {% endcase %}
+                {% endfor %}
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Featured blog",
+  "class": "cc-featured-blog non-join",
+  "settings": [
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "checkbox",
+      "id": "image_override",
+      "label": "Override article images",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.image_override == false }}",
+      "type": "paragraph",
+      "content": "By default, this section will use the featured images from your most recent blog posts."
+    },
+    {
+      "visible_if": "{{ section.settings.image_override }}",
+      "type": "image_picker",
+      "id": "primary_image",
+      "label": "Main image",
+      "info": "Portrait ratio recommended"
+    },
+    {
+      "visible_if": "{{ section.settings.image_override and section.settings.primary_image != blank }}",
+      "type": "image_picker",
+      "id": "secondary_image",
+      "label": "Secondary image",
+      "info": "Square ratio recommended"
+    },
+    {
+      "type": "range",
+      "id": "secondary_image_border_radius",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Secondary image border radius",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Roundel"
+    },
+    {
+      "type": "checkbox",
+      "id": "roundel_enabled",
+      "label": "Show roundel",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "color",
+      "id": "color",
+      "label": "Color",
+      "default": "#b28362"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "header",
+      "content": "Roundel: Outer"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "text",
+      "id": "outer_text",
+      "label": "Outer text",
+      "default": "YOUR TEXT HERE - YOUR TEXT HERE -"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "range",
+      "id": "outer_text_line_offset",
+      "min": 0,
+      "max": 5,
+      "step": 0.1,
+      "label": "Line height",
+      "default": 2.7
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "range",
+      "id": "outer_text_letter_spacing",
+      "min": 0,
+      "max": 6,
+      "step": 0.1,
+      "label": "Letter spacing",
+      "default": 2.6
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "header",
+      "content": "Roundel: Inner"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "select",
+      "id": "inner_type",
+      "label": "Content type",
+      "options": [
+        {
+          "value": "text",
+          "label": "Text"
+        },
+        {
+          "value": "icon_basic",
+          "label": "Icon - Basic"
+        },
+        {
+          "value": "icon_cosmetic",
+          "label": "Icon - Cosmetics"
+        }
+      ],
+      "default": "text"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled and section.settings.inner_type == 'text' }}",
+      "type": "text",
+      "id": "inner_text_1",
+      "default": "Inner",
+      "label": "Line 1"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled and section.settings.inner_type == 'text' and section.settings.inner_text_1 != blank }}",
+      "type": "range",
+      "id": "inner_text_1_size",
+      "min": 14,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 20
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled and section.settings.inner_type == 'text' }}",
+      "type": "text",
+      "id": "inner_text_2",
+      "default": "Text",
+      "label": "Line 2"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled and section.settings.inner_type == 'text' and section.settings.inner_text_2 != blank }}",
+      "type": "range",
+      "id": "inner_text_2_size",
+      "min": 14,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 26
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled and section.settings.inner_type == 'text' }}",
+      "type": "select",
+      "id": "inner_text_font",
+      "label": "Font",
+      "options": [
+        {
+          "value": "heading",
+          "label": "Heading"
+        },
+        {
+          "value": "body",
+          "label": "Body"
+        }
+      ],
+      "default": "body"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled and section.settings.inner_type == 'icon_basic' }}",
+      "type": "select",
+      "id": "icon",
+      "label": "Basic icon",
+      "options": [
+        {
+          "value": "",
+          "label": "None"
+        },
+        {
+          "value": "award",
+          "label": "Award"
+        },
+        {
+          "value": "box",
+          "label": "Box"
+        },
+        {
+          "value": "briefcase",
+          "label": "Briefcase"
+        },
+        {
+          "value": "calendar",
+          "label": "Calendar"
+        },
+        {
+          "value": "chat_bubble",
+          "label": "Chat bubble"
+        },
+        {
+          "value": "check_mark",
+          "label": "Check mark"
+        },
+        {
+          "value": "check_mark_in_circle",
+          "label": "Check mark in circle"
+        },
+        {
+          "value": "clock",
+          "label": "Clock"
+        },
+        {
+          "value": "credit_card",
+          "label": "Credit card"
+        },
+        {
+          "value": "dollar_sign",
+          "label": "Dollar sign"
+        },
+        {
+          "value": "dryer",
+          "label": "Dryer"
+        },
+        {
+          "value": "eye",
+          "label": "Eye"
+        },
+        {
+          "value": "feather",
+          "label": "Feather"
+        },
+        {
+          "value": "gift",
+          "label": "Gift"
+        },
+        {
+          "value": "heart",
+          "label": "Heart"
+        },
+        {
+          "value": "iron",
+          "label": "Iron"
+        },
+        {
+          "value": "leaf",
+          "label": "Leaf"
+        },
+        {
+          "value": "leather",
+          "label": "Leather"
+        },
+        {
+          "value": "lock",
+          "label": "Lock"
+        },
+        {
+          "value": "map_pin",
+          "label": "Map pin"
+        },
+        {
+          "value": "pants",
+          "label": "Pants"
+        },
+        {
+          "value": "percent",
+          "label": "Percent"
+        },
+        {
+          "value": "plane",
+          "label": "Plane"
+        },
+        {
+          "value": "price_tag",
+          "label": "Price tag"
+        },
+        {
+          "value": "question_mark",
+          "label": "Question mark"
+        },
+        {
+          "value": "return",
+          "label": "Return"
+        },
+        {
+          "value": "ruler",
+          "label": "Ruler"
+        },
+        {
+          "value": "scissors",
+          "label": "Scissors"
+        },
+        {
+          "value": "shirt",
+          "label": "Shirt"
+        },
+        {
+          "value": "shoe",
+          "label": "Shoe"
+        },
+        {
+          "value": "silhouette",
+          "label": "Silhouette"
+        },
+        {
+          "value": "star",
+          "label": "Star"
+        },
+        {
+          "value": "truck",
+          "label": "Truck"
+        },
+        {
+          "value": "washing",
+          "label": "Washing"
+        }
+      ],
+      "default": "box"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled and section.settings.inner_type == 'icon_cosmetic' }}",
+      "type": "select",
+      "id": "usp_icon",
+      "label": "Cosmetics icon",
+      "default": "beauty-routine",
+      "options": [
+        {
+          "label": "None",
+          "value": "none"
+        },
+        {
+          "label": "Anti ageing",
+          "value": "anti-aging"
+        },
+        {
+          "label": "Beard and grooming",
+          "value": "beard-and-grooming"
+        },
+        {
+          "label": "Beauty routine",
+          "value": "beauty-routine"
+        },
+        {
+          "label": "Beauty supplements",
+          "value": "beauty-supplements"
+        },
+        {
+          "label": "Body positivity",
+          "value": "body-positivity"
+        },
+        {
+          "label": "Carbon neutral",
+          "value": "carbon-neutral"
+        },
+        {
+          "label": "Clean beauty",
+          "value": "clean-beauty"
+        },
+        {
+          "label": "Cosmetics for men",
+          "value": "cosmetics-for-men"
+        },
+        {
+          "label": "Cruelty free",
+          "value": "cruelty-free"
+        },
+        {
+          "label": "Direct to consumer",
+          "value": "direct-to-consumer"
+        },
+        {
+          "label": "Eco friendly",
+          "value": "eco-friendly"
+        },
+        {
+          "label": "Ethical sourcing",
+          "value": "ethical-sourcing"
+        },
+        {
+          "label": "Greenleaves",
+          "value": "green-leaves"
+        },
+        {
+          "label": "Hair care",
+          "value": "hair-care"
+        },
+        {
+          "label": "Inclusive",
+          "value": "inclusive"
+        },
+        {
+          "label": "Influencer recommended",
+          "value": "influencer-recommended"
+        },
+        {
+          "label": "Label transparency",
+          "value": "label-transparency"
+        },
+        {
+          "label": "Mental wellbeing",
+          "value": "mental-wellbeing"
+        },
+        {
+          "label": "Non toxic ingredients",
+          "value": "non-toxic-ingredients"
+        },
+        {
+          "label": "Nutraceuticals",
+          "value": "nutraceuticals"
+        },
+        {
+          "label": "Open lid",
+          "value": "open-lid"
+        },
+        {
+          "label": "Organic",
+          "value": "organic"
+        },
+        {
+          "label": "Recycle",
+          "value": "recycle"
+        },
+        {
+          "label": "Reuseable packaging",
+          "value": "reuseable-packaging"
+        },
+        {
+          "label": "Self love",
+          "value": "self-love"
+        },
+        {
+          "label": "Sustainable",
+          "value": "sustainable"
+        },
+        {
+          "label": "Technologically advanced cosmetics",
+          "value": "technologically-advanced-cosmetics"
+        },
+        {
+          "label": "Upcycled ingredients",
+          "value": "upcycled-ingredients"
+        },
+        {
+          "label": "Vegan",
+          "value": "vegan"
+        },
+        {
+          "label": "Zero waste",
+          "value": "zero-waste"
+        }
+      ]
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "header",
+      "content": "Roundel: Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "range",
+      "id": "roundel_size",
+      "min": 100,
+      "max": 200,
+      "step": 10,
+      "label": "Roundel size",
+      "default": 160
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "select",
+      "id": "spin",
+      "label": "Spin",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "scroll",
+          "label": "On scroll"
+        },
+        {
+          "value": "slow",
+          "label": "Slow"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "fast",
+          "label": "Fast"
+        }
+      ],
+      "default": "scroll"
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "checkbox",
+      "id": "enable_inner_frame",
+      "label": "Enable inner outline",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.roundel_enabled }}",
+      "type": "checkbox",
+      "id": "enable_outer_frame",
+      "label": "Enable outer outline",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "heading_override",
+          "label": "Override heading",
+          "default": true
+        },
+        {
+          "visible_if": "{{ block.settings.heading_override }}",
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Featured Blog"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h4",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            },
+            {
+              "value": "x-large-heading",
+              "label": "Large"
+            },
+            {
+              "value": "xx-large-heading",
+              "label": "Extra large"
+            }
+          ],
+          "default": "h1"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_h1",
+          "label": "Set as page heading (uses h1 tag)",
+          "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subheading",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share information about your store with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_text",
+          "label": "Enlarge text",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Button"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured blog",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

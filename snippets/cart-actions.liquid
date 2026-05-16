@@ -1,0 +1,129 @@
+{%- comment -%}
+  Parameters:
+  - show_gift_wrapping {Boolean} - Whether gift wrap should show.
+  - in_drawer {Boolean} - True if displayed in the cart drawer. Actions will be displayed side by side. Accordions will always be shown on mobile.
+
+  Usage:
+  {% render 'cart-actions', show_gift_wrapping: show_gift_wrapping, in_drawer: true %}
+{%- endcomment -%}
+
+<div class="cart-actions{% unless in_drawer %} cart-actions--stacked{% endunless %} flex items-center justify-around pt-2 pb-2">
+  {%- if show_gift_wrapping -%}
+    <div class="cart-actions__gift-wrap-container grow inline-flex justify-center{% if in_drawer %}{% if show_gift_wrapping and section.settings.show_order_note %} drawer__footer--border-right{% endif %}{% endif %}">
+      <cart-summary-disclosure class="block">
+        <details class="gift-message-disclosure disclosure">
+          <summary>
+            <div class="flex justify-between items-center">
+              <span class="flex items-center gap-x-2 text-sm hover:lighten">
+                {% render 'icon-gift' %}
+                <span class="text-sm js-show-gift-wrap">
+                  {%- if cart.attributes.gift-note == blank -%}
+                    {{- 'cart.gift_message.add' | t -}}
+                  {%- else -%}
+                    {{- 'cart.gift_message.edit' | t -}}
+                  {%- endif -%}
+                </span>
+              </span>
+              <span class="disclosure__toggle">
+                {%- if settings.disclosure_toggle == 'plus' -%}
+                  {% render 'icon-plus' %}
+                {%- else -%}
+                  {% render 'icon-chevron-down' %}
+                {%- endif -%}
+              </span>
+            </div>
+          </summary>
+          <div class="cart-drawer-popup absolute bottom-0 left-0 w-full">
+            <div class="cart-drawer-popup__content">
+              <h2 class="mb-4 md:mb-6 font-body regular-text">{{ 'cart.gift_message.label' | t }}</h2>
+              <cart-gift-message>
+                <label class="visually-hidden" for="cart-note">{{ 'cart.gift_message.label' | t }}</label>
+                <textarea class="input w-full text-sm" name="attributes[gift-note]" id="gift-note" rows="4" placeholder="{{ 'cart.gift_message.textarea_tip' | t | escape }}">{{ cart.attributes.gift-note }}</textarea>
+              </cart-gift-message>
+              <button type="button" class="cart-drawer-popup__btn absolute js-close" aria-label="{{ 'accessibility.close' | t }}">
+                {% render 'icon-close' %}
+              </button>
+            </div>
+          </div>
+        </details>
+      </cart-summary-disclosure>
+    </div>
+  {%- endif -%}
+
+  {%- if section.settings.show_order_note -%}
+    <div class="grow inline-flex justify-center">
+      <cart-summary-disclosure class="block">
+        <details class="cart-note-disclosure disclosure">
+          <summary>
+            <div class="flex justify-between items-center">
+              <span class="flex items-center gap-x-2 text-sm hover:lighten">
+                {% render 'icon-pencil' %}
+                <span class="text-sm js-show-note">
+                  {%- if cart.note == blank -%}
+                    {{- 'cart.note.add' | t -}}
+                  {%- else -%}
+                    {{- 'cart.note.edit' | t -}}
+                  {%- endif -%}
+                </span>
+              </span>
+              <span class="disclosure__toggle">
+                {%- if settings.disclosure_toggle == 'plus' -%}
+                  {% render 'icon-plus' %}
+                {%- else -%}
+                  {% render 'icon-chevron-down' %}
+                {%- endif -%}
+              </span>
+            </div>
+          </summary>
+          <div class="cart-drawer-popup absolute bottom-0 left-0 w-full">
+            <div class="cart-drawer-popup__content">
+              <h2 class="mb-4 md:mb-6 font-body regular-text">{{ 'cart.note.label' | t }}</h2>
+              <cart-note>
+                <label class="visually-hidden" for="cart-note">{{ 'cart.note.label' | t }}</label>
+                <textarea class="input w-full text-sm" id="cart-note" name="note" rows="4" placeholder="{{ 'cart.note.textarea_tip' | t | escape }}">{{ cart.note }}</textarea>
+              </cart-note>
+              <button type="button" class="cart-drawer-popup__btn absolute js-close" aria-label="{{ 'accessibility.close' | t }}">
+                {% render 'icon-close' %}
+              </button>
+            </div>
+          </div>
+        </details>
+      </cart-summary-disclosure>
+    </div>
+  {%- endif -%}
+
+  {%- if settings.show_cart_discounts -%}
+    <div class="grow inline-flex justify-center{% if in_drawer %}{% if section.settings.show_order_note or show_gift_wrapping %} drawer__footer--border-left{% endif %}{% endif %}">
+      <cart-summary-disclosure class="block">
+        <details class="disclosure">
+          <summary>
+            <div class="flex justify-between items-center">
+              <span class="flex items-center gap-x-2 text-sm hover:lighten">
+                {% render 'icon-percent' %}
+                <span class="text-sm">
+                  {{- 'cart.discount.discount' | t -}}
+                </span>
+              </span>
+              <span class="disclosure__toggle">
+                {%- if settings.disclosure_toggle == 'plus' -%}
+                  {% render 'icon-plus' %}
+                {%- else -%}
+                  {% render 'icon-chevron-down' %}
+                {%- endif -%}
+              </span>
+            </div>
+          </summary>
+          <div class="cart-drawer-popup absolute bottom-0 left-0 w-full">
+            <div class="cart-drawer-popup__content">
+              <h2 class="mb-4 md:mb-6 font-body regular-text">{{ 'cart.discount.discount' | t }}</h2>
+              {%- render 'cart-discount', section_id: section.id -%}
+              <button type="button" class="cart-drawer-popup__btn absolute js-close" aria-label="{{ 'accessibility.close' | t }}">
+                {% render 'icon-close' %}
+              </button>
+            </div>
+          </div>
+        </details>
+      </cart-summary-disclosure>
+    </div>
+  {%- endif -%}
+</div>

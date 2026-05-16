@@ -1,0 +1,86 @@
+{%- comment -%}
+  Parameters:
+  - section_id {String} - Section ID
+  - heading_class {String} - Any classes used for styling the heading
+
+  {%- render 'cart-discount',
+    section_id: section.id,
+    heading_class: 'font-bold'
+  -%}
+{%- endcomment -%}
+
+<link rel="stylesheet" href="{{ 'cart-discount.css' | asset_url }}" media="print" onload="this.media='all'">
+<script src="{{ 'cart-discount.js' | asset_url }}" defer></script>
+
+{% liquid
+  assign cart_level_discount_applications = cart.cart_level_discount_applications | where: 'type', 'discount_code'
+  assign line_level_discount_applications  = "" | split: ","
+
+  for item in cart.items
+    for allocation in item.line_level_discount_allocations
+      if allocation.discount_application.type == 'discount_code'
+        assign line_level_discount_applications = item.line_level_discount_allocations | slice: forloop.index0 | map: 'discount_application'
+      endif
+    endfor
+  endfor
+
+  assign all_discount_applications = cart_level_discount_applications | concat: line_level_discount_applications
+%}
+
+<cart-discount data-section-id="{{ section_id }}" class="cart-discount">
+  <div class="cart-discount__content">
+
+    <div class="cart-discount__form">
+      <label for="cart-discount" class="visually-hidden">
+        {{- 'accessibility.discount' | t -}}
+      </label>
+
+      <div class="input-with-button">
+        <input id="cart-discount" class="cart-discount__input input w-full text-sm focus-inset" name="discount" placeholder="{{ 'cart.discount.discount_code' | t }}">
+        <button type="button" class="cart-discount__button btn focus-inset has-ltr-icon">
+            <span>{{- 'cart.discount.apply' | t -}}</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+  <div
+    class="cart-discount__error mt-2 mb-0 hidden"
+    role="alert"
+    ref="cartDiscountError"
+  >
+    {% render 'icon-alert' %}
+    <small
+      class="cart-discount__error-text text-sm hidden"
+      ref="cartDiscountErrorDiscountCode"
+    >
+      {{- 'cart.discount.discount_code_error' | t: code: 'test' -}}
+    </small>
+    <small
+      class="cart-discount__error-text text-sm hidden"
+      ref="cartDiscountErrorShipping"
+    >
+      {{- 'cart.discount.shipping_discount_error' | t -}}
+    </small>
+  </div>
+
+  <ul class="cart-discount__codes mt-4 flex flex-wrap gap-x-3 gap-y-2 justify-center font-bold text-center" aria-label="{{ 'customer.order.discount' | t }}" role="list">
+    {% for discount_app in all_discount_applications %}
+      <li
+        class="cart-discount__pill"
+        data-discount-code="{{ discount_app.title }}"
+        aria-label="{{ 'accessibility.discount_applied' | t: code: discount_app.title }}"
+      >
+        <button
+          type="button"
+          class="cart-discount__pill-remove svg-wrapper svg-wrapper--smaller button-unstyled"
+          aria-label="{{ 'cart.discount.remove_discount' | t: code: discount_app.title }}"
+        >
+          <span class="cart-discount__pill-code discount text-xs font-bold inline-flex items-center overflow-hidden whitespace-nowrap">
+            {% render 'icon-tags' %} <span>{{ discount_app.title | escape_once }}</span> {% render 'icon-close' %}
+          </span>
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+</cart-discount>

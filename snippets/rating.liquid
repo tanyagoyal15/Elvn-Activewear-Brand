@@ -1,0 +1,49 @@
+{%- comment -%}
+  Parameters:
+  - rating_value {Number} - Rating value.
+  - rating_count {Number} - Number of ratings (optional).
+  - show_empty {Boolean} - Show ratings even if there is no data (optional, default is false).
+
+  Usage:
+  {% render 'rating',
+    rating_value: product.metafields.reviews.rating.value,
+    rating_count: product.metafields.reviews.rating_count
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  assign decimal = rating_value.rating | modulo: 1
+  assign stars_rating = rating_value.rating | floor
+
+  if decimal >= 0.3 and decimal <= 0.7
+    assign stars_rating = stars_rating | plus: 0.5
+  elsif decimal > 0.7
+    assign stars_rating = rating_value.rating | ceil
+  endif
+-%}
+
+{%- liquid
+  if rating_value != blank
+    assign rating_max = rating_value.scale_max
+    assign decimal = rating_value.rating | modulo: 1
+    assign stars_rating = rating_value.rating | floor
+
+    if decimal >= 0.3 and decimal <= 0.7
+      assign stars_rating = stars_rating | plus: 0.5
+    elsif decimal > 0.7
+      assign stars_rating = rating_value.rating | ceil
+    endif
+  elsif show_empty
+    assign rating_max = 5
+    assign stars_rating = 0
+    assign rating_count = 0
+    assign rating_value = 0
+  endif
+-%}
+
+<div class="rating" role="img" aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: rating_value, rating_max: rating_max }}">
+  <span class="rating__stars" aria-hidden="true" style="--rating: {{ stars_rating }}; --rating-max: {{ rating_max }};">★★★★★</span>
+</div>
+{% if rating_count != blank -%}
+  <div class="rating__count extra-small-text">({{ rating_count }})</div>
+{%- endif %}

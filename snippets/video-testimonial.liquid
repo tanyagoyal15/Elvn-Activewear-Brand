@@ -1,0 +1,16 @@
+{%- comment -%}
+  Parameters:
+  - video {Drop} - The mp4 video to show. Mandatory.
+  - modal_id {String} - The ID of the modal containing video testimonials. Mandatory.
+
+  Usage:
+  {%- render 'video-testimonial', modal_id: modal_id, video: block.settings.video1 -%}
+{%- endcomment -%}
+
+<modal-opener data-modal="{{ modal_id }}">
+  <button type="button" class="video-testimonial flex items-center flex-col text-center" tabindex="-1" aria-haspopup="dialog" aria-label="{{ 'products.product.media.play_video' | t }}">
+    <video-thumbnail class="w-full" tabindex="0" data-product-url="{{ product.url }}" data-video-id="{{ video.id }}">
+      {{ video | video_tag: preload: 'metadata', playsinline: true, loop: true, autoplay: false, controls: false, muted: true, image_size: '188x' | replace: '<img ', '<img loading="lazy" hidden ' }}
+    </video-thumbnail>
+  </button>
+</modal-opener>

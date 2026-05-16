@@ -1,0 +1,301 @@
+{{ 'blog.css' | asset_url | stylesheet_tag }}
+
+{%- assign color_scheme = section.settings.color_scheme -%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  {% if section.settings.border_radius %}
+  .article__content img {
+    border-radius: 32px;
+  }
+  {% endif %}
+{% endstyle %}
+
+
+<div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  <div class="flex{% if section.settings.full_width == false %} container{% endif %}">
+    <div class="section
+              {%- if section.settings.full_width %}
+                section--padded section--full-width
+              {%- else %}
+                section--standard
+              {%- endif %}
+              {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                z-3
+                {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                color-scheme
+                {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                color-scheme--{{ color_scheme }}">
+      <article class="article js-article">
+        <div class="container">
+
+          <div class="article__content reading-width rte article-content mt-12 mx-auto">
+            {{ article.content }}
+          </div>
+
+          {% if section.settings.show_share_buttons %}
+            <div class="social-share flex reading-width article-width mx-auto mt-12">
+              <p class="social-share__heading mb-0 font-bold">{{ 'general.social.share_heading' | t }}:</p>
+              {% render 'social-share',
+                  share_twitter: section.settings.show_twitter,
+                  share_facebook: section.settings.show_facebook,
+                  share_pinterest: section.settings.show_pinterest,
+                  share_title: article.title,
+                  share_url: article.url,
+                  share_image: article.image %}
+            </div>
+          {% endif %}
+          
+          <article-pagination class="pagination flex reading-width article-width mx-auto mt-12 mb-6">
+            <div class="flex flex-1 items-center justify-start">
+              <a class="pagination__arrow pagination__arrow--previous hover:lighten flex text-current has-ltr-icon"
+                {% if blog.previous_article %}
+                  href="{{ blog.previous_article }}"
+                  title="{{ blog.previous_article.title | escape }}"
+                {% else %}
+                  role="link" aria-disabled="true"
+                {% endif %}>
+                <span class="pagination__arrow-icon" aria-hidden="true">{% render 'icon-chevron-left' %}</span>
+                <span class="pagination__prev-label text-start ml-2">
+                  {{ 'blogs.article.previous_post' | t }}
+                </span>
+              </a>
+            </div>
+            <div class="flex flex-1 flex-grow:1 md:[flex-grow:2] items-center justify-center">
+              <span class="back-to-blog hover:lighten text-center">
+                {{ blog.title | link_to: blog.url }}
+              </span>
+            </div>
+            <div class="flex flex-1 items-center justify-end">
+              <a class="pagination__arrow pagination__arrow--next hover:lighten flex text-current has-ltr-icon js-pagination-load-more"
+                {% if blog.next_article %}
+                  href="{{ blog.next_article }}"
+                  title="{{ blog.next_article.title | escape }}"
+                {% else %}
+                  role="link" aria-disabled="true"
+                {% endif %}>
+                <span class="pagination__next-label text-end mr-2">
+                  {{ 'blogs.article.next_post' | t }}
+                </span>
+                <span class="pagination__arrow-icon" aria-hidden="true">{% render 'icon-chevron-right' %}</span>
+              </a>
+            </div>
+          </article-pagination>
+
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.article__content table').forEach((table) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'scrollable-table';
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+  });
+</script>
+
+{% render 'structured-data-article', article: article %}
+
+{% schema %}
+{
+  "name": "Blog post",
+  "class": "cc-main-article section section--template",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Learn more about Shopify blogs](https://help.shopify.com/en/manual/online-store/blogs/adding-a-blog)"
+    },
+    {
+      "type": "checkbox",
+      "id": "border_radius",
+      "label": "Enable round corners on article images",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Blog post footer"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share_buttons",
+      "label": "Show social share links",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_share_buttons }}",
+      "type": "checkbox",
+      "id": "show_twitter",
+      "label": "Show X (formerly Twitter)",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_share_buttons }}",
+      "type": "checkbox",
+      "id": "show_facebook",
+      "label": "Show Facebook",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_share_buttons }}",
+      "type": "checkbox",
+      "id": "show_pinterest",
+      "label": "Show Pinterest",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ]
+}
+{% endschema %}

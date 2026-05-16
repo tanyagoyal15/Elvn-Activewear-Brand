@@ -1,0 +1,565 @@
+{%- assign color_scheme = section.settings.color_scheme -%}
+
+{%- style -%}
+  {%- if section.settings.background_mode == 'color' -%}
+    #{{ section.id }} { background: {{ section.settings.background_color }}; }
+  {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+    #{{ section.id }} {
+      background: {% render 'custom-gradient',
+                      type: section.settings.background_gradient_curve,
+                      start_color: section.settings.background_gradient_stop_1,
+                      end_color: section.settings.background_gradient_stop_2
+                  %};
+    }
+  {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+    #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+  {%- endif -%}
+
+  {%- if section.settings.text_width_override -%}
+    #{{ section.id }} {
+      --reading-width: {{ section.settings.text_max_width }}px;
+    }
+  {%- endif -%}
+
+  {%- if section.settings.text_column_to_edge and section.settings.text_align != 'text-center' -%}
+    {%- if section.settings.mob_center_text -%}
+      @media (min-width: 768px) {
+    {%- endif -%}
+
+    #{{ section.id }} .reading-width--fixed {
+      {%- if section.settings.text_align == 'text-start' -%}
+        margin-inline-start: 0;
+      {%- elsif section.settings.text_align == 'text-end' -%}
+        margin-inline-end: 0;
+      {%- endif -%}
+    }
+
+    {%- if section.settings.mob_center_text -%}
+      }
+    {%- endif -%}
+  {%- endif -%}
+{%- endstyle -%}
+
+<div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+  {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+    <div class="absolute inset-0">
+      {%- render 'image',
+        image: section.settings.background_image,
+        src_width: 1400,
+        widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+        class: 'img-fit cover',
+        sizes: '100vw'
+      -%}
+    </div>
+  {%- endif -%}
+
+  <div class="flex {% if section.settings.full_width == false %} container{% endif %}">
+    <div class="section
+                {%- if section.settings.full_width %}
+                  section--padded-more section--full-width
+                {%- else %}
+                  section--standard
+                {%- endif %}
+                {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                z-3
+                {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                color-scheme
+                {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                color-scheme--{{ color_scheme }}">
+      <div class="container container--text {{ section.settings.text_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'heading' -%}
+              {%- if block.settings.heading != blank -%}
+                <{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__block section__block--heading reading-width--fixed {{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+                  {{- block.settings.heading | escape -}}
+                </{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+              {%- endif -%}
+
+            {%- when 'subheading' -%}
+              {%- if block.settings.text != blank -%}
+                <p class="section__block section__block--subheading reading-width--fixed subheading" {{ block.shopify_attributes }}>
+                  {{- block.settings.text | escape -}}
+                </p>
+              {%- endif -%}
+
+            {%- when 'text' -%}
+              {%- if block.settings.text != blank -%}
+                <div class="section__block reading-width--fixed rte{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}{% if block.settings.enlarge_text %} enlarge-text{% endif %}" {{ block.shopify_attributes }}>
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+
+            {%- when 'button' -%}
+              {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+                <div class="section__block section__block--buttons reading-width--fixed flex flex-wrap {% if section.settings.text_align == 'text-start' %} justify-start{% elsif section.settings.text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mob_center_text %} md-down:justify-center{% endif %}" {{ block.shopify_attributes }}>
+                  {%- if block.settings.button_1_label != blank %}
+                    <a class="{{ block.settings.button_1_style }}" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
+                      {{- block.settings.button_1_label | escape -}}
+                    </a>
+                  {%- endif -%}
+                  {%- if block.settings.button_2_label != blank %}
+                    <a class="{{ block.settings.button_2_style }}" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
+                      {{- block.settings.button_2_label | escape -}}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+            {%- when 'countdown' -%}
+              {%- style -%}
+                #{{ section.id }} .countdown__grid {
+                  font-size: calc(({{ block.settings.number_size }} / 1.25) * var(--fluid-1-25));
+                }
+              {%- endstyle -%}
+              <script src="{{ 'countdown-timer.js' | asset_url }}" defer></script>
+              <div class="section__block section__block--countdown reading-width--fixed countdown-font-{{ block.settings.number_font }} no-js-hidden" {{ block.shopify_attributes }}>
+                {% render 'countdown-timer',
+                  end_date: block.settings.end_date,
+                  end_time: block.settings.end_time,
+                  end_text: block.settings.end_text,
+                  end_midnight: true,
+                  hide_on_end: block.settings.hide_on_end,
+                  show_labels: block.settings.show_timer_labels
+                %}
+              </div>
+
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Rich text",
+  "class": "cc-rich-text",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_width_override",
+      "label": "Custom text width",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.text_width_override }}",
+      "type": "range",
+      "id": "text_max_width",
+      "min": 400,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "label": "Maximum text width",
+      "default": 640
+    },
+    {
+      "type": "checkbox",
+      "id": "text_column_to_edge",
+      "label": "Align text to edge",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Rich text headline"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h4",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h3",
+              "label": "Extra small"
+            },
+            {
+              "value": "h2",
+              "label": "Small"
+            },
+            {
+              "value": "h1",
+              "label": "Medium"
+            },
+            {
+              "value": "x-large-heading",
+              "label": "Large"
+            },
+            {
+              "value": "xx-large-heading",
+              "label": "Extra large"
+            }
+          ],
+          "default": "x-large-heading"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_h1",
+          "label": "Set as page heading (uses h1 tag)",
+          "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subheading",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share information about your store with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_text",
+          "label": "Enlarge text",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "Button 1 label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button 1 link"
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button 1 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Button 2 label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Button 2 link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Button 2 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        }
+      ]
+    },
+    {
+      "type": "countdown",
+      "name": "Countdown timer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "end_date",
+          "label": "End date",
+          "info": "Required. Format: YYYY-MM-DD."
+        },
+        {
+          "type": "text",
+          "id": "end_time",
+          "label": "End time (optional)",
+          "info": "Format: 17:00 (24 hour clock). Uses the store's timezone."
+        },
+        {
+          "type": "richtext",
+          "id": "end_text",
+          "label": "End text",
+          "info": "This shows when the date and time elapses."
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_end",
+          "label": "Hide the timer when the date and time elapses",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "number_size",
+          "min": 20,
+          "max": 60,
+          "step": 2,
+          "unit": "px",
+          "label": "Number size",
+          "default": 40
+        },
+        {
+          "type": "select",
+          "id": "number_font",
+          "label": "Number font",
+          "options": [
+            {
+              "label": "Text font",
+              "value": "base"
+            },
+            {
+              "label": "Heading font",
+              "value": "heading"
+            }
+          ],
+          "default": "base"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_timer_labels",
+          "label": "Show labels",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rich text",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

@@ -1,0 +1,1804 @@
+{%- liquid
+  assign product_block = section.blocks | find: 'type', 'product'
+  assign video_block = section.blocks | find: 'type', 'video'
+-%}
+{%- if product_block != blank -%}
+  {%- assign enable_quick_add = true -%}
+  {%- if enable_quick_add -%}
+    <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+    <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+    <script src="{{ 'product-form.js' | asset_url }}" defer></script>
+  {%- endif -%}
+{%- endif -%}
+{%- if video_block != blank -%}
+  <link rel="stylesheet" href="{{ 'video.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'video.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- liquid
+  assign img = section.settings.image_desktop
+  assign m_img = section.settings.image_mobile
+
+  if section.index == 1
+    assign lazy_load_images = false
+    assign fetchpriority = 'high'
+  else
+    assign lazy_load_images = true
+    assign fetchpriority = nil
+  endif
+
+  assign overlay_position = section.settings.overlay_position | split: ' '
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+{%- style -%}
+  {%- if section.settings.tint_opacity > 0 -%}
+    #{{ section.id }} .media::after {
+      background-color: rgba({{ section.settings.tint_color.rgb }} / {{ section.settings.tint_opacity | divided_by: 100.0 }});
+    }
+  {%- endif -%}
+
+  {%- if section.settings.spacing_desktop > 0 -%}
+    @media (min-width: 768px) {
+      #{{ section.id }} .text-overlay {
+        min-height: {{ section.settings.spacing_desktop | minus: 0.1 | times: 100 | plus: 100 }}vh
+      }
+    }
+  {%- endif -%}
+
+  {%- if section.settings.spacing_mobile > 0 -%}
+    @media (max-width: 767.8px) {
+      #{{ section.id }} .text-overlay {
+        min-height: {{ section.settings.spacing_mobile | minus: 0.1 | times: 100 | plus: 100 }}vh
+      }
+    }
+  {%- endif -%}
+
+{%- endstyle -%}
+
+{%- if section.settings.section_overlap_above or section.settings.section_overlap_below -%}
+  <hero-overlap class="block"
+    {%- if section.settings.section_overlap_above %} data-count-above="{{ section.settings.section_overlap_above_count }}"{% endif %}
+    {%- if section.settings.section_overlap_below %} data-count-below="{{ section.settings.section_overlap_below_count }}"{% endif %}
+  >
+{%- endif -%}
+
+<parallax-container>
+  <div class="section
+              section--full-width
+              color-scheme
+              color-scheme--{{ color_scheme }}"
+      data-section-index="{{ section.index }}"
+      id="{{ section.id }}"
+      {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+    <div class="image-banner relative">
+      <div class="image-banner__sticky-height-outer absolute top-0 left-0 w-full h-[calc(100%+200vh)]">
+        <div class="image-banner__image image-banner__sticky-height-image media media--has-overlay sticky top-0 left-0 w-full parallax-hero">
+          {%- if img != blank -%}
+            {%- liquid
+              capture sizes
+                render 'sizes-attribute'
+              endcapture
+            -%}
+
+            {%- render 'image-desktop-and-mobile',
+              class: 'img-fit',
+              desktop_image: img,
+              mobile_image: m_img,
+              src_width_mobile: 980,
+              widths_mobile: '480, 980, 1200, 1400',
+              src_width_desktop: 1400,
+              widths_desktop: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+              lazy_load: lazy_load_images,
+              fetchpriority: fetchpriority,
+              sizes: sizes
+            -%}
+          {%- else -%}
+            {{ 'collection-1' | placeholder_svg_tag: 'media__placeholder img-fit dark' }}
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- if section.settings.background_fade_top_color.alpha > 0 -%}
+        <div class="absolute inset-0 parallax-fade-out-ease" style="background: {{ section.settings.background_fade_top_color }}"></div>
+      {%- endif -%}
+
+      {%- if section.settings.background_fade_bottom_color.alpha > 0 -%}
+        <div class="absolute inset-0 parallax-fade-in-ease" style="background: {{ section.settings.background_fade_bottom_color }}"></div>
+      {%- endif -%}
+
+      <div class="flex wide-container w-full relative {{ overlay_position | first }}">
+        <div class="text-overlay pointer-events-none {{ section.settings.overlay_text_align }}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+          <div class="sticky-top{% unless overlay_position.last contains 'items-start' %} sticky-top--full-height{% endunless %} flex flex-col {{ overlay_position | last | replace: 'items', 'justify' }} w-full">
+            <div class="pointer-events-auto">
+              {%- if section.settings.subheading != blank -%}
+                <p class="section__block section__block--subheading subheading">
+                  {{- section.settings.subheading | escape -}}
+                </p>
+              {%- endif -%}
+
+              {%- if section.settings.heading != blank -%}
+                {%- if section.settings.heading_h1 -%}
+                  <h1 class="section__block section__block--heading md:{{ section.settings.heading_size_desktop }} {{ section.settings.heading_size_mobile }}">
+                    {{- section.settings.heading -}}
+                  </h1>
+                {%- else -%}
+                  <h2 class="section__block section__block--heading md:{{ section.settings.heading_size_desktop }} {{ section.settings.heading_size_mobile }}">
+                    {{- section.settings.heading -}}
+                  </h2>
+                {%- endif -%}
+              {%- endif -%}
+
+              {%- if section.settings.text != blank -%}
+                <div class="section__block rte{% if section.settings.enlarge_text %} enlarge-text{% endif %}">
+                  {{ section.settings.text }}
+                </div>
+              {%- endif -%}
+
+              {%- if section.settings.button_1_label != blank or section.settings.button_2_label != blank -%}
+                <div class="section__block section__block--buttons inline-flex flex-wrap{% if section.settings.overlay_text_align == 'text-start' %} justify-start{% elsif section.settings.overlay_text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}">
+                  {%- if section.settings.button_1_label != blank -%}
+                    <a class="{{ section.settings.button_1_style }}" {% if section.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ section.settings.button_1_link }}"{% endif %}>
+                      {{- section.settings.button_1_label | escape -}}
+                    </a>
+                  {%- endif -%}
+
+                  {%- if section.settings.button_2_label != blank %}
+                    <a class="{{ section.settings.button_2_style }}" {% if section.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ section.settings.button_2_link }}"{% endif %}>
+                      {{- section.settings.button_2_label | escape -}}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+
+        {%- for block in section.blocks -%}
+          {% liquid
+            if block.settings.show_on_desktop == false and block.settings.show_on_mobile == false
+              continue
+            endif
+          %}
+          <div class="fluff
+                      {%- unless block.settings.show_on_desktop %} md:hidden{% endunless %}
+                      {%- unless block.settings.show_on_mobile %} max-md:hidden{% endunless %}
+                      {%- if block.settings.in_front %} z-5{% endif %}"
+              style="--top-desktop: {{ block.settings.top_desktop }}%;
+                     --left-desktop: {{ block.settings.left_desktop }}%;
+                     --top-mobile: {{ block.settings.top_mobile }}%;
+                     --left-mobile: {{ block.settings.left_mobile }}%;
+                     {%- if block.settings.width_desktop %} --width-desktop: {{ block.settings.width_desktop }}px;{% endif %}
+                     {%- if block.settings.width_mobile %} --width-mobile: {{ block.settings.width_mobile }}px;{% endif %}"
+              {{ block.shopify_attributes }}>
+            <div class="parallax">
+              {%- case block.type -%}
+                {%- when 'image' -%}
+                  <div class="media relative max-w-full">
+                    {%- if block.settings.image != blank -%}
+                      {%- if block.settings.url != blank -%}
+                        <a href="{{ block.settings.url }}">
+                      {%- endif -%}
+                        {%- liquid
+                          assign widths = ''
+                          assign width_desktop = block.settings.width_mobile
+                          assign width_mobile = block.settings.width_desktop
+                          if block.settings.show_on_mobile
+                            assign widths = block.settings.width_mobile | times: 2 | prepend: ', ' | prepend: block.settings.width_mobile
+                            assign width_mobile = block.settings.width_mobile
+                          endif
+                          if block.settings.show_on_desktop
+                            if block.settings.show_on_mobile
+                              assign widths = widths | append: ', '
+                            endif
+                            assign widths = block.settings.width_desktop | times: 2 | prepend: ', ' | prepend: block.settings.width_desktop | prepend: widths
+                            assign width_desktop = block.settings.width_desktop
+                          endif
+                        -%}
+                        {%- capture sizes -%}(min-width: 768px) {{ width_desktop }}px, {{ width_mobile }}px{%- endcapture -%}
+                        {% render 'image',
+                          image: block.settings.image,
+                          widths: widths,
+                          src_width: block.settings.width_desktop,
+                          sizes: sizes,
+                          lazy_load: lazy_load_images,
+                          class: 'img--border-radius-small'
+                        %}
+                      {%- if block.settings.url != blank -%}
+                        </a>
+                      {%- endif -%}
+                    {%- else -%}
+                      {{- 'image' | placeholder_svg_tag: 'media__placeholder img--border-radius-small' -}}
+                    {%- endif -%}
+                  </div>
+
+                {%- when 'video' -%}
+                  {%- if block.settings.video_shopify != blank-%}
+                    {%- liquid
+                      assign video_ratio = block.settings.video_shopify.aspect_ratio
+                      assign video_autoplay = block.settings.video_autoplay
+                      assign video_controls = true
+                      assign video_poster = block.settings.video_poster | default: block.settings.video_shopify.preview_image
+                      if video_autoplay
+                        assign video_controls = false
+                      endif
+                    -%}
+                    {%- capture video_component -%}
+                      <video-component class="has-video block absolute top-0 left-0 w-full h-full"
+                                      data-video-id="{{ block.id }}"
+                                      data-autoplay="{% if video_autoplay %}true{% else %}false{% endif %}"
+                                      data-background="false"
+                                      data-natural-width="true"
+                                      data-description="{{ block.settings.video_description | escape }}">
+                        {{- block.settings.video_shopify | video_tag: playsinline: true, autoplay: video_autoplay, muted: video_autoplay, loop: video_autoplay, controls: video_controls, poster: '', class: 'img--border-radius-small' | replace: '<img ', '<img loading="lazy" hidden ' -}}
+                      </video-component>
+                    {%- endcapture -%}
+                    <div class="max-w-full relative flex flex-col justify-center overflow-hidden video-section img--border-radius-small isolate">
+                      <div class="custom-aspect-ratio" style="--ratio: {{ video_ratio }}">
+                        {%- if video_poster -%}
+                          <div class="media absolute top-0 left-0 w-full h-full video-section__media video-played-hidden">
+                            {%- liquid
+                              assign widths = ''
+                              assign width_desktop = block.settings.width_mobile
+                              assign width_mobile = block.settings.width_desktop
+                              if block.settings.show_on_mobile
+                                assign widths = block.settings.width_mobile | times: 2 | prepend: ', ' | prepend: block.settings.width_mobile
+                                assign width_mobile = block.settings.width_mobile
+                              endif
+                              if block.settings.show_on_desktop
+                                if block.settings.show_on_mobile
+                                  assign widths = widths | append: ', '
+                                endif
+                                assign widths = block.settings.width_desktop | times: 2 | prepend: ', ' | prepend: block.settings.width_desktop | prepend: widths
+                                assign width_desktop = block.settings.width_desktop
+                              endif
+                            -%}
+                            {%- capture sizes -%}(min-width: 768px) {{ width_desktop }}px, {{ width_mobile }}px{%- endcapture -%}
+                            {% render 'image',
+                              image: video_poster,
+                              widths: widths,
+                              src_width: block.settings.width_desktop,
+                              sizes: sizes,
+                              lazy_load: lazy_load_images,
+                              class: 'img-fit img--border-radius-small'
+                            %}
+                          </div>
+                        {%- endif -%}
+
+                        {%- if video_autoplay -%}
+                          <deferred-media class="video-section__media block absolute top-0 left-0 w-full h-full no-js-hidden">
+                            <template>{{ video_component }}</template>
+                          </deferred-media>
+                        {%- else -%}
+                          <deferred-media class="video-section__media height-clip block absolute top-0 left-0 w-full h-full no-js-hidden">
+                            <button type="button" class="video-section__play-btn video-played-hidden absolute top-0 left-0 flex justify-center items-center w-full h-full js-load-media" aria-label="{{ 'general.icon_labels.play' | t }}">
+                              <span class="btn--circle-icon btn--media-icon">
+                                {%- render 'icon-media-play' -%}
+                              </span>
+                            </button>
+                            <template>
+                              {{ video_component }}
+                            </template>
+                          </deferred-media>
+                        {%- endif -%}
+                      </div>
+                    </div>
+                  {%- else -%}
+                    <div class="media relative max-w-full img--border-radius">
+                      {{- 'collection-6' | placeholder_svg_tag: 'media__placeholder' -}}
+                      <button type="button" class="video-section__play-btn video-played-hidden absolute top-0 left-0 flex justify-center items-center w-full h-full" aria-hidden="true">
+                        <span class="btn--circle-icon btn--media-icon">
+                          {%- render 'icon-media-play' -%}
+                        </span>
+                      </button>
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'product' -%}
+                  <div class="max-w-full{% if block.settings.card_cutout %} has-cutout-cards{% endif %}">
+                    {%- render 'product-card', product: block.settings.product, disable_image_blending: block.settings.card_cutout -%}
+                  </div>
+
+                {%- when 'collection' -%}
+                  <div class="max-w-full">
+                    {%- render 'collection-card',
+                        collection: block.settings.collection,
+                        style: block.settings.card_style,
+                        show_count: block.settings.card_show_count,
+                        compact: block.settings.card_compact,
+                        color_scheme: block.settings.color_scheme
+                    -%}
+                  </div>
+
+                {%- when 'roundel' -%}
+                  <div style="--roundel-size: {{ block.settings.roundel_size }}px; color: {{ block.settings.color }}">
+                    {%-
+                      render 'roundel',
+                        uid: block.id,
+                        spin: block.settings.spin,
+                        outer_frame: block.settings.enable_outer_frame,
+                        inner_frame: block.settings.enable_inner_frame,
+                        outer_text: block.settings.outer_text,
+                        outer_text_line_offset: block.settings.outer_text_line_offset,
+                        outer_text_letter_spacing: block.settings.outer_text_letter_spacing,
+                        inner_type: block.settings.inner_type,
+                        inner_text_1: block.settings.inner_text_1,
+                        inner_text_1_size: block.settings.inner_text_1_size,
+                        inner_text_2: block.settings.inner_text_2,
+                        inner_text_2_size: block.settings.inner_text_2_size,
+                        inner_text_font: block.settings.inner_text_font,
+                        icon: block.settings.icon,
+                        usp_icon: block.settings.usp_icon,
+                        in_parallax: true
+                    -%}
+                  </div>
+              {%- endcase -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</parallax-container>
+
+{%- if section.settings.section_overlap_above or section.settings.section_overlap_below -%}
+  </hero-overlap>
+  <style>
+    {%- if section.settings.section_overlap_above -%}
+      hero-overlap:has(#{{ section.id }}) {
+        margin-top: calc(-1 * var(--hero-overlap-top));
+      }
+
+      hero-overlap:has(#{{ section.id }}) .image-banner {
+        padding-top: var(--hero-overlap-top);
+      }
+
+      {%- for above_iter in (1..section.settings.section_overlap_above_count) -%}
+        .shopify-section:has({% for selector_iter in (1..above_iter) %}+ .shopify-section {% endfor %}#{{ section.id }}) .section-background {
+          background: transparent;
+        }
+      {%- endfor -%}
+    {%- endif -%}
+    {%- if section.settings.section_overlap_below -%}
+      hero-overlap:has(#{{ section.id }}) {
+        margin-bottom: calc(-1 * var(--hero-overlap-bottom));
+      }
+
+      hero-overlap:has(#{{ section.id }}) .image-banner {
+        padding-bottom: var(--hero-overlap-bottom);
+      }
+
+      {%- for below_iter in (1..section.settings.section_overlap_below_count) -%}
+        .shopify-section:has(#{{ section.id }}){% for selector_iter in (1..below_iter) %} + .shopify-section{% endfor %} .section-background {
+          background: transparent;
+        }
+      {%- endfor -%}
+    {%- endif -%}
+  </style>
+  <script>
+    window.themeCreateHeroOverlap = () => {
+      if (!customElements.get('hero-overlap')) {
+        class HeroOverlap extends HTMLElement {
+          connectedCallback() {
+            this.update();
+            this.throttledUpdate = HeroOverlap.throttle(this.update.bind(this), 100);
+            this.resizeObserver = new ResizeObserver(this.throttledUpdate);
+            this.resizeObserver.observe(document.querySelector('#main-content'));
+          }
+
+          disconnectedCallback() {
+            this.resizeObserver.disconnect();
+          }
+
+          update() {
+            // Set height, padding, overlapping based on neighbouring sections
+            const outerSection = this.closest('.shopify-section');
+            let overlapTopHeight = 0;
+            let section = outerSection;
+            for (let i = 0; i < this.dataset.countAbove; i++) {
+              if (section.previousElementSibling) {
+                section = section.previousElementSibling;
+                overlapTopHeight += section.getBoundingClientRect().height;
+              }
+            }
+            let overlapBottomHeight = 0;
+            section = outerSection;
+            for (let i = 0; i < this.dataset.countBelow; i++) {
+              if (section.nextElementSibling) {
+                section = section.nextElementSibling;
+                overlapBottomHeight += section.getBoundingClientRect().height;
+              }
+            }
+            this.style.setProperty('--hero-overlap-top', `${overlapTopHeight}px`);
+            this.style.setProperty('--hero-overlap-bottom', `${overlapBottomHeight}px`);
+          }
+
+          static throttle(func, limit) {
+            let lastCall = 0;
+            let timeout;
+            return function (...args) {
+              const now = Date.now();
+              clearTimeout(timeout);
+              if (now - lastCall >= limit) {
+                lastCall = now;
+                func(...args);
+              } else {
+                timeout = setTimeout(() => func(...args), limit - (now - lastCall));
+              }
+            };
+          }
+        }
+        customElements.define('hero-overlap', HeroOverlap);
+      }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.themeCreateHeroOverlap);
+    } else if (theme.Swiper) {
+      window.themeCreateHeroOverlap();
+    }
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Collage hero",
+  "tag": "section",
+  "class": "cc-hero banner-candidate non-join",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image_desktop",
+      "label": "Image",
+      "info": "For best results, use a landscape shaped image with a width of 3200px."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image (optional)",
+      "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+    },
+    {
+      "type": "header",
+      "content": "Image styles"
+    },
+    {
+      "type": "color",
+      "id": "tint_color",
+      "label": "Image tint color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "tint_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Image tint opacity",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "range",
+      "id": "spacing_desktop",
+      "min": 0,
+      "max": 5,
+      "step": 0.1,
+      "unit": "x",
+      "label": "Section height - desktop",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "spacing_mobile",
+      "min": 0,
+      "max": 5,
+      "step": 0.1,
+      "unit": "x",
+      "label": "Section height - mobile",
+      "default": 0.1
+    },
+    {
+      "type": "paragraph",
+      "content": "This section's background can extend up or down behind other non-full-width sections."
+    },
+    {
+      "type": "checkbox",
+      "id": "section_overlap_above",
+      "label": "Show behind sections above",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.section_overlap_above }}",
+      "type": "range",
+      "id": "section_overlap_above_count",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Number of sections above",
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "section_overlap_below",
+      "label": "Show behind sections below",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.section_overlap_below }}",
+      "type": "range",
+      "id": "section_overlap_below_count",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Number of sections below",
+      "default": 1
+    },
+    {
+      "type": "paragraph",
+      "content": "The background image can fade into a color while scrolling."
+    },
+    {
+      "type": "color",
+      "alpha": true,
+      "id": "background_fade_top_color",
+      "label": "Background fade color - at top",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "alpha": true,
+      "id": "background_fade_bottom_color",
+      "label": "Background fade color - at bottom",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "header",
+      "content": "Text overlay"
+    },
+    {
+      "type": "select",
+      "id": "overlay_position",
+      "label": "Overlay position",
+      "options": [
+        {
+          "value": "justify-start items-start",
+          "label": "Top left"
+        },
+        {
+          "value": "justify-center items-start",
+          "label": "Top center"
+        },
+        {
+          "value": "justify-end items-start",
+          "label": "Top right"
+        },
+        {
+          "value": "justify-start items-center",
+          "label": "Middle left"
+        },
+        {
+          "value": "justify-center items-center",
+          "label": "Middle center"
+        },
+        {
+          "value": "justify-end items-center",
+          "label": "Middle right"
+        },
+        {
+          "value": "justify-start items-end",
+          "label": "Bottom left"
+        },
+        {
+          "value": "justify-center items-end",
+          "label": "Bottom center"
+        },
+        {
+          "value": "justify-end items-end",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "justify-center items-center"
+    },
+    {
+      "type": "select",
+      "id": "overlay_text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "header",
+      "content": "Text content"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Subheading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Talk about your brand"
+    },
+    {
+      "type": "select",
+      "id": "heading_size_desktop",
+      "label": "Heading size (desktop)",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "x-large-heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "x-large-heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_h1",
+      "label": "Set as page heading (uses h1 tag)",
+      "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+      "default": false
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "enlarge_text",
+      "label": "Enlarge text",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "button_1_label",
+      "label": "Button 1 label",
+      "default": "Read more"
+    },
+    {
+      "type": "url",
+      "id": "button_1_link",
+      "label": "Button 1 link"
+    },
+    {
+      "type": "select",
+      "id": "button_1_style",
+      "label": "Button 1 style",
+      "options": [
+        {
+          "value": "link",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--secondary"
+    },
+    {
+      "type": "text",
+      "id": "button_2_label",
+      "label": "Button 2 label",
+      "default": "Read more"
+    },
+    {
+      "type": "url",
+      "id": "button_2_link",
+      "label": "Button link"
+    },
+    {
+      "type": "select",
+      "id": "button_2_style",
+      "label": "Button style",
+      "options": [
+        {
+          "value": "link",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--secondary"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-3"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "in_front",
+          "label": "Show in front of text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_desktop",
+          "label": "Show on desktop",
+          "default": true
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "width_desktop",
+          "min": 80,
+          "max": 1000,
+          "step": 10,
+          "unit": "px",
+          "label": "Width - desktop",
+          "default": 200
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "top_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - desktop",
+          "default": 20
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "left_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - desktop",
+          "default": 20
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": false
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "width_mobile",
+          "min": 80,
+          "max": 1000,
+          "step": 10,
+          "unit": "px",
+          "label": "Width - mobile",
+          "default": 200
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "top_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - mobile",
+          "default": 10
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "left_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - mobile",
+          "default": 20
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video_shopify",
+          "label": "Video upload"
+        },
+        {
+          "visible_if": "{{ block.settings.video_url != blank }}",
+          "type": "text",
+          "id": "video_description",
+          "label": "Video alt text",
+          "info": "Describe the video for customers using screen readers."
+        },
+        {
+          "type": "image_picker",
+          "id": "video_poster",
+          "label": "Custom cover image",
+          "info": "Shows while the video is loading, or if it cannot autoplay."
+        },
+        {
+          "type": "checkbox",
+          "id": "video_autoplay",
+          "label": "Autoplay",
+          "info": "Video will be muted",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "in_front",
+          "label": "Show in front of text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_desktop",
+          "label": "Show on desktop",
+          "default": true
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "width_desktop",
+          "min": 80,
+          "max": 1000,
+          "step": 10,
+          "unit": "px",
+          "label": "Width - desktop",
+          "default": 200
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "top_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - desktop",
+          "default": 20
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "left_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - desktop",
+          "default": 20
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": false
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "width_mobile",
+          "min": 80,
+          "max": 1000,
+          "step": 10,
+          "unit": "px",
+          "label": "Width - mobile",
+          "default": 200
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "top_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - mobile",
+          "default": 10
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "left_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - mobile",
+          "default": 20
+        }
+      ]
+    },
+    {
+      "type": "roundel",
+      "name": "Roundel",
+      "settings": [
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Color",
+          "default": "#b28362"
+        },
+        {
+          "type": "header",
+          "content": "Roundel: Outer"
+        },
+        {
+          "type": "text",
+          "id": "outer_text",
+          "label": "Outer text",
+          "default": "YOUR TEXT HERE - YOUR TEXT HERE -"
+        },
+        {
+          "type": "range",
+          "id": "outer_text_line_offset",
+          "min": 0,
+          "max": 5,
+          "step": 0.1,
+          "label": "Line height",
+          "default": 2.7
+        },
+        {
+          "type": "range",
+          "id": "outer_text_letter_spacing",
+          "min": 0,
+          "max": 6,
+          "step": 0.1,
+          "label": "Letter spacing",
+          "default": 2.6
+        },
+        {
+          "type": "header",
+          "content": "Roundel: Inner"
+        },
+        {
+          "type": "select",
+          "id": "inner_type",
+          "label": "Content type",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "icon_basic",
+              "label": "Icon - Basic"
+            },
+            {
+              "value": "icon_cosmetic",
+              "label": "Icon - Cosmetics"
+            }
+          ],
+          "default": "text"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' }}",
+          "type": "text",
+          "id": "inner_text_1",
+          "default": "Inner",
+          "label": "Line 1"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' and block.settings.inner_text_1 != blank }}",
+          "type": "range",
+          "id": "inner_text_1_size",
+          "min": 14,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 20
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' }}",
+          "type": "text",
+          "id": "inner_text_2",
+          "default": "Text",
+          "label": "Line 2"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' and block.settings.inner_text_2 != blank }}",
+          "type": "range",
+          "id": "inner_text_2_size",
+          "min": 14,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 26
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'text' }}",
+          "type": "select",
+          "id": "inner_text_font",
+          "label": "Font",
+          "options": [
+            {
+              "value": "heading",
+              "label": "Heading"
+            },
+            {
+              "value": "body",
+              "label": "Body"
+            }
+          ],
+          "default": "body"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'icon_basic' }}",
+          "type": "select",
+          "id": "icon",
+          "label": "Basic icon",
+          "options": [
+            {
+              "value": "",
+              "label": "None"
+            },
+            {
+              "value": "award",
+              "label": "Award"
+            },
+            {
+              "value": "box",
+              "label": "Box"
+            },
+            {
+              "value": "briefcase",
+              "label": "Briefcase"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "chat_bubble",
+              "label": "Chat bubble"
+            },
+            {
+              "value": "check_mark",
+              "label": "Check mark"
+            },
+            {
+              "value": "check_mark_in_circle",
+              "label": "Check mark in circle"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            },
+            {
+              "value": "credit_card",
+              "label": "Credit card"
+            },
+            {
+              "value": "dollar_sign",
+              "label": "Dollar sign"
+            },
+            {
+              "value": "dryer",
+              "label": "Dryer"
+            },
+            {
+              "value": "eye",
+              "label": "Eye"
+            },
+            {
+              "value": "feather",
+              "label": "Feather"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "heart",
+              "label": "Heart"
+            },
+            {
+              "value": "iron",
+              "label": "Iron"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "leather",
+              "label": "Leather"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "map_pin",
+              "label": "Map pin"
+            },
+            {
+              "value": "pants",
+              "label": "Pants"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "plane",
+              "label": "Plane"
+            },
+            {
+              "value": "price_tag",
+              "label": "Price tag"
+            },
+            {
+              "value": "question_mark",
+              "label": "Question mark"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "ruler",
+              "label": "Ruler"
+            },
+            {
+              "value": "scissors",
+              "label": "Scissors"
+            },
+            {
+              "value": "shirt",
+              "label": "Shirt"
+            },
+            {
+              "value": "shoe",
+              "label": "Shoe"
+            },
+            {
+              "value": "silhouette",
+              "label": "Silhouette"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "washing",
+              "label": "Washing"
+            }
+          ],
+          "default": "box"
+        },
+        {
+          "visible_if": "{{ block.settings.inner_type == 'icon_cosmetic' }}",
+          "type": "select",
+          "id": "usp_icon",
+          "label": "Cosmetics icon",
+          "default": "beauty-routine",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Anti ageing",
+              "value": "anti-aging"
+            },
+            {
+              "label": "Beard and grooming",
+              "value": "beard-and-grooming"
+            },
+            {
+              "label": "Beauty routine",
+              "value": "beauty-routine"
+            },
+            {
+              "label": "Beauty supplements",
+              "value": "beauty-supplements"
+            },
+            {
+              "label": "Body positivity",
+              "value": "body-positivity"
+            },
+            {
+              "label": "Carbon neutral",
+              "value": "carbon-neutral"
+            },
+            {
+              "label": "Clean beauty",
+              "value": "clean-beauty"
+            },
+            {
+              "label": "Cosmetics for men",
+              "value": "cosmetics-for-men"
+            },
+            {
+              "label": "Cruelty free",
+              "value": "cruelty-free"
+            },
+            {
+              "label": "Direct to consumer",
+              "value": "direct-to-consumer"
+            },
+            {
+              "label": "Eco friendly",
+              "value": "eco-friendly"
+            },
+            {
+              "label": "Ethical sourcing",
+              "value": "ethical-sourcing"
+            },
+            {
+              "label": "Greenleaves",
+              "value": "green-leaves"
+            },
+            {
+              "label": "Hair care",
+              "value": "hair-care"
+            },
+            {
+              "label": "Inclusive",
+              "value": "inclusive"
+            },
+            {
+              "label": "Influencer recommended",
+              "value": "influencer-recommended"
+            },
+            {
+              "label": "Label transparency",
+              "value": "label-transparency"
+            },
+            {
+              "label": "Mental wellbeing",
+              "value": "mental-wellbeing"
+            },
+            {
+              "label": "Non toxic ingredients",
+              "value": "non-toxic-ingredients"
+            },
+            {
+              "label": "Nutraceuticals",
+              "value": "nutraceuticals"
+            },
+            {
+              "label": "Open lid",
+              "value": "open-lid"
+            },
+            {
+              "label": "Organic",
+              "value": "organic"
+            },
+            {
+              "label": "Recycle",
+              "value": "recycle"
+            },
+            {
+              "label": "Reuseable packaging",
+              "value": "reuseable-packaging"
+            },
+            {
+              "label": "Self love",
+              "value": "self-love"
+            },
+            {
+              "label": "Sustainable",
+              "value": "sustainable"
+            },
+            {
+              "label": "Technologically advanced cosmetics",
+              "value": "technologically-advanced-cosmetics"
+            },
+            {
+              "label": "Upcycled ingredients",
+              "value": "upcycled-ingredients"
+            },
+            {
+              "label": "Vegan",
+              "value": "vegan"
+            },
+            {
+              "label": "Zero waste",
+              "value": "zero-waste"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Roundel: Layout"
+        },
+        {
+          "type": "range",
+          "id": "roundel_size",
+          "min": 100,
+          "max": 200,
+          "step": 10,
+          "label": "Roundel size",
+          "default": 160
+        },
+        {
+          "type": "select",
+          "id": "spin",
+          "label": "Spin",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "scroll",
+              "label": "On scroll"
+            },
+            {
+              "value": "slow",
+              "label": "Slow"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "fast",
+              "label": "Fast"
+            }
+          ],
+          "default": "scroll"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_inner_frame",
+          "label": "Enable inner outline",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_outer_frame",
+          "label": "Enable outer outline",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "in_front",
+          "label": "Show in front of text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_desktop",
+          "label": "Show on desktop",
+          "default": true
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "top_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - desktop",
+          "default": 20
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "left_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - desktop",
+          "default": 20
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": false
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "top_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - mobile",
+          "default": 10
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "left_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - mobile",
+          "default": 20
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "checkbox",
+          "id": "card_cutout",
+          "label": "Show cutout cards",
+          "info": "This setting works best with transparent background images. This will prevent hover images and image blending from taking effect.",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "in_front",
+          "label": "Show in front of text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_desktop",
+          "label": "Show on desktop",
+          "default": true
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "width_desktop",
+          "min": 240,
+          "max": 480,
+          "step": 10,
+          "unit": "px",
+          "label": "Width - desktop",
+          "default": 260
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "top_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - desktop",
+          "default": 20
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "left_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - desktop",
+          "default": 20
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": false
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "width_mobile",
+          "min": 240,
+          "max": 480,
+          "step": 10,
+          "unit": "px",
+          "label": "Width - mobile",
+          "default": 260
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "top_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - mobile",
+          "default": 10
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "left_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - mobile",
+          "default": 20
+        }
+      ]
+    },
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "select",
+          "id": "card_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "text-below",
+              "label": "Text below"
+            },
+            {
+              "value": "text-over",
+              "label": "Text over"
+            }
+          ],
+          "default": "text-over"
+        },
+        {
+          "type": "checkbox",
+          "id": "card_show_count",
+          "label": "Show product count",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "card_compact",
+          "label": "Compact",
+          "default": true
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "Color scheme",
+          "default": "scheme-1"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "in_front",
+          "label": "Show in front of text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_desktop",
+          "label": "Show on desktop",
+          "default": true
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "width_desktop",
+          "min": 240,
+          "max": 500,
+          "step": 10,
+          "unit": "px",
+          "label": "Width - desktop",
+          "default": 300
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "top_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - desktop",
+          "default": 20
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_desktop }}",
+          "type": "range",
+          "id": "left_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - desktop",
+          "default": 20
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": false
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "width_mobile",
+          "min": 240,
+          "max": 500,
+          "step": 10,
+          "unit": "px",
+          "label": "Width - mobile",
+          "default": 300
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "top_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Top offset - mobile",
+          "default": 10
+        },
+        {
+          "visible_if": "{{ block.settings.show_on_mobile }}",
+          "type": "range",
+          "id": "left_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Left offset - mobile",
+          "default": 20
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collage hero",
+      "category": "Banners",
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "top_desktop": 18,
+            "left_desktop": 80
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "top_desktop": 75,
+            "left_desktop": 18
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

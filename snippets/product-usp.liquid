@@ -1,0 +1,24 @@
+{%- comment -%}
+  Parameters:
+  - layout {String} - If 'carousel' - a different flex layout is rendered
+  - icon {String} - USP Icon string.
+  - image {Image object} - USP Image.
+  - icon_size {Number} - Size of icon or image.
+  - text {String} - USP Text.
+  - width {Number} - Width of icon or image
+
+  Usage:
+  {%- render 'product-usp' with block -%}
+{%- endcomment -%}
+
+<div class="flex items-center{% if layout == 'carousel' %} flex-col text-center gap-y-3 h-full justify-between{% else %} gap-x-3{% endif %}">
+  {%- if image -%}
+    {%- assign image_width = width | times: 2 -%}
+    <div class="product-usp__image-container" style="width: {{ width }}px">
+      {{ image | image_url: width: image_width | image_tag: loading: 'lazy', class: 'product-usp__image' }}
+    </div>
+  {%- elsif icon -%}
+    {% render 'icon-usp', icon: icon, class: 'product-usp__image shrink-0', width: width %}
+  {%- endif -%}
+  <span class="text-sm grow">{{ text }}</span>
+</div>

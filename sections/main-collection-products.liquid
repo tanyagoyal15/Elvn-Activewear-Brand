@@ -1,0 +1,518 @@
+{%- if section.settings.related_collections != empty -%}
+  {{ 'related-collections.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+<link rel="stylesheet" href="{{ 'products-grid.css' | asset_url }}">
+<script src="{{ 'products-toolbar.js' | asset_url }}" defer></script>
+
+{%- assign enable_quick_add = true -%}
+
+{%- if enable_quick_add -%}
+  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- if settings.pagination_style == 'modern' or settings.pagination_infinite -%}
+  <script src="{{ 'custom-pagination.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- liquid
+  assign filtering_enabled = section.settings.enable_filtering
+  if collection.filters == empty
+    assign filtering_enabled = false
+  endif
+  assign sorting_enabled = section.settings.enable_sorting
+
+  if collection.products.size > 0
+    assign grid_columns_mobile = section.settings.products_per_row
+    assign grid_columns_sm = '2'
+    if section.settings.products_per_row_desktop == '2'
+      assign grid_columns_md = '2'
+    else
+      assign grid_columns_md = '3'
+    endif
+    assign grid_columns_lg = section.settings.products_per_row_desktop
+
+    if settings.prod_card_image_ratio == 'shortest'
+      assign image_ratio = 0
+      for product in collection.products
+        if product.featured_media.preview_image.aspect_ratio > image_ratio
+          assign image_ratio = product.featured_media.preview_image.aspect_ratio
+        endif
+      endfor
+    elsif settings.prod_card_image_ratio == 'tallest'
+      assign image_ratio = 99
+      for product in collection.products
+        if product.featured_media.preview_image.aspect_ratio < image_ratio
+          assign image_ratio = product.featured_media.preview_image.aspect_ratio
+        endif
+      endfor
+    else
+      assign image_ratio = settings.prod_card_image_ratio
+    endif
+  endif
+-%}
+
+{%- style -%}
+  {%- if section.settings.related_collections != empty -%}
+    #{{ section.id }}-RelatedCollections {
+      --related-collection-bg-color: {{ section.settings.related_collections_bg_color.rgba }};
+      --related-collection-text-color: {{ section.settings.related_collections_text_color.rgba }};
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+{%- if section.settings.related_collections != empty -%}
+  <div id="{{ section.id }}-RelatedCollections" class="related-collections mt-6 md:mt-8" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+    <ul class="container flex flex-wrap {{ section.settings.related_collections_align }} {% if section.settings.related_collections_style == 'images' %}gap-4{% else %}gap-3 md:gap-4{% endif %}{% if section.settings.related_collections_carousel_mobile %} max-md:hidden{% endif %}" role="list">
+      {%- for related_collection in section.settings.related_collections -%}
+        {%- if related_collection.handle == collection.handle -%}{%- continue -%}{%- endif -%}
+        <li class="shrink-0 w-max">
+          {%- render 'related-collection',
+              collection: related_collection,
+              style: section.settings.related_collections_style,
+              image_source: section.settings.related_collections_image_source,
+              image_ratio: section.settings.related_collection_image_ratio,
+              image_fit: section.settings.related_collection_image_fit,
+              image_align: section.settings.related_collection_image_align -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if section.settings.related_collections_carousel_mobile -%}
+      <carousel-slider class="carousel block relative md:hidden" inactive>
+        <div class="slider-nav slider-nav--show-on-hover no-hover-hidden hidden md:flex no-js-hidden">
+          <button type="button" class="slider-nav__btn btn text-current has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+            {% render 'icon-chevron-left' %}
+          </button>
+          <button type="button" class="slider-nav__btn btn text-current has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+            {% render 'icon-chevron-right' %}
+          </button>
+        </div>
+
+        <div class="slider relative slider--no-scrollbar" id="slider-{{ section.id }}">
+          <div class="container">
+            <ul class="slider__grid grid grid-flow-col auto-cols-auto items-start justify-start {% if section.settings.related_collections_style == 'images' %}gap-4{% else %}gap-3 md:gap-4{% endif %}">
+              {%- for related_collection in section.settings.related_collections -%}
+                {%- if related_collection.id == collection.id -%}{%- continue -%}{%- endif -%}
+                <li class="slider__item flex{% if section.settings.icon_position == 'above' %} flex-col justify-center{% endif %} items-center" {{ block.shopify_attributes }}>
+                  {%- render 'related-collection',
+                      collection: related_collection,
+                      style: section.settings.related_collections_style,
+                      image_source: section.settings.related_collections_image_source,
+                      image_ratio: section.settings.related_collection_image_ratio,
+                      image_fit: section.settings.related_collection_image_fit,
+                      image_align: section.settings.related_collection_image_align -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        </div>
+      </carousel-slider>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+<div class="container mt-8 md:mt-12">
+  {%- render 'products-toolbar', results: collection -%}
+
+  {%- paginate collection.products by section.settings.products_per_page -%}
+    <custom-pagination class="main-products-grid flex mb-6 lg:mb-8" data-columns-mobile="{{ grid_columns_mobile }}" data-columns-sm="{{ grid_columns_sm }}" data-columns-md="{{ grid_columns_md }}" data-columns-lg="{{ grid_columns_lg }}" data-infinite-scroll="{{ settings.pagination_infinite }}" data-pause-infinite-scroll="false">
+      {%- if filtering_enabled or sorting_enabled -%}
+        <div class="main-products-grid__filters">
+          {% render 'facet-filters', results: collection %}
+        </div>
+      {%- endif -%}
+
+      <div class="main-products-grid__results relative flex-auto" id="filter-results" {%- render 'animation-attrs', attrs: 'data-cc-animate' %}>
+        {%- if collection.products.size == 0 -%}
+          <p>{{ 'sections.collection.empty' | t }}</p>
+        {%- else -%}
+          <ul class="grid gap-x-5 gap-y-6 md:gap-6{% if section.settings.card_cutout %} has-cutout-cards{% endif %} stretch-cards" role="list">
+            {%- for product in collection.products -%}
+              <li class="js-pagination-result">
+                {% render 'product-card', product: product, image_ratio: image_ratio, disable_image_blending: section.settings.card_cutout %}
+              </li>
+            {%- endfor -%}
+          </ul>
+
+          {%- if paginate.pages > 1 -%}
+            {%- render 'pagination', paginate: paginate, class: 'mt-10 mb-4 md:mt-12 md:mb-6 lg:mt-14 max-md:text-sm', style: settings.pagination_style -%}
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </custom-pagination>
+  {%- endpaginate -%}
+</div>
+
+{% schema %}
+{
+  "name": "Collection products",
+  "class": "cc-collection-products",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "label": "Products per page",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "products_per_row",
+      "label": "Products per row on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "products_per_row_desktop",
+      "label": "Products per row on desktop",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_count",
+      "label": "Show product count",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_layout_toggle",
+      "label": "Show layout toggle",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "card_cutout",
+      "label": "Show cutout cards",
+      "info": "This setting works best with transparent background images. This will prevent hover images and image blending from taking effect.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Filtering"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "label": "Enable filtering",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_filtering }}",
+      "type": "checkbox",
+      "id": "hide_tag_filter",
+      "label": "Hide tag filter",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.enable_filtering }}",
+      "type": "checkbox",
+      "id": "show_active_filter_counts",
+      "label": "Show active filter counts",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_filtering }}",
+      "type": "checkbox",
+      "id": "show_filter_counts",
+      "label": "Show filter counts",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_filtering }}",
+      "type": "checkbox",
+      "id": "filter_two_columns",
+      "label": "Show filter values in two columns",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_filtering }}",
+      "type": "text",
+      "id": "button_grid_filter_name",
+      "label": "Filters to show as buttons",
+      "info": "Counts will not show. Separate options with a comma. E.g. Size,Taille,Größe",
+      "default": "Size,Taille,Größe"
+    },
+    {
+      "visible_if": "{{ section.settings.enable_filtering }}",
+      "type": "checkbox",
+      "id": "expand_filters",
+      "label": "Expand all filters by default",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_filtering }}",
+      "type": "range",
+      "id": "max_filter_options",
+      "label": "Visible options per filter",
+      "info": "Remaining options will be automatically collapsed.",
+      "min": 2,
+      "max": 50,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Sorting"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "Enable sorting",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_sorting }}",
+      "type": "checkbox",
+      "id": "sort_show_featured",
+      "label": "Enable order: Featured",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.enable_sorting }}",
+      "type": "checkbox",
+      "id": "sort_show_best",
+      "label": "Enable order: Best selling",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_sorting }}",
+      "type": "checkbox",
+      "id": "sort_show_alpha",
+      "label": "Enable order: Alphabetical",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_sorting }}",
+      "type": "checkbox",
+      "id": "sort_show_price",
+      "label": "Enable order: Price",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_sorting }}",
+      "type": "checkbox",
+      "id": "sort_show_date",
+      "label": "Enable order: Date added",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.enable_sorting }}",
+      "type": "paragraph",
+      "content": "The collection's default sort order will always show."
+    },
+    {
+      "type": "header",
+      "content": "Related collections"
+    },
+    {
+      "type": "paragraph",
+      "content": "Show links to other collections at the top of the page. Use a metafield to change which links show on each collection page. [Read more](https://cleancanvas.co.uk/support/beautify/settings/related-collections)"
+    },
+    {
+      "type": "collection_list",
+      "id": "related_collections",
+      "label": "Collections"
+    },
+    {
+      "type": "select",
+      "id": "related_collections_style",
+      "label": "Style",
+      "options": [
+        {
+          "value": "images",
+          "label": "Images"
+        },
+        {
+          "value": "pills",
+          "label": "Pills"
+        }
+      ],
+      "default": "images"
+    },
+    {
+      "type": "select",
+      "id": "related_collections_align",
+      "label": "Alignment",
+      "info": "Does not affect mobile carousel.",
+      "options": [
+        {
+          "value": "justify-start",
+          "label": "Left"
+        },
+        {
+          "value": "justify-center",
+          "label": "Center"
+        },
+        {
+          "value": "justify-end",
+          "label": "Right"
+        }
+      ],
+      "default": "justify-start"
+    },
+    {
+      "type": "checkbox",
+      "id": "related_collections_carousel_mobile",
+      "label": "Show carousel on mobile",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "related_collections_text_color",
+      "label": "Text color",
+      "default": "#a2605a"
+    },
+    {
+      "type": "color",
+      "id": "related_collections_bg_color",
+      "label": "Background color",
+      "default": "#f7f3ee"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "related_collections_image_source",
+      "label": "Image source",
+      "info": "\"Featured\" uses the collection image and will fallback to the first product image. \"Metafield\" will use the following image metafield `theme.icon`.",
+      "options": [
+        {
+          "value": "featured",
+          "label": "Featured"
+        },
+        {
+          "value": "metafield",
+          "label": "Metafield"
+        }
+      ],
+      "default": "featured"
+    },
+    {
+      "type": "select",
+      "id": "related_collection_image_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        {
+          "value": "2",
+          "label": "Landscape (2:1)"
+        },
+        {
+          "value": "1.5",
+          "label": "Landscape (3:2)"
+        },
+        {
+          "value": "1.25",
+          "label": "Landscape (5:4)"
+        },
+        {
+          "value": "1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "0.8",
+          "label": "Portrait (4:5)"
+        },
+        {
+          "value": "0.67",
+          "label": "Portrait (2:3)"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "related_collections_image_fit",
+      "label": "Image fit",
+      "info": "Choose \"Natural\" to avoid cropping the image or \"Cover\" to fill available space (image may be cropped).",
+      "options": [
+        {
+          "value": "contain",
+          "label": "Natural"
+        },
+        {
+          "value": "cover",
+          "label": "Cover"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "related_collections_image_align",
+      "label": "Image alignment",
+      "info": "This only applies if the \"Image fit\" is set to \"Cover\".",
+      "options": [
+        {
+          "value": "object-left-top",
+          "label": "Top left"
+        },
+        {
+          "value": "object-top",
+          "label": "Top center"
+        },
+        {
+          "value": "object-right-top",
+          "label": "Top right"
+        },
+        {
+          "value": "object-left",
+          "label": "Middle left"
+        },
+        {
+          "value": "object-center",
+          "label": "Middle center"
+        },
+        {
+          "value": "object-right",
+          "label": "Middle right"
+        },
+        {
+          "value": "object-left-bottom",
+          "label": "Bottom left"
+        },
+        {
+          "value": "object-bottom",
+          "label": "Bottom center"
+        },
+        {
+          "value": "object-right-bottom",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "object-center"
+    }
+  ]
+}
+{% endschema %}

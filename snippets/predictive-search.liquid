@@ -1,0 +1,82 @@
+{% comment %}
+  Parameters:
+  - id {String} - Unique ID.
+  - hide_label {Boolean} - Visually hide the label (optional, default is true).
+  - persist_value {Boolean} - Retain search terms on page change/reload (optional, default is false).
+  - icon_button {Boolean} - Use an icon for the submit button (optional, default is true).
+  - submit_icon {String} - Alternative icon code (optional).
+
+  Dependencies:
+  - Tabbed content component
+
+  Usage:
+  {% render 'predictive-search',
+    id: 'header-search',
+    hide_label: false
+  %}
+{% endcomment %}
+
+{%- liquid
+  unless hide_label == false
+    assign hide_label = true
+  endunless
+
+  unless icon_button == false
+    assign icon_button = true
+  endunless
+
+  assign placeholder_text = 'general.search.placeholder' | t
+  if settings.text_lowercase
+    assign placeholder_text = placeholder_text | downcase
+  endif
+-%}
+
+{%- if settings.enable_predictive_search or settings.enable_search_suggestions -%}
+  <predictive-search class="w-full" data-loading-text="{{ 'accessibility.loading' | t }}">
+{%- endif -%}
+  <form class="search w-full max-lg:flex flex-wrap" role="search" action="{{ routes.search_url }}" method="get">
+    <label class="label{% if hide_label %} visually-hidden{% endif %}" for="{{ id }}">
+      {{- 'general.search.input_label' | t -}}
+    </label>
+    <div class="search__form relative flex-1">
+      <input type="hidden" name="options[prefix]" value="last">
+      <input type="search"
+             class="search__input input w-full js-search-input"
+             id="{{ id }}"
+             name="q"
+             placeholder="{{ placeholder_text }}"
+             {% if persist_value -%}
+               value="{{ search.terms | escape }}"
+             {% endif -%}
+             {% if settings.enable_predictive_search or settings.enable_search_suggestions -%}
+               role="combobox"
+               autocomplete="off"
+               aria-autocomplete="list"
+               aria-controls="predictive-search-results"
+               aria-owns="predictive-search-results"
+               aria-haspopup="listbox"
+               aria-expanded="false"
+               spellcheck="false"
+             {%- endif -%}>
+      <div class="search__btns pointer-events-none absolute w-full flex justify-between items-center">
+        <button class="search__submit pointer-events-auto rounded-input text-current focus-inset" aria-label="{{ 'general.search.submit' | t }}">
+          {% render 'icon-search' %}
+        </button>
+        <button type="button" class="search__reset pointer-events-auto relative rounded-input text-current focus-inset js-search-reset" hidden aria-label="{{ 'general.search.reset' | t }}">
+          {% render 'icon-close' %}
+        </button>
+      </div>
+    </div>
+
+    {%- if settings.enable_predictive_search or settings.enable_search_suggestions -%}
+      <div class="js-search-results order-3 flex-0 w-full" tabindex="-1" data-predictive-search></div>
+      <span class="js-search-status visually-hidden" role="status" aria-hidden="true"></span>
+    {%- endif -%}
+
+    <div class="header__search-close-container lg:absolute top-0 end-0 ms-6 flex items-center self-center">
+      <button class="js-toggle-search flex-1 relative z-1 custom-case text-sm text-current">{{ 'general.search.close' | t }}</button>
+    </div>
+  </form>
+{%- if settings.enable_predictive_search or settings.enable_search_suggestions -%}
+  </predictive-search>
+{%- endif -%}

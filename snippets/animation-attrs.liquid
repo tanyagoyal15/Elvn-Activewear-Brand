@@ -1,0 +1,13 @@
+{%- liquid
+  if settings.enable_animations != 'disabled'
+    if section.location == 'header'
+      if settings.enable_load_animations
+        echo ' ' | append: attrs
+      endif
+    elsif section.location == 'footer'
+      echo ' ' | append: attrs
+    elsif settings.enable_load_animations or section.index > 1 or always
+      echo ' ' | append: attrs
+    endif
+  endif
+-%}

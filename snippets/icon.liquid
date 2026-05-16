@@ -1,0 +1,164 @@
+{%- comment -%}
+  Parameters:
+  - icon {String} - Name of the icon to use.
+  - class {String} - CSS class (optional).
+  - width {Number} - Width for the svg (optional).
+  - height {Number} - Height for the svg (optional).
+  - is_custom_icon {Boolean} - True if its a Beautify-specific icon (optional).
+
+  Usage:
+  {% render 'icon', icon: section.settings.icon, height: 24, width 24 %}
+{%- endcomment -%}
+
+{%- if icon != blank -%}
+  <svg {% if width and height %}width="{{ width }}" height="{{ height }}"{% if class %} class="{{ class }}"{% endif %} {% endif %}viewBox="0 0 {% if is_custom_icon %}{{ height }} {{ width }}{% else %}24 24{% endif %}" aria-hidden="true" focusable="false" role="presentation" class="icon">
+    {%- case icon -%}
+      {%- when 'award' -%}
+        <path d="M12 15C15.866 15 19 11.866 19 8C19 4.13401 15.866 1 12 1C8.13401 1 5 4.13401 5 8C5 11.866 8.13401 15 12 15Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.21 13.89L7 23L12 20L17 23L15.79 13.88" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'box' -%}
+        <path d="M21 16V7.99999C20.9996 7.64927 20.9071 7.3048 20.7315 7.00116C20.556 6.69751 20.3037 6.44536 20 6.26999L13 2.26999C12.696 2.09446 12.3511 2.00204 12 2.00204C11.6489 2.00204 11.304 2.09446 11 2.26999L4 6.26999C3.69626 6.44536 3.44398 6.69751 3.26846 7.00116C3.09294 7.3048 3.00036 7.64927 3 7.99999V16C3.00036 16.3507 3.09294 16.6952 3.26846 16.9988C3.44398 17.3025 3.69626 17.5546 4 17.73L11 21.73C11.304 21.9055 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9055 13 21.73L20 17.73C20.3037 17.5546 20.556 17.3025 20.7315 16.9988C20.9071 16.6952 20.9996 16.3507 21 16Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3.26953 6.96001L11.9995 12.01L20.7295 6.96001" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 22.08V12" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'briefcase' -%}
+        <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'calendar' -%}
+        <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 2V6" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 2V6" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3 10H21" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'chat_bubble' -%}
+        <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'check_mark' -%}
+        <path d="M20 6L9 17L4 12" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'check_mark_in_circle' -%}
+        <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18457 2.99721 7.13633 4.39828 5.49707C5.79935 3.85782 7.69279 2.71538 9.79619 2.24015C11.8996 1.76491 14.1003 1.98234 16.07 2.86" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'clock' -%}
+        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 6V12L16 14" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'credit_card' -%}
+        <path d="M21 4H3C1.89543 4 1 4.89543 1 6V18C1 19.1046 1.89543 20 3 20H21C22.1046 20 23 19.1046 23 18V6C23 4.89543 22.1046 4 21 4Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M1 10H23" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'dollar_sign' -%}
+        <path d="M12 1V23" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'dryer' -%}
+        <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'eye' -%}
+        <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'feather' -%}
+        <path d="M20.24 12.24C21.3658 11.1142 21.9983 9.58718 21.9983 7.995C21.9983 6.40282 21.3658 4.87584 20.24 3.75C19.1142 2.62416 17.5872 1.99166 15.995 1.99166C14.4028 1.99166 12.8758 2.62416 11.75 3.75L5 10.5V19H13.5L20.24 12.24Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 8L2 22" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M17.5 15H9" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/> 
+
+      {%- when 'gift' -%}
+        <path d="M20 12V22H4V12" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 7H2V12H22V7Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 22V7" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 7H7.5C6.83696 7 6.20107 6.73661 5.73223 6.26777C5.26339 5.79893 5 5.16304 5 4.5C5 3.83696 5.26339 3.20107 5.73223 2.73223C6.20107 2.26339 6.83696 2 7.5 2C11 2 12 7 12 7Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 7H16.5C17.163 7 17.7989 6.73661 18.2678 6.26777C18.7366 5.79893 19 5.16304 19 4.5C19 3.83696 18.7366 3.20107 18.2678 2.73223C17.7989 2.26339 17.163 2 16.5 2C13 2 12 7 12 7Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'heart' -%}
+        <path d="M20.8401 4.60999C20.3294 4.099 19.7229 3.69364 19.0555 3.41708C18.388 3.14052 17.6726 2.99817 16.9501 2.99817C16.2276 2.99817 15.5122 3.14052 14.8448 3.41708C14.1773 3.69364 13.5709 4.099 13.0601 4.60999L12.0001 5.66999L10.9401 4.60999C9.90843 3.5783 8.50915 2.9987 7.05012 2.9987C5.59109 2.9987 4.19181 3.5783 3.16012 4.60999C2.12843 5.64169 1.54883 7.04096 1.54883 8.49999C1.54883 9.95903 2.12843 11.3583 3.16012 12.39L4.22012 13.45L12.0001 21.23L19.7801 13.45L20.8401 12.39C21.3511 11.8792 21.7565 11.2728 22.033 10.6053C22.3096 9.93789 22.4519 9.22248 22.4519 8.49999C22.4519 7.77751 22.3096 7.0621 22.033 6.39464C21.7565 5.72718 21.3511 5.12075 20.8401 4.60999Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'iron' -%}
+        <path d="M21.75 13.5526C21.75 13.073 20.8055 12.6842 19.6404 12.6842H13.5098H7.37918C1.89455 12.6842 1.22592 17.8947 1.57718 20.5H19.6404C20.8055 20.5 21.75 20.1112 21.75 19.6316V13.5526ZM21.75 13.5526L20.5639 7H9.48837" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="16.5" r="0.75" fill="currentColor" fill="none"/>
+
+      {%- when 'leaf' -%}
+        <path d="M5.07749 15.2693C-1.49951 -0.375001 21.713 3.25845 23.252 2.18153C18.772 21.2776 9.98126 17.7307 6.75049 16.5" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2.46124 22.3462C2.46124 22.3462 3.85137 16.1923 7.49973 12.375C11.1481 8.55774 15.2305 7.88466 15.2305 7.88466" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'leather' -%}
+        <path d="M14.1888 2.25H9.01531C9.01531 5.11 5.56633 5.175 3.84184 4.85L2.25 7.45C8.61735 12.13 4.90306 16.1167 2.25 17.525L4.63776 20.775C7.18469 19.215 9.94388 20.775 11.0051 21.75H12.5969C14.5071 19.41 18.1684 20.125 19.7602 20.775L21.75 17.525C15.3827 13.625 18.8316 9.18333 21.352 7.45L19.5709 4.88396C15.5816 5.56278 14.3194 3.4233 14.1888 2.25Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linejoin="round"/>
+
+      {%- when 'lock' -%}
+        <path d="M19 11H5C3.89543 11 3 11.8954 3 13V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V13C21 11.8954 20.1046 11 19 11Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'map_pin' -%}
+        <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'pants' -%}
+        <path d="M18.6667 4.72727V2H5.33333V4.72727M18.6667 4.72727H5.33333M18.6667 4.72727L22 20.8636L15.0952 22L12.2381 9L8.90476 22L2 20.8636L5.33333 4.72727" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linejoin="round"/>
+
+      {%- when 'percent' -%}
+        <path d="M19 5L5 19" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6.5 9C7.88071 9 9 7.88071 9 6.5C9 5.11929 7.88071 4 6.5 4C5.11929 4 4 5.11929 4 6.5C4 7.88071 5.11929 9 6.5 9Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M17.5 20C18.8807 20 20 18.8807 20 17.5C20 16.1193 18.8807 15 17.5 15C16.1193 15 15 16.1193 15 17.5C15 18.8807 16.1193 20 17.5 20Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'plane' -%}
+        <path d="M22 2L11 13" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'price_tag' -%}
+        <path d="M20.59 13.41L13.42 20.58C13.2343 20.766 13.0137 20.9135 12.7709 21.0141C12.5281 21.1148 12.2678 21.1666 12.005 21.1666C11.7422 21.1666 11.4819 21.1148 11.2391 21.0141C10.9963 20.9135 10.7757 20.766 10.59 20.58L2 12V2H12L20.59 10.59C20.9625 10.9647 21.1716 11.4716 21.1716 12C21.1716 12.5284 20.9625 13.0353 20.59 13.41Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 7H7.01" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'question_mark' -%}
+        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9.08984 9C9.32495 8.33167 9.789 7.76811 10.3998 7.40913C11.0106 7.05016 11.7287 6.91894 12.427 7.03871C13.1253 7.15849 13.7587 7.52153 14.2149 8.06353C14.6712 8.60553 14.9209 9.29152 14.9198 10C14.9198 12 11.9198 13 11.9198 13" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 17H12.01" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'return' -%}
+        <path d="M8.75 9.75L3.75 14.75L8.75 19.75" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19.75 3.75V10.75C19.75 11.8109 19.3286 12.8283 18.5784 13.5784C17.8283 14.3286 16.8109 14.75 15.75 14.75H3.75" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'ruler' -%}
+        <rect x="0.957031" y="16.9723" width="23.309" height="6.57134" transform="rotate(-40.0848 0.957031 16.9723)" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linejoin="round"/>
+        <line x1="15.6481" y1="4.69905" x2="16.937" y2="6.22538" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round"/>
+        <line x1="12.4919" y1="7.36392" x2="13.7808" y2="8.89025" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round"/>
+        <line x1="9.33757" y1="10.0288" x2="10.6265" y2="11.5551" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round"/>
+        <line x1="6.18132" y1="12.6936" x2="7.47025" y2="14.22" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round"/>
+
+
+      {%- when 'scissors' -%}
+        <path d="M6 9C7.65685 9 9 7.65685 9 6C9 4.34315 7.65685 3 6 3C4.34315 3 3 4.34315 3 6C3 7.65685 4.34315 9 6 9Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 21C7.65685 21 9 19.6569 9 18C9 16.3431 7.65685 15 6 15C4.34315 15 3 16.3431 3 18C3 19.6569 4.34315 21 6 21Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19.9991 4L8.11914 15.88" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14.4707 14.48L20.0007 20" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.11914 8.12L11.9991 12" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'shirt' -%}
+        <path d="M7.00195 20H12.002H17.002V10.2529L18.925 12.092L22.002 8.96553L16.6173 4.00001H14.6943C14.4379 4.42913 13.5404 5.28737 12.002 5.28737C10.4635 5.28737 9.56606 4.42913 9.30965 4.00001H7.38657L2.00195 8.96553L5.07888 12.092L7.00195 10.2529V20Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linejoin="round"/>
+
+      {%- when 'shoe' -%}
+        <path d="M22 14.9546V18.0845H2.04696V14.9546M22 14.9546H2.04696M22 14.9546V4.97809L14.5659 4C14.3702 4.45644 13.8225 5.79969 13.1965 7.52113C12.5706 9.24256 10.4518 10.0642 9.47367 10.2598C6.93064 10.7684 6.49064 10.6405 4.39437 11.2379C1.6485 12.0203 1.98175 14.433 2.04696 14.9546" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linejoin="round"/>
+
+      {%- when 'silhouette' -%}
+        <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'star' -%}
+        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'truck' -%}
+        <path d="M16 3H1V16H16V3Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 8H20L23 11V16H16V8Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5.5 21C6.88071 21 8 19.8807 8 18.5C8 17.1193 6.88071 16 5.5 16C4.11929 16 3 17.1193 3 18.5C3 19.8807 4.11929 21 5.5 21Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M18.5 21C19.8807 21 21 19.8807 21 18.5C21 17.1193 19.8807 16 18.5 16C17.1193 16 16 17.1193 16 18.5C16 19.8807 17.1193 21 18.5 21Z" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+      {%- when 'washing' -%}
+        <path d="M23.25 5.25L21 19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19L0.75 5.25" stroke="currentColor" fill="none" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M1.5 9.375C2 9.25 4.35221 7.5 5.625 7.5C7.5 7.5 8.75368 9.375 10.875 9.375C12.75 9.375 14.3256 7.76234 15.375 7.5C16.875 7.125 18.4086 8.34515 19.5 9C21.375 10.125 22.125 9.75 22.5 9.75" stroke="currentColor" fill="none" stroke-width="1.1"/>
+
+    {%- endcase -%}
+  </svg>
+{%- endif -%}

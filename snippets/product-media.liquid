@@ -1,0 +1,216 @@
+{%- comment -%}
+  Parameters:
+  - media {Object} - Media object.
+  - media_ratio {Number} - Media aspect ratio.
+  - media_crop {String} - If media should crop to fill available space (Options: none, top, center)
+  - loop {Boolean} - Enable video looping.
+  - lazy_load {Boolean} - Lazy load the media.
+  - fetchpriority {String} - Custom image fetchpriority attribute (optional, default is nil)
+  - enable_zoom {Boolean} - Whether zoom should be enabled or not
+  - zoom_level {String} - The level of zoom to apply to the image. (Options: medium, large, original)
+  - zoom_mode {String} - The tpye of image zoom to initialize (Options: lightbox, click, hover)
+  - featured_product {Boolean} - Media is for a 'Featured product' section (optional, default is false).
+
+  Usage:
+  {% render 'product-media',
+    media: media,
+    media_ratio: media_ratio,
+    media_crop: 'top',
+    loop: section.settings.enable_video_looping,
+    lazy_load: false,
+    enable_zoom: true,
+    zoom_level: section.settings.hover_zoom,
+    zoom_mode: section.settings.zoom_mode
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  if section.settings.media_layout == 'stacked' and is_stacked_wider_media != true
+    assign widths = '420, 640, 900, 1214, 1560'
+    assign sizes_xl = 'calc(25vw)'
+    assign sizes_lg = 'calc(25vw)'
+    assign src_width = 600
+    assign sizes_max = settings.max_page_width | divided_by: 4 | append: 'px'
+  else
+    assign widths = '420, 640, 900, 1214, 1560'
+    assign sizes_xl = 'calc(50vw)'
+    assign sizes_lg = 'calc(50vw)'
+    assign src_width = 1214
+    assign sizes_max = settings.max_page_width | divided_by: 2 | append: 'px'
+  endif
+
+  if media_ratio != 'natural'
+    if media_crop == 'top'
+      assign img_class = 'product-image img-fit object-top w-full'
+    elsif media_crop == 'center'
+      assign img_class = 'product-image img-fit w-full'
+    else
+      assign img_class = 'product-image img-fit img-fit--contain w-full'
+    endif
+  else
+    assign img_class = 'product-image img-fit img-fit--contain w-full'
+  endif
+
+  if enable_zoom
+    case zoom_level
+      when 'original'
+        assign zoom_level = media.preview_image.width
+        if zoom_level > 5760
+          assign zoom_level = 5760
+        endif
+
+      when 'medium'
+        assign zoom_level = 1000
+
+      when 'large'
+        assign zoom_level = 1500
+    endcase
+  endif
+-%}
+
+{%- capture sizes -%}
+  {%- render 'sizes-attribute', min: 'page', sm: 'page', md: 'calc(50vw - 64px)', lg: sizes_lg, xl: sizes_xl, max: sizes_max -%}
+{%- endcapture -%}
+
+{%- if media.media_type == 'image' -%}
+  <div class="media relative custom-aspect-ratio" style="--ratio: {{ media_ratio }};">
+    <span class="media-loader"><span class="media-loader__inside"></span></span>
+    {%- if enable_zoom -%}
+      {%- liquid
+        if media_crop != "none"
+          assign height = zoom_level | divided_by: media_ratio
+          assign image_url = media.preview_image | image_url: width: zoom_level, height: height, crop: media_crop
+        else
+          assign image_url = media.preview_image | image_url: width: zoom_level
+        endif
+      -%}
+
+      <a href="{{ image_url }}" class="media--cover media--zoom media--zoom-not-loaded inline-flex overflow-hidden absolute top-0 left-0 w-full h-full{% if settings.blend_product_images %} image-blend{% endif %} js-zoom-link" {%- render 'animation-attrs', attrs: 'data-cc-animate="zoom-out"' %} target="_blank">
+    {%- else -%}
+        <div class="media--cover overflow-hidden absolute top-0 left-0 w-full h-full{% if settings.blend_product_images %} image-blend{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate="zoom-out"' %}>
+    {%- endif -%}
+
+    {% render 'image',
+      image: media,
+      widths: widths,
+      mobile_widths: '690, 800',
+      src_width: src_width,
+      sizes: sizes,
+      lazy_load: lazy_load,
+      fetchpriority: fetchpriority,
+      class: img_class,
+      disable_focal_point: true
+    %}
+
+    {%- if enable_zoom -%}
+        <img class="zoom-image{% if media_crop == "none" %} zoom-image--contain top-0{% endif %} absolute left-0 right-0 pointer-events-none js-zoom-image no-js-hidden"
+             src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20{{ zoom_level }}%20{{ zoom_level | divided_by: media_ratio }}'%3E%3C/svg%3E" loading="lazy"
+             alt="{{ media.alt }}"
+             data-src="{{ image_url }}" width="{{ zoom_level }}" height="{{ zoom_level | divided_by: media_ratio }}"
+             data-original-width="{{ media.preview_image.width }}" data-original-height="{{ media.preview_image.height }}">
+      </a>
+    {%- else -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- else -%}
+  {%- if media.media_type == 'model' -%}
+    <product-model class="block relative custom-aspect-ratio no-js-hidden" style="--ratio: {{ media_ratio }};" data-media-id="{{ media.id }}">
+  {%- else -%}
+    <deferred-media class="block relative video-section custom-aspect-ratio no-js-hidden" style="--ratio: {{ media_ratio }};"
+    data-media-id="{{ media.id }}"
+    data-enable-video-looping="{{ section.settings.enable_video_looping }}"
+    {% if section.settings.media_layout == 'stacked' %}data-autoplay="{{ section.settings.enable_video_autoplay }}"{% endif %}>
+  {%- endif -%}
+
+  <button type="button" class="media media-poster absolute top-0 left-0 flex justify-center items-center w-full h-full js-load-media" aria-label="{%- if media.media_type == 'model' -%}{{ 'products.product.media.play_model' | t }}{%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}{{ 'products.product.media.play_video' | t }}{%- endif -%}">
+    {%- if media.media_type == 'model' -%}
+      <span class="media-poster__btn absolute flex items-center justify-center pointer-events-none">
+        {%- render 'icon-3d-model' -%}
+      </span>
+    {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+      {% unless section.settings.enable_video_autoplay and section.settings.media_layout == 'stacked' %}
+        <span class="media-poster__btn btn--circle-icon btn--media-icon absolute flex items-center justify-center pointer-events-none">
+          {%- render 'icon-media-play' -%}
+        </span>
+      {% endunless %}
+    {%- endif -%}
+
+    {% render 'image',
+      image: media.preview_image,
+      widths: widths,
+      mobile_widths: '690, 800',
+      src_width: src_width,
+      sizes: sizes,
+      lazy_load: lazy_load,
+      class: img_class,
+      alt_text: media.alt,
+      disable_focal_point: true
+    %}
+  </button>
+
+  <template>
+    {% case media.media_type %}
+      {% when 'external_video', 'video' %}
+
+        {%- liquid
+            if media.media_type != 'video'
+              if media.host == 'youtube'
+                assign video_external = media | external_video_url: autoplay: true, loop: section.settings.enable_video_looping, playlist: media.external_id
+              else
+                assign video_external = media | external_video_url: autoplay: true, loop: section.settings.enable_video_looping
+              endif
+            endif
+
+            assign show_controls = false
+
+            if section.settings.enable_video_autoplay and section.settings.media_layout == 'stacked'
+              assign background_video = true
+              if section.settings.enable_video_controls
+                assign show_controls = true
+              endif
+            else
+              assign background_video = false
+              assign show_controls = true
+            endif
+          -%}
+          <video-component class="{% if media.media_type == 'video' %}has-video{% else %}has-iframe{% endif %}"
+              {%- if media.media_type != 'video' %} data-video-url="{{ video_external | escape }}"{% endif %}
+              data-video-id="{{ section.id }}-{{ media.id }}"
+              {% if section.settings.media_layout == 'stacked' %}data-autoplay="{{ section.settings.enable_video_autoplay }}"{% endif %}
+              data-background="{% if background_video %}true{% else %}false{% endif %}"
+              data-natural-width="true">
+            {%- if media.media_type == 'video' -%}
+              {%- if section.settings.media_layout == 'stacked' -%}
+                {{ media | video_tag: playsinline: true, controls: show_controls, autoplay: section.settings.enable_video_autoplay, muted: section.settings.enable_video_autoplay, loop: section.settings.enable_video_looping, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
+              {%- else -%}
+                {{ media | video_tag: playsinline: true, controls: show_controls, autoplay: true, loop: section.settings.enable_video_looping, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
+              {%- endif -%}
+            {%- else -%}
+              <div></div>
+            {%- endif -%}
+          </video-component>
+
+      {% when 'model' %}
+        {{ media | media_tag: image_size: "1726x", toggleable: true }}
+
+    {% endcase %}
+  </template>
+
+  {%- if media.media_type == 'model' -%}
+    </product-model>
+    {%- if section.settings.media_layout == 'stacked' and xr_button -%}
+      <button type="button"
+              class="media-xr-button btn btn--secondary btn--icon-with-text font-normal w-full hidden md:block"
+              data-shopify-model3d-id="{{ media.id }}"
+              data-shopify-title="title"
+              data-shopify-xr
+              data-shopify-xr-hidden>
+        {% render 'icon-3d-model' %}
+        {{ 'products.product.xr_button' | t }}
+      </button>
+    {%- endif -%}
+  {%- else -%}
+    </deferred-media>
+  {%- endif -%}
+{%- endif -%}

@@ -1,0 +1,220 @@
+{%- liquid
+  assign show_gift_wrapping = false
+  if settings.show_gift_wrapping and settings.gift_wrap_product != blank
+    assign show_gift_wrapping = true
+    assign gift_wrap_product_id = settings.gift_wrap_product.selected_or_first_available_variant.id
+    assign gift_wraps_in_cart = 0
+
+    for item in cart.items
+      if item.id == gift_wrap_product_id and item.properties['_gift-wrap']
+        assign gift_wraps_in_cart = item.quantity
+        break
+      endif
+    endfor
+  endif
+%}
+
+<link rel="stylesheet" href="{{ 'cart.css' | asset_url }}" media="print" onload="this.media='all'">
+<script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
+<script src="{{ 'cart-summary-disclosure.js' | asset_url }}" defer></script>
+
+{%- if show_gift_wrapping -%}
+  <script src="{{ 'gift-wrap.js' | asset_url }}" defer></script>
+  <script src="{{ 'cart-gift-message.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- if section.settings.show_order_note -%}
+  <script src="{{ 'cart-note.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+<cart-drawer class="drawer fixed top-0 right-0 flex flex-col w-full has-motion" id="cart-drawer" role="dialog" aria-label="{{ 'cart.general.title' | t }}" aria-modal="true" aria-hidden="true" tabindex="-1" data-section="{{ section.id }}" data-name="cart-drawer">
+  <header class="drawer__header">
+    <div class="flex flex-col gap-y-4">
+      <div class="flex justify-between items-center gap-x-5">
+        <div class="flex gap-x-3 flex-grow justify-between items-center js-drawer-header-title">
+          <h2 class="drawer__heading mb-0 font-heading leading-normal">{{ 'cart.drawer.title' | t }}</h2>
+          <div class="small-text">
+            {{ 'cart.summary.item_count' | t: count: cart.item_count }}
+          </div>
+        </div>
+
+        <button type="button" class="drawer__close-btn js-close-drawer" aria-label="{{ 'accessibility.close' | t }}">
+          {% render 'icon-close' %}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  {%- if section.settings.stick_footer == false -%}
+  <div class="drawer__scroller flex-auto flex flex-col">
+  {%- endif -%}
+
+  <div class="drawer__content{% if cart == empty %} flex{% endif %} flex-auto justify-center items-center custom-case">
+    {%- if settings.show_free_shipping_notice -%}
+      {% render 'free-shipping-notice', bar_position: 'top', align_start: true %}
+    {%- endif -%}
+
+    <form class="form" id="cart-drawer-form" action="{{ routes.cart_url }}" method="post">
+      {% render 'cart-items', is_drawer: true, show_gift_wrapping: show_gift_wrapping %}
+      {% if settings.cart_message != blank and cart != empty %}
+        <div class="drawer__custom-message text-sm rte p-2 text-center">
+          {{ settings.cart_message }}
+        </div>
+      {% endif %}
+    </form>
+
+    {%- if settings.show_recommendations and cart != empty -%}
+      {%- render 'recommendations',
+        is_cart: true,
+        heading: settings.recommendations_heading,
+        layout: 'carousel',
+        related_cards: true,
+        grid_classes: 'grid grid-flow-col auto-cols-[84%] gap-x-4'
+      -%}
+    {%- endif -%}
+
+    {%- if section.settings.suggested_products != blank -%}
+      {%- render 'product-list',
+        products: section.settings.suggested_products,
+        products_to_show: 12,
+        heading: section.settings.suggested_products_heading,
+        layout: 'carousel',
+        grid_classes: 'grid grid-flow-col auto-cols-[84%] gap-x-4'
+      -%}
+    {%- endif -%}
+  </div>
+
+  {% if cart != empty and show_gift_wrapping %}
+    <cart-gift-wrap class="cart-gift-wrap block relative clearfix rte text-sm"
+         data-gw-product-id="{{ gift_wrap_product_id }}"
+         data-gw-cart-item-size="{{ cart.items.size }}"
+         data-gw-cart-item-size-minus-gw="{{ cart.item_count | minus: gift_wraps_in_cart }}"
+         data-gw-in-cart="{{ gift_wraps_in_cart }}"
+         data-gw-attribute-blank="{% if cart.attributes.gift-wrap == blank %}true{% else %}false{% endif %}">
+      <p class="cart-gift-wrap__inner text-sm mb-0">
+        <input
+          id="gift-wrap"
+          class="checkbox checkbox--small"
+          type="checkbox"
+          name="attributes[gift-wrap]"
+          value="yes"
+          {% if cart.attributes.gift-wrap %}
+            checked="checked"
+          {% endif %}
+        />
+        <label for="gift-wrap" class="label">
+          {%- assign gift_wrap_cost = settings.gift_wrap_product.price | money -%}
+          <span>
+            {{ 'cart.gift_message.checkbox_label_html' | t: money: gift_wrap_cost }}
+          </span>
+        </label>
+      </p>
+      <div class="cart-item__loader absolute top-0 left-0 flex justify-center items-center w-full h-full pointer-events-none is-loading" hidden></div>
+    </cart-gift-wrap>
+  {% endif %}
+
+  <footer class="drawer__footer relative custom-case">
+    {%- if cart != empty -%}
+      {%- if section.settings.show_order_note or show_gift_wrapping -%}
+        {% render 'cart-actions', show_gift_wrapping: show_gift_wrapping, in_drawer: true %}
+        <hr class="drawer__footer-hr">
+      {%- endif -%}
+
+      <div class="text-xl flex flex-wrap justify-between items-baseline cart-subtotal font-bold{% if section.settings.show_tax_and_shipping == blank and cart.cart_level_discount_applications == blank %} mb-5{% endif %}">
+        <span>{{ 'cart.summary.subtotal' | t }}</span>
+        <span class="cart-subtotal__value">
+          {%- if settings.show_cart_currency_code -%}
+            {{- cart.total_price | money_with_currency -}}
+          {%- else -%}
+            {{- cart.total_price | money -}}
+          {%- endif -%}
+        </span>
+      </div>
+
+      {%- if cart.cart_level_discount_applications != blank -%}
+        <ul class="mt-3" role="list" aria-label="{{ 'customer.order.discount' | t }}">
+          {%- for discount in cart.cart_level_discount_applications -%}
+            <li class="mt-2 first:mt-0">
+              <div class="discount inline-flex items-start text-xs">
+                {% render 'icon-tags' %}
+                <span>{{ discount.title | escape_once }} (-{{ discount.total_allocated_amount | money }})</span>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if section.settings.show_tax_and_shipping != blank -%}
+        <p class="mb-5 rte">
+          <small class="text-sm">
+            <span>
+              {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                {{ 'cart.general.taxes_included_shipping_at_checkout_html' | t: link: shop.shipping_policy.url }}
+              {%- elsif cart.taxes_included -%}
+                {{ 'cart.general.taxes_included_shipping_at_checkout' | t }}
+              {%- elsif shop.shipping_policy.body != blank -%}
+                {{ 'cart.general.taxes_and_shipping_at_checkout_html' | t: link: shop.shipping_policy.url }}
+              {%- else -%}
+                {{ 'cart.general.taxes_and_shipping_at_checkout' | t }}
+              {%- endif -%}
+            </span>
+          </small>
+        </p>
+      {%- endif -%}
+
+      {%- if section.settings.cart_terms_page != blank -%}
+        <cart-terms class="block mb-4 text-sm">
+          <input type="checkbox" class="checkbox checkbox--small" id="cart-terms">
+          <label for="cart-terms" class="label">
+            <span class="rte">{{ 'cart.terms.agreement_html' | t: terms_url: section.settings.cart_terms_page }}</span>
+          </label>
+        </cart-terms>
+      {%- endif -%}
+
+      <div class="grid grid-cols-1{% if section.settings.show_checkout_button %} sm:grid-cols-2 gap-x-4 gap-y-2{% endif %}">
+        <a class="btn btn--secondary" href="{{ routes.cart_url }}">
+          {{- 'cart.general.view_cart' | t -}}
+        </a>
+
+        {% if section.settings.show_checkout_button -%}
+          <button type="submit" class="btn btn--primary w-full" name="checkout" form="cart-drawer-form"{% if cart == empty %} disabled{% endif %}>
+            {{- 'cart.summary.checkout' | t -}}
+          </button>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </footer>
+
+  {%- if section.settings.stick_footer == false -%}
+  </div>
+  {%- endif -%}
+
+  <div class="overlay overlay--cart-actions overlay--drawer absolute top-0 right-0 bottom-0 left-0 js-close"></div>
+</cart-drawer>
+
+{%- if section.settings.cart_terms_page != blank -%}
+  <script>
+    class CartTerms extends HTMLElement {
+      constructor() {
+        super();
+        this.submitHandler = this.handleSubmit.bind(this);
+      }
+
+      handleSubmit(evt) {
+        if (!document.getElementById('cart-terms').checked) {
+          evt.preventDefault();
+          alert(`{{ 'cart.terms.confirmation' | t }}`);
+        }
+      }
+
+      connectedCallback() {
+        document.getElementById('cart-drawer-form').addEventListener('submit', this.submitHandler);
+      }
+
+      disconnectedCallback() {
+        document.getElementById('cart-drawer-form').removeEventListener('submit', this.submitHandler);
+      }
+    }
+    customElements.define('cart-terms', CartTerms);
+  </script>
+{%- endif -%}

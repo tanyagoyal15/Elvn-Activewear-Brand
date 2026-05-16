@@ -1,0 +1,1094 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "product_labels_EmNBx6": {
+          "type": "product-labels",
+          "settings": {
+            "show_sale_label": true
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "vendor_title": false
+          }
+        },
+        "rating_chPN8z": {
+          "type": "rating",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_tax_and_shipping": false,
+            "show_percentage_discount": true
+          }
+        },
+        "richtext_PYzWC8": {
+          "type": "richtext",
+          "settings": {
+            "text": "<p>{{ product.description }}</p>"
+          }
+        },
+        "selling_points_NULgBB": {
+          "type": "selling-points",
+          "settings": {
+            "title": "",
+            "layout": "carousel",
+            "usp_icon_width": 80,
+            "usp_1_icon": "self-love",
+            "usp_1_text": "Soft & Breathable",
+            "usp_2_icon": "body-positivity",
+            "usp_2_text": "Flattering Fit",
+            "usp_3_icon": "organic",
+            "usp_3_text": "Organic Material",
+            "usp_4_icon": "none",
+            "usp_4_text": "",
+            "usp_5_icon": "none",
+            "usp_5_text": "",
+            "usp_6_icon": "none",
+            "usp_6_text": ""
+          }
+        },
+        "divider_TPpKRn": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "settings": {
+            "prefix_choose": true,
+            "enable_dynamic_availability": true,
+            "show_backorder_text": true,
+            "swatch_dual_selectors": false,
+            "enable_size_chart": true,
+            "size_chart_label": "Size guide",
+            "size_chart_variant": "Band,Size",
+            "size_chart_source": "section",
+            "size_chart_page": ""
+          }
+        },
+        "buy-buttons": {
+          "type": "buy-buttons",
+          "settings": {
+            "show_qty_selector": true,
+            "enable_dynamic_checkout": true,
+            "show_pickup_availability": true,
+            "show_gift_card_recipient": false
+          }
+        },
+        "collapsible_content_awjMdn": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Description",
+            "icon": "none",
+            "text": "{{ product.description }}",
+            "page": "",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "collapsible_content_WcfmBB": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Key Features",
+            "icon": "none",
+            "text": "<ul><li>Premium high-quality cotton for natural comfort</li><li>Breathable, skin-friendly fabric for all-day freshness</li><li>Soft and smooth feel against the skin</li><li>Comfortable stretch for easy movement</li><li>Secure, stay-in-place fit</li></ul>",
+            "page": "",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "collapsible_content_JHqQTf": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Reviews",
+            "icon": "none",
+            "text": "",
+            "page": "",
+            "custom_liquid": "",
+            "variant_content": false,
+            "open": false
+          }
+        },
+        "complementary_AGN3HJ": {
+          "type": "complementary",
+          "settings": {
+            "heading": "Goes well with",
+            "products_to_show": 4
+          }
+        }
+      },
+      "block_order": [
+        "product_labels_EmNBx6",
+        "title",
+        "rating_chPN8z",
+        "price",
+        "richtext_PYzWC8",
+        "selling_points_NULgBB",
+        "divider_TPpKRn",
+        "variant-picker",
+        "buy-buttons",
+        "collapsible_content_awjMdn",
+        "collapsible_content_WcfmBB",
+        "collapsible_content_JHqQTf",
+        "complementary_AGN3HJ"
+      ],
+      "settings": {
+        "stick_media": true,
+        "media_layout": "slider",
+        "media_stacked_type": "2-1",
+        "media_size": "medium",
+        "media_ratio": "natural",
+        "media_crop": "center",
+        "stacked_scroll": "always",
+        "underline_active": false,
+        "enable_video_looping": false,
+        "enable_video_autoplay": false,
+        "enable_video_controls": true,
+        "slider_full_width_mobile": true,
+        "media_thumbs": "desktop",
+        "enable_zoom": true,
+        "enable_lightbox_mobile": false,
+        "hover_zoom": "large",
+        "border_color": "#000000",
+        "bg_color": "#f9f7f8",
+        "sticky_atc_panel": true,
+        "sticky_atc_mobile": true,
+        "sticky_atc_position": "sticky-atc-panel--inset",
+        "enable_media_grouping": false,
+        "media_grouping_option": "Color,Colour,Couleur,Farbe"
+      }
+    },
+    "size_guide_8fqcNw": {
+      "type": "size-guide",
+      "blocks": {
+        "size_guide_tab_JqLehW": {
+          "type": "size-guide-tab",
+          "name": "Tab",
+          "settings": {
+            "show_tab": true,
+            "title": "Underwear"
+          },
+          "blocks": {
+            "size_guide_table_NfgziH": {
+              "type": "size-guide-table",
+              "settings": {
+                "title": "Sizes",
+                "sticky_row_name": true,
+                "show_unit_converter": true,
+                "default_unit": "metric",
+                "metric_label": "Metric",
+                "imperial_label": "Imperial",
+                "converter_precision": 1,
+                "table_text_size": "",
+                "text_alignment_first": "left",
+                "text_alignment": "left",
+                "table_even_columns": false,
+                "table_text_wrap": false
+              },
+              "blocks": {
+                "size_guide_table_row_yTqJLX": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": true,
+                    "title": "EU Size",
+                    "column_1": "UK Size",
+                    "column_2": "US Size",
+                    "column_3": "Hips (cm)",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_xRnbFy": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "XS (34)",
+                    "column_1": "6",
+                    "column_2": "2",
+                    "column_3": "90cm",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_QMjUqj": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "S (36)",
+                    "column_1": "8",
+                    "column_2": "4",
+                    "column_3": "95cm",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_ehceUX": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "M (38)",
+                    "column_1": "10",
+                    "column_2": "6",
+                    "column_3": "100cm",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_mY9yb7": {
+                  "type": "size-guide-table-row",
+                  "name": "Table row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "L (40)",
+                    "column_1": "12",
+                    "column_2": "8",
+                    "column_3": "105cm",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_X6zJne": {
+                  "type": "size-guide-table-row",
+                  "name": "Table row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "XL (42)",
+                    "column_1": "14",
+                    "column_2": "10",
+                    "column_3": "110cm",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "size_guide_table_row_yTqJLX",
+                "size_guide_table_row_xRnbFy",
+                "size_guide_table_row_QMjUqj",
+                "size_guide_table_row_ehceUX",
+                "size_guide_table_row_mY9yb7",
+                "size_guide_table_row_X6zJne"
+              ]
+            },
+            "size_guide_content_Ld46bV": {
+              "type": "size-guide-content",
+              "name": "Content",
+              "settings": {
+                "page": "",
+                "content": "<h6><strong>Quick Fit Tip</strong></h6><p>Underwear should sit smoothly against your skin without digging in or riding up. Comfort and a clean silhouette are key.</p>",
+                "image": "",
+                "image_position": "left",
+                "image_size": 35
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "size_guide_table_NfgziH",
+            "size_guide_content_Ld46bV"
+          ]
+        },
+        "size_guide_tab_DVrrfc": {
+          "type": "size-guide-tab",
+          "name": "Tab",
+          "settings": {
+            "show_tab": true,
+            "title": "Band Size"
+          },
+          "blocks": {
+            "size_guide_table_hy94eN": {
+              "type": "size-guide-table",
+              "settings": {
+                "title": "Underbust Measurement",
+                "sticky_row_name": false,
+                "show_unit_converter": false,
+                "default_unit": "metric",
+                "metric_label": "Metric",
+                "imperial_label": "Imperial",
+                "converter_precision": 1,
+                "table_text_size": "",
+                "text_alignment_first": "left",
+                "text_alignment": "left",
+                "table_even_columns": false,
+                "table_text_wrap": false
+              },
+              "blocks": {
+                "size_guide_table_row_xKrEdF": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": true,
+                    "title": "Underbust (cm)",
+                    "column_1": "EU Band",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_YAfcmL": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "63–67cm",
+                    "column_1": "65",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_8EgpRE": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "68–72cm",
+                    "column_1": "70",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_HgEbEz": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "73–77cm",
+                    "column_1": "75",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_QWWYDf": {
+                  "type": "size-guide-table-row",
+                  "name": "Table row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "78–82cm",
+                    "column_1": "80",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_JCTR6F": {
+                  "type": "size-guide-table-row",
+                  "name": "Table row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "83–87cm",
+                    "column_1": "85",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_Ftm6zD": {
+                  "type": "size-guide-table-row",
+                  "name": "Table row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "88–92cm",
+                    "column_1": "90",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "size_guide_table_row_xKrEdF",
+                "size_guide_table_row_YAfcmL",
+                "size_guide_table_row_8EgpRE",
+                "size_guide_table_row_HgEbEz",
+                "size_guide_table_row_QWWYDf",
+                "size_guide_table_row_JCTR6F",
+                "size_guide_table_row_Ftm6zD"
+              ]
+            },
+            "size_guide_content_P79UGc": {
+              "type": "size-guide-content",
+              "name": "Content",
+              "settings": {
+                "page": "",
+                "content": "<h6><strong>Quick Fit Tip</strong></h6><p>Your band should feel snug on the loosest hook, and your cups should fully contain your breasts without gaps or spillage.</p>",
+                "image_position": "left",
+                "image_size": 50
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "size_guide_table_hy94eN",
+            "size_guide_content_P79UGc"
+          ]
+        },
+        "size_guide_tab_7KVAKe": {
+          "type": "size-guide-tab",
+          "settings": {
+            "show_tab": true,
+            "title": "Cup Size"
+          },
+          "blocks": {
+            "size_guide_table_8hkCwG": {
+              "type": "size-guide-table",
+              "name": "Table",
+              "settings": {
+                "title": "Bust Difference",
+                "sticky_row_name": true,
+                "show_unit_converter": true,
+                "default_unit": "metric",
+                "metric_label": "Metric",
+                "imperial_label": "Imperial",
+                "converter_precision": 1,
+                "table_text_size": "",
+                "text_alignment_first": "left",
+                "text_alignment": "left",
+                "table_even_columns": false,
+                "table_text_wrap": false
+              },
+              "blocks": {
+                "size_guide_table_row_Vm9MPh": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": true,
+                    "title": "Difference (cm)",
+                    "column_1": "Cup Size",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_CwXniz": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "12cm",
+                    "column_1": "A",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_LDCEne": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "14cm",
+                    "column_1": "B",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_ARCtKc": {
+                  "type": "size-guide-table-row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "16cm",
+                    "column_1": "C",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_Ecgcaf": {
+                  "type": "size-guide-table-row",
+                  "name": "Table row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "18cm",
+                    "column_1": "D",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                },
+                "size_guide_table_row_KEL4cd": {
+                  "type": "size-guide-table-row",
+                  "name": "Table row",
+                  "settings": {
+                    "is_table_header": false,
+                    "title": "20cm",
+                    "column_1": "E",
+                    "column_2": "",
+                    "column_3": "",
+                    "column_4": "",
+                    "column_5": "",
+                    "column_6": "",
+                    "column_7": "",
+                    "column_8": "",
+                    "column_9": "",
+                    "column_10": "",
+                    "column_11": "",
+                    "column_12": "",
+                    "column_13": "",
+                    "column_14": "",
+                    "column_15": "",
+                    "column_16": "",
+                    "column_17": "",
+                    "column_18": "",
+                    "column_19": "",
+                    "column_20": ""
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "size_guide_table_row_Vm9MPh",
+                "size_guide_table_row_CwXniz",
+                "size_guide_table_row_LDCEne",
+                "size_guide_table_row_ARCtKc",
+                "size_guide_table_row_Ecgcaf",
+                "size_guide_table_row_KEL4cd"
+              ]
+            },
+            "size_guide_content_MzpjDr": {
+              "type": "size-guide-content",
+              "name": "Content",
+              "settings": {
+                "page": "",
+                "content": "<h6><strong>Quick Fit Tip</strong></h6><p>A perfect cup fit looks smooth, supportive, and fully contained.</p>",
+                "image": "",
+                "image_position": "right",
+                "image_size": 35
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "size_guide_table_8hkCwG",
+            "size_guide_content_MzpjDr"
+          ]
+        }
+      },
+      "block_order": [
+        "size_guide_tab_JqLehW",
+        "size_guide_tab_DVrrfc",
+        "size_guide_tab_7KVAKe"
+      ],
+      "name": "Size guide",
+      "settings": {
+        "associate_with_product": true,
+        "product": "",
+        "visibility": "popup",
+        "heading": "Size Chart",
+        "under_heading": "",
+        "enable_row_highlight": true,
+        "enable_rounded_images": false,
+        "show_footer": true,
+        "footer_text": "Not sure? Feel free to <a href=\"#\">contact</a> our friendly team for help.",
+        "footer_bg_color": "#f9f4ea",
+        "footer_text_color": "#333333",
+        "full_width": false,
+        "color_scheme": "scheme-1",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#cccccc",
+        "background_gradient_stop_2": "#ffffff",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+      }
+    },
+    "image_banner_cA3M7r": {
+      "type": "image-banner",
+      "blocks": {
+        "subheading_XWe8zE": {
+          "type": "subheading",
+          "settings": {
+            "text": "For a limited time only"
+          }
+        },
+        "heading_FGcVWf": {
+          "type": "heading",
+          "settings": {
+            "heading": "Cherish Flash Sale",
+            "heading_size_desktop": "h2",
+            "heading_size_mobile": "h2",
+            "heading_h1": false
+          }
+        },
+        "countdown_RekqmV": {
+          "type": "countdown",
+          "settings": {
+            "end_date": "",
+            "end_time": "",
+            "end_text": "",
+            "hide_on_end": false,
+            "number_size": 28,
+            "number_font": "base",
+            "show_timer_labels": true
+          }
+        },
+        "button_TAzzPn": {
+          "type": "button",
+          "settings": {
+            "button_1_label": "Shop The Sale",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary"
+          }
+        }
+      },
+      "block_order": [
+        "subheading_XWe8zE",
+        "heading_FGcVWf",
+        "countdown_RekqmV",
+        "button_TAzzPn"
+      ],
+      "name": "Image banner & countdown",
+      "settings": {
+        "image_desktop": "",
+        "image_mobile": "",
+        "url": "",
+        "height_mode": "fixed",
+        "fixed_height_desktop": 640,
+        "fixed_height_mobile": 440,
+        "mobile_stacked": false,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "overlay_position": "justify-start items-end",
+        "overlay_text_align": "text-start",
+        "overlay_width_override": true,
+        "overlay_max_width": 640,
+        "mob_center_text": true,
+        "color_scheme": "scheme-3",
+        "full_width": false,
+        "enable_top_fade": false,
+        "top_fade_depth": 100,
+        "top_fade_color": "#ffffff",
+        "enable_bottom_fade": false,
+        "bottom_fade_depth": 100,
+        "bottom_fade_color": "#ffffff",
+        "background_mode": "simple-gradient",
+        "background_color": "#f9f4ea",
+        "background_gradient_stop_1": "#f9f4ea",
+        "background_gradient_stop_2": "#fbfaf2",
+        "background_gradient_curve": "ease-up",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "section_join_mode": "tight",
+        "scrollanim_image": "",
+        "scrollanim_text": ""
+      }
+    },
+    "parallax_image_with_text_hKMqg3": {
+      "type": "parallax-image-with-text",
+      "blocks": {
+        "roundel_ULGqY6": {
+          "type": "roundel",
+          "settings": {
+            "color": "#9e4b2d",
+            "outer_text": "ORGANIC - COMFORT GUARANTEED - ",
+            "outer_text_line_offset": 2.5,
+            "outer_text_letter_spacing": 2.8,
+            "inner_type": "icon_cosmetic",
+            "inner_text_1": "Inner",
+            "inner_text_1_size": 20,
+            "inner_text_2": "Text",
+            "inner_text_2_size": 26,
+            "inner_text_font": "body",
+            "icon": "box",
+            "usp_icon": "self-love",
+            "roundel_position": "right",
+            "roundel_size": 160,
+            "spin": "scroll",
+            "enable_inner_frame": false,
+            "enable_outer_frame": false
+          }
+        },
+        "pattern_my6eJh": {
+          "type": "pattern",
+          "settings": {
+            "style": "1",
+            "color": "#8b8a5a",
+            "opacity": 5
+          }
+        }
+      },
+      "block_order": [
+        "roundel_ULGqY6",
+        "pattern_my6eJh"
+      ],
+      "name": "Parallax image with text",
+      "settings": {
+        "heading_line_1": "A good day starts",
+        "heading_line_2": "with good underwear",
+        "heading_size_desktop": "h1",
+        "heading_size_mobile": "h1",
+        "heading_h1": false,
+        "image": "",
+        "image_width_desktop": 480,
+        "image_overlap_desktop": 50,
+        "image_width_mobile": 240,
+        "image_overlap_mobile": 0,
+        "image_link": "",
+        "enable_image_shadow": false,
+        "enable_rounded_corners": true,
+        "image_overlap_mode": "behind",
+        "text": "<h4>Purposefully designed with the <em><strong>perfect</strong></em> fit in mind</h4>",
+        "enlarge_text": false,
+        "text_width_override": false,
+        "text_max_width": 640,
+        "button_1_label": "Shop Bras",
+        "button_1_link": "",
+        "button_1_style": "btn btn--primary",
+        "button_2_label": "Shop Briefs",
+        "button_2_link": "",
+        "button_2_style": "btn btn--primary",
+        "color_scheme": "scheme-2",
+        "background_mode": "simple-gradient",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#fbfaf2",
+        "background_gradient_stop_2": "#f9f4ea",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(180deg, rgba(248, 241, 244, 1), rgba(248, 241, 244, 1) 12%, rgba(200, 189, 193, 1) 52%, rgba(232, 220, 204, 1) 92%)"
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "disabled": true,
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h4",
+        "heading_align": "text-center",
+        "mob_center_text": true,
+        "color_scheme": "",
+        "background_mode": "default",
+        "background_color": "#ffffff",
+        "background_gradient_stop_1": "#cccccc",
+        "background_gradient_stop_2": "#ffffff",
+        "background_gradient_curve": "linear",
+        "background_gradient": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)",
+        "products_to_show": 4,
+        "products_per_row": "2",
+        "products_per_row_desktop": "4",
+        "layout": "carousel"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "size_guide_8fqcNw",
+    "image_banner_cA3M7r",
+    "parallax_image_with_text_hKMqg3",
+    "recommendations"
+  ]
+}

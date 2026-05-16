@@ -1,0 +1,629 @@
+<link rel="stylesheet" href="{{ 'collections-grid.css' | asset_url }}">
+
+{%- if settings.pagination_style == 'modern' or settings.pagination_infinite -%}
+  {%- if section.settings.display_type == 'all' -%}
+    <script src="{{ 'custom-pagination.js' | asset_url }}" defer></script>
+  {%- endif -%}
+{%- endif -%}
+
+{%- liquid
+  if section.settings.display_type == 'selected'
+    assign collections = section.settings.selected_collections
+  endif
+
+  if section.settings.display_type == 'all'
+    case section.settings.sort_order
+      when 'date_new' or 'date_old'
+        assign collections = collections | sort: 'published_at'
+      when 'products_high' or 'products_low'
+        assign collections = collections | sort: 'all_products_count'
+    endcase
+
+    if section.settings.sort_order == 'date_new' or section.settings.sort_order == 'products_high' or section.settings.sort_order == 'alphabetical_reversed'
+      assign collections = collections | reverse
+    endif
+  endif
+
+  if settings.coll_card_image_ratio == 'shortest'
+    assign image_ratio = 0
+    for collection in collections
+      if collection.featured_image.aspect_ratio > image_ratio and collection != blank
+        assign image_ratio = collection.featured_image.aspect_ratio
+      endif
+    endfor
+  elsif settings.coll_card_image_ratio == 'tallest'
+    assign image_ratio = 99
+    for collection in collections
+      if collection.featured_image.aspect_ratio < image_ratio and collection != blank
+        assign image_ratio = collection.featured_image.aspect_ratio
+      endif
+    endfor
+  else
+    assign image_ratio = settings.coll_card_image_ratio
+  endif
+
+  capture grid_column_classes
+    if section.settings.card_size == 'small'
+      echo 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+    elsif section.settings.card_size == 'medium'
+      echo 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+    elsif section.settings.card_size == 'large'
+      echo 'grid-cols-1 sm:grid-cols-2'
+    endif
+  endcapture
+
+  assign delays = '0.0,0.09,0.15,0.2,0.22,0.24,0.25,0.26' | split: ','
+  assign max_delay = 0.26
+-%}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+  assign replacement_bg = nil
+  if section.settings.replace_color_scheme_bg
+    assign replacement_bg = section.settings.bg_gradient | default: section.settings.bg_color
+  endif
+-%}
+
+{%- capture heading_markup -%}
+  <{% if section.settings.heading_h1 %}h1{% else %}h2{% endif %} class="mb-12 {{ section.settings.heading_size }} leading-[1.2] font-normal {{ section.settings.heading_align }}" {%- render 'animation-attrs', attrs: 'data-cc-animate="fade-in-up"' -%}>
+    {{ section.settings.title | escape }}
+  </{% if section.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+{%- endcapture -%}
+
+{%- style -%}
+  #{{ section.id }} {
+    {% if replacement_bg != blank %}
+      background: {{ replacement_bg }};
+    {% endif %}
+  }
+{%- endstyle -%}
+
+<div id="{{ section.id }}">
+  <div class="section {% if section.settings.remove_top_padding %}pt-0{% else %}pt-10{% endif %} color-scheme color-scheme--{{ color_scheme }}{% if replacement_bg != blank %} color-scheme--no-bg{% endif %}">
+    <div class="container">
+      {%- if section.settings.heading_after_blocks == false and section.settings.title != blank -%}
+        {{- heading_markup -}}
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <ul class="grid grid-cols-12 gap-y-8 md:gap-12 xl:gap-16 2xl:gap-26 mb-12 md:mb-16 xl:mb-20 2xl:mb-32" role="list">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign block_position = forloop.index0 | modulo: 4 | plus: 1
+              case block_position
+                when 1
+                  assign block_item_class = 'col-span-full lg:col-span-8 lg:col-start-3'
+                when 2
+                  assign block_item_class = 'col-span-7 -me-4 md:me-0 md:mt-12 xl:mt-16 2xl:mt-20 col-start-2 md:col-span-5 md:col-start-1'
+                when 3
+                  assign block_item_class = 'col-span-full md:col-span-7'
+                when 4
+                  assign block_item_class = 'col-span-8 col-start-3 -mx-4 md:col-span-6 md:col-start-4 lg:col-span-4 lg:col-start-5'
+              endcase
+              assign block_title = block.settings.title | default: block.settings.collection.title
+              assign block_image = block.settings.card_image | default: block.settings.collection.featured_image
+
+              assign card_color_scheme = nil
+              if block.settings.card_inherit_color_scheme == false
+                assign card_color_scheme = block.settings.card_color_scheme
+              endif
+            -%}
+            <li class="{{ block_item_class }}" {{ block.shopify_attributes }}>
+              {%- render 'collection-card',
+                  collection: block.settings.collection,
+                  image: block_image,
+                  image_ratio: block.settings.card_image_ratio,
+                  image_fit: block.settings.card_image_fit,
+                  image_align: block.settings.card_image_align,
+                  disable_focal_point: block.settings.card_image_disable_focal_point,
+                  custom_title: block_title,
+                  style: block.settings.card_style,
+                  show_count: block.settings.card_show_count,
+                  compact: block.settings.card_compact,
+                  highlighted: true,
+                  color_scheme: card_color_scheme
+              -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if section.settings.heading_after_blocks and section.settings.title != blank -%}
+        {{- heading_markup -}}
+      {%- endif -%}
+
+      {%- if section.settings.display_type == 'all' and section.settings.sort_order == 'alphabetical' -%}
+        {%- paginate collections by section.settings.collections_per_page -%}
+          <custom-pagination class="mb-6 lg:mb-8" data-infinite-scroll="{{ settings.pagination_infinite }}" data-pause-infinite-scroll="false">
+            <ul class="main-collections-grid grid{% if section.settings.grid_offset %} grid-offset grid-offset--{{ section.settings.card_size }}{% endif %} {{ grid_column_classes }} gap-6 lg:gap-8 mb-10 md:mb-12 lg:mb-14" role="list">
+              {%- for collection in collections -%}
+                {%- liquid
+                  assign card_color_scheme = nil
+                  if section.settings.card_inherit_color_scheme == false
+                    assign card_color_scheme = section.settings.card_color_scheme
+                  endif
+
+                  if forloop.index0 < delays.size
+                    assign animate_delay = delays[forloop.index0]
+                  else
+                    assign animate_delay = max_delay
+                  endif
+                -%}
+                <li class="js-pagination-result">
+                  {%- render 'collection-card',
+                      collection: collection,
+                      image_ratio: image_ratio,
+                      style: section.settings.card_style,
+                      show_count: section.settings.card_show_count,
+                      compact: section.settings.card_compact,
+                      color_scheme: card_color_scheme,
+                      animate_delay: animate_delay
+                  -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+            {%- if paginate.pages > 1 -%}
+              {%- render 'pagination', paginate: paginate, class: 'mb-10 md:mb-12 lg:mb-14 max-md:text-sm', style: settings.pagination_style -%}
+            {%- endif -%}
+          </custom-pagination>
+        {%- endpaginate -%}
+      {%- else -%}
+        <ul class="main-collections-grid grid{% if section.settings.grid_offset %} grid-offset grid-offset--{{ section.settings.card_size }}{% endif %} {{ grid_column_classes }} gap-6 lg:gap-8 mb-10 md:mb-12 lg:mb-14" role="list">
+          {%- for collection in collections -%}
+            <li>
+              {%- liquid
+                assign card_color_scheme = nil
+                if section.settings.card_inherit_color_scheme == false
+                  assign card_color_scheme = section.settings.card_color_scheme
+                endif
+
+                if forloop.index0 < delays.size
+                  assign animate_delay = delays[forloop.index0]
+                else
+                  assign animate_delay = max_delay
+                endif
+              -%}
+              {%- render 'collection-card',
+                  collection: collection,
+                  image_ratio: image_ratio,
+                  style: section.settings.card_style,
+                  show_count: section.settings.card_show_count,
+                  compact: section.settings.card_compact,
+                  color_scheme: card_color_scheme,
+                  animate_delay: animate_delay
+              -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Collection list",
+  "class": "cc-list-collections section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Show highlighted collections by adding some blocks."
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_h1",
+      "label": "Set as page heading (uses h1 tag)",
+      "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        },
+        {
+          "value": "xxx-large-heading",
+          "label": "Super large"
+        }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_after_blocks",
+      "label": "Display after Highlight Collection blocks",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "type": "paragraph",
+      "content": "All of your collections are listed by default. To show a custom list, choose \"Selected\" and add collections."
+    },
+    {
+      "type": "radio",
+      "id": "display_type",
+      "label": "Collections to show",
+      "info": "Choosing \"Selected\" will disable pagination.",
+      "options": [
+        {
+          "value": "all",
+          "label": "All"
+        },
+        {
+          "value": "selected",
+          "label": "Selected"
+        }
+      ],
+      "default": "all"
+    },
+    {
+      "type": "collection_list",
+      "id": "selected_collections",
+      "label": "Custom collection list"
+    },
+    {
+      "type": "range",
+      "id": "collections_per_page",
+      "min": 6,
+      "max": 50,
+      "step": 1,
+      "label": "Collections per page",
+      "info": "Only applies when \"Collections to show\" is \"All\" and \"Sort order\" is \"Alphabetical\".",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "sort_order",
+      "label": "Sort order",
+      "info": "Only applies when \"Collections to show\" is \"All\". Anything other than \"Alphabetical\" will disable pagination.",
+      "options": [
+        {
+          "value": "alphabetical",
+          "label": "Alphabetical"
+        },
+        {
+          "value": "alphabetical_reversed",
+          "label": "Alphabetical, reversed"
+        },
+        {
+          "value": "date_new",
+          "label": "Date, new to old"
+        },
+        {
+          "value": "date_old",
+          "label": "Date, old to new"
+        },
+        {
+          "value": "products_high",
+          "label": "Product count, high to low"
+        },
+        {
+          "value": "products_low",
+          "label": "Product count, low to high"
+        }
+      ],
+      "default": "alphabetical"
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "select",
+      "id": "card_size",
+      "label": "Size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "Style",
+      "options": [
+        {
+          "value": "text-below",
+          "label": "Text below"
+        },
+        {
+          "value": "text-over",
+          "label": "Text over"
+        }
+      ],
+      "default": "text-over"
+    },
+    {
+      "type": "checkbox",
+      "id": "card_show_count",
+      "label": "Show product count",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "card_compact",
+      "label": "Compact",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "grid_offset",
+      "label": "Grid offset",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "remove_top_padding",
+      "label": "Remove top padding",
+      "info": "Use to tidy layout when color schemes match",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "replace_color_scheme_bg",
+      "label": "Replace color scheme background",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.replace_color_scheme_bg }}",
+      "type": "color",
+      "id": "bg_color",
+      "label": "Color background"
+    },
+    {
+      "visible_if": "{{ section.settings.replace_color_scheme_bg }}",
+      "type": "color_background",
+      "id": "bg_gradient",
+      "label": "Gradient background"
+    },
+    {
+      "type": "checkbox",
+      "id": "card_inherit_color_scheme",
+      "label": "Cards inherit color scheme",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "card_color_scheme",
+      "label": "Card color scheme",
+      "default": "scheme-1",
+      "visible_if": "{{ section.settings.card_inherit_color_scheme == false }}"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "highlight_collection",
+      "name": "Highlight collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "info": "Defaults to the collection title, if a collection is set."
+        },
+        {
+          "type": "header",
+          "content": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "card_image",
+          "label": "Image",
+          "info": "Defaults to the collections featured image, if a collection is set."
+        },
+        {
+          "type": "select",
+          "id": "card_image_ratio",
+          "label": "Image shape (aspect ratio)",
+          "options": [
+            {
+              "value": "1.5",
+              "label": "Landscape (3:2)"
+            },
+            {
+              "value": "1.333",
+              "label": "Landscape (4:3)"
+            },
+            {
+              "value": "1.2",
+              "label": "Landscape (6:5)"
+            },
+            {
+              "value": "1.4",
+              "label": "Landscape (7:5)"
+            },
+            {
+              "value": "1",
+              "label": "Square"
+            },
+            {
+              "value": "0.8",
+              "label": "Portrait (4:5)"
+            },
+            {
+              "value": "0.67",
+              "label": "Portrait (2:3)"
+            }
+          ],
+          "default": "1.4"
+        },
+        {
+          "type": "select",
+          "id": "card_image_fit",
+          "label": "Image fit",
+          "info": "Choose \"Natural\" to avoid cropping the image or \"Cover\" to fill available space (image may be cropped).",
+          "options": [
+            {
+              "value": "contain",
+              "label": "Natural"
+            },
+            {
+              "value": "cover",
+              "label": "Cover"
+            }
+          ],
+          "default": "cover"
+        },
+        {
+          "type": "select",
+          "id": "card_image_align",
+          "label": "Image alignment",
+          "info": "This only applies if the \"Image fit\" is set to \"Cover\"",
+          "options": [
+            {
+              "value": "object-top",
+              "label": "Top"
+            },
+            {
+              "value": "",
+              "label": "Center"
+            },
+            {
+              "value": "object-bottom",
+              "label": "Bottom"
+            }
+          ],
+          "default": ""
+        },
+        {
+          "type": "checkbox",
+          "id": "card_image_disable_focal_point",
+          "label": "Disable focal point",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "card_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "text-below",
+              "label": "Text below"
+            },
+            {
+              "value": "text-over",
+              "label": "Text over"
+            }
+          ],
+          "default": "text-over"
+        },
+        {
+          "type": "checkbox",
+          "id": "card_show_count",
+          "label": "Show product count",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "card_compact",
+          "label": "Compact",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Style"
+        },
+        {
+          "type": "checkbox",
+          "id": "card_inherit_color_scheme",
+          "label": "Card inherits color scheme",
+          "default": true
+        },
+        {
+          "type": "color_scheme",
+          "id": "card_color_scheme",
+          "label": "Card color scheme",
+          "default": "scheme-1",
+          "visible_if": "{{ block.settings.card_inherit_color_scheme == false }}"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

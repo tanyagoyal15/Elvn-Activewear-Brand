@@ -1,0 +1,201 @@
+{% if section.settings.theme_styles %}
+  {%- assign color_scheme = section.settings.color_scheme -%}
+
+  {%- style -%}
+    {%- if section.settings.background_mode == 'color' -%}
+      #{{ section.id }} { background: {{ section.settings.background_color }}; }
+    {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+      #{{ section.id }} {
+        background: {% render 'custom-gradient',
+                        type: section.settings.background_gradient_curve,
+                        start_color: section.settings.background_gradient_stop_1,
+                        end_color: section.settings.background_gradient_stop_2
+                    %};
+      }
+    {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+      #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+    {%- endif -%}
+  {%- endstyle -%}
+
+  <div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+    {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+      <div class="absolute inset-0">
+        {%- render 'image',
+          image: section.settings.background_image,
+          src_width: 1400,
+          widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+          class: 'img-fit cover',
+          sizes: '100vw'
+        -%}
+      </div>
+    {%- endif -%}
+
+    <div class="flex {% if section.settings.full_width == false %} container{% endif %}">
+      <div class="section
+                  {%- if section.settings.full_width %} section--padded{% else %} section--standard{% endif %}
+                  {%- if section.settings.full_width == false %} section--boundary-{{ section.settings.section_join_mode }}{% endif %}
+                  z-3
+                  {%- if section.settings.full_width == false %} section--border-radius{% endif %}
+                  color-scheme
+                  {%- if section.settings.full_width and section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}
+                  color-scheme--{{ color_scheme }}">
+        <div class="container" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+{% endif %}
+
+      {{- section.settings.custom_liquid -}}
+
+{% if section.settings.theme_styles %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Custom HTML/Liquid",
+  "tag": "section",
+  "class": "cc-custom-liquid",
+  "settings": [
+    {
+      "type": "liquid",
+      "id": "custom_liquid",
+      "label": "Custom code",
+      "default": "Add HTML or Liquid code to create advanced customizations."
+    },
+    {
+      "type": "checkbox",
+      "id": "theme_styles",
+      "label": "Enable theme styling",
+      "default": true,
+      "info": "Enable this to wrap your HTML / liquid code within a styled theme container"
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles }}",
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles }}",
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles }}",
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles and section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles and section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles and section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles and section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles and section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.theme_styles and section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "visible_if": "{{ section.settings.full_width == false and section.settings.theme_styles }}",
+      "type": "select",
+      "id": "section_join_mode",
+      "label": "Boundary above section",
+      "info": "Some sections support seamless joining",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "tight",
+          "label": "Tight"
+        },
+        {
+          "value": "join",
+          "label": "Join"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom HTML/Liquid",
+      "category": "Advanced"
+    }
+  ]
+}
+{% endschema %}

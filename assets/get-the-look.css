@@ -1,0 +1,178 @@
+:root {
+  --roundel-size: 200px;
+}
+
+.roundel {
+  width: var(--roundel-size);
+  height: var(--roundel-size);
+}
+
+.roundel--spin-slow .roundel__outer {
+  animation: roundel_spin 48s linear infinite;
+}
+
+.roundel--spin-medium .roundel__outer {
+  animation: roundel_spin 24s linear infinite;
+}
+
+.roundel--spin-fast .roundel__outer {
+  animation: roundel_spin 12s linear infinite;
+}
+
+.roundel__outer-text {
+  font-size: 8px;
+}
+
+.roundel__inner {
+  padding: 55px;
+  color: currentColor;
+}
+
+.roundel__icon svg {
+  stroke-width: 0.5px;
+}
+
+@keyframes roundel_spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 1023.98px) {
+  .roundel {
+    transform: scale(0.9);
+  }
+}
+@media (max-width: 767.98px) {
+  .roundel {
+    transform: scale(0.75);
+  }
+}
+.get-the-look__media-container {
+  container-type: inline-size;
+  container-name: get-the-look-media;
+}
+.get-the-look__media-container .media__placeholder {
+  border-radius: var(--fluid-image-border-radius);
+}
+
+.get-the-look__media-primary img {
+  border-radius: var(--fluid-image-border-radius);
+}
+
+.get-the-look__media-secondary {
+  right: 25px;
+  bottom: -40px;
+  width: 150px;
+  border-radius: var(--secondary-image-border-radius, 100px);
+}
+.get-the-look__media-secondary img,
+.get-the-look__media-secondary .media__placeholder {
+  max-height: 200px;
+  object-fit: cover;
+}
+.get-the-look__media-secondary .media__placeholder {
+  --image-border-radius: var(--secondary-image-border-radius);
+  width: 100%;
+  background-color: #efefef;
+}
+
+.get-the-look__content .disclosure__title {
+  transition: color 0.6s;
+  line-height: 125%;
+}
+.get-the-look__content .disclosure__content {
+  padding-bottom: calc(10 * var(--space-unit));
+}
+.get-the-look__content .disclosure:not([open]) .disclosure__title,
+.get-the-look__content .disclosure.is-closing .disclosure__title {
+  color: rgba(var(--text-color)/0.4);
+}
+.get-the-look__content .disclosure__panel {
+  transition-duration: 0.6s;
+}
+.get-the-look__content .disclosure[open]:not(.is-closing) .disclosure__panel {
+  overflow: visible;
+}
+.get-the-look__content .disclosure[open]:not(.is-closing) .v-line {
+  display: block;
+}
+.get-the-look__content .product-card {
+  max-width: 280px;
+  height: 100%;
+  margin-left: 0;
+}
+.get-the-look__content .has-cutout-cards .product-card::before {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 16px 32px -4px rgba(0, 0, 0, 0.08);
+}
+.get-the-look__content .get-the-look__cards:not(.has-cutout-cards) .product-card {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 16px 32px -4px rgba(0, 0, 0, 0.08);
+}
+
+.get-the-look__roundel {
+  transform: translate(-25%, -50%);
+}
+
+@container get-the-look-media (min-width: 400px) {
+  .get-the-look__media-primary {
+    margin-right: calc(20 * var(--space-unit));
+  }
+  .get-the-look__media-secondary {
+    right: 0;
+    bottom: 10%;
+    width: min(45%, 240px);
+  }
+  .get-the-look__media-secondary img {
+    max-height: 300px;
+  }
+}
+@media (max-width: 767.98px) {
+  .get-the-look__roundel {
+    right: 0;
+    transform: translate(5%, -45%);
+  }
+}
+@media (max-width: 479.98px) {
+  .get-the-look {
+    overflow-x: hidden;
+  }
+  .mobile-scroller {
+    width: calc(100% + var(--gutter) * 2);
+    overflow: auto;
+    scrollbar-width: none;
+  }
+  .mobile-scroller::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-scroller > div {
+    width: 150vw;
+    margin-inline-end: calc(var(--gutter) * 2);
+    padding-bottom: calc(12 * var(--space-unit));
+  }
+  .mobile-scroller product-card {
+    box-shadow: none;
+  }
+  .get-the-look__content .disclosure__content {
+    padding-bottom: calc(2 * var(--space-unit));
+  }
+  .get-the-look__roundel {
+    right: auto;
+    left: 0;
+    transform: translate(0, -32%);
+  }
+}
+@media (min-width: 1024px) {
+  .get-the-look__media-container {
+    position: sticky;
+    top: var(--header-height);
+    padding-inline-start: calc(20 * var(--space-unit));
+  }
+  .get-the-look__content-container {
+    padding: calc(20 * var(--space-unit));
+  }
+  .get-the-look__roundel {
+    transform: translate(-52%, -19%);
+  }
+}

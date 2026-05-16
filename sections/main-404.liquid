@@ -1,0 +1,31 @@
+<style>
+  .error-code__code {
+    color: rgba(var(--text-color) / 0.4);
+  }
+</style>
+
+<div class="error-code flow-root color-scheme color-scheme--{{ section.settings.color_scheme }}" id="{{ section.id }}">
+  <div class="container">
+    <div class="section section--standard flex flex-col items-center text-center">
+      <p class="error-code__code xx-large-heading mb-0 font-bold">404</p>
+      <h1 class="error-code__heading h1">{{ 'templates.404.title' | t }}</h1>
+      <p class="error-code__text mb-12">{{ 'templates.404.subtext' | t }}</p>
+      <a class="error-code__btn btn btn--primary" href="{{ routes.root_url }}">{{ 'templates.404.link' | t }}</a>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "404",
+  "class": "cc-main-404",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    }
+  ]
+}
+{% endschema %}

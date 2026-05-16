@@ -1,0 +1,514 @@
+{%- if section.blocks.size > 0 -%}
+  <link rel="stylesheet" href="{{ 'shoppable-image.css' | asset_url }}">
+  <script src="{{ 'shoppable-image.js' | asset_url }}" defer></script>
+
+  {%- assign enable_quick_add = true -%}
+  {%- if enable_quick_add -%}
+    <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+    <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
+    <script src="{{ 'product-form.js' | asset_url }}" defer></script>
+  {%- endif -%}
+
+  {%- liquid
+    assign color_scheme = section.settings.color_scheme
+    assign hotspot_color_brightness = section.settings.hotspot_color | color_brightness
+
+    assign img_class = 'img--border-radius'
+    if section.settings.image_ratio != 'natural'
+      assign img_class = img_class | append: ' h-full object-cover'
+    endif
+  -%}
+
+  {%- style -%}
+    {%- if section.settings.background_mode == 'color' -%}
+      #{{ section.id }} { background: {{ section.settings.background_color }}; }
+    {%- elsif section.settings.background_mode == 'simple-gradient' -%}
+      #{{ section.id }} {
+        background: {% render 'custom-gradient',
+                        type: section.settings.background_gradient_curve,
+                        start_color: section.settings.background_gradient_stop_1,
+                        end_color: section.settings.background_gradient_stop_2
+                    %};
+      }
+    {%- elsif section.settings.background_mode == 'advanced-gradient' -%}
+      #{{ section.id }} { background: {{ section.settings.background_gradient }}; }
+    {%- endif -%}
+    #{{ section.id }} {
+      --hotspot-color: {{ section.settings.hotspot_color.rgb }};
+      {%- if hotspot_color_brightness > 128 %}
+        --hotspot-cross-color: #000;
+      {%- else -%}
+        --hotspot-cross-color: #fff;
+      {%- endif %}
+    }
+  {%- endstyle -%}
+
+  <div id="{{ section.id }}" class="section-background{% if section.settings.background_mode == 'image' %} relative{% endif %}">
+    {%- if section.settings.background_mode == 'image' and section.settings.background_image != blank -%}
+      <div class="absolute inset-0">
+        {%- render 'image',
+          image: section.settings.background_image,
+          src_width: 1400,
+          widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+          class: 'img-fit cover',
+          sizes: '100vw'
+        -%}
+      </div>
+    {%- endif -%}
+
+    <div class="section md:py-20 pt-16 pb-10 z-3 color-scheme color-scheme--{{ color_scheme }}{% if section.settings.background_mode != 'default' %} color-scheme--no-bg{% endif %}" {%- render 'animation-attrs', attrs: 'data-cc-animate' -%}>
+      <carousel-slider class="carousel carousel--shoppable block" inactive>
+        <div class="container">
+          {%- if section.settings.heading != blank -%}
+            <div class="carousel__header flex{% if section.settings.heading_align == 'text-end' %} flex-row-reverse{% endif %} items-center justify-between mb-8">
+              <h2 class="flex-auto mb-0 {{ section.settings.heading_size }} {{ section.settings.heading_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}">{{ section.settings.heading | escape }}</h2>
+
+              {%- if settings.slider_show_arrows != 'never' and section.settings.heading_align != 'text-center' -%}
+                <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:flex gap-x-2 items-center no-js-hidden">
+                  <button type="button" class="slider-nav__btn btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                    {% render 'icon-chevron-left' %}
+                  </button>
+                  <button type="button" class="slider-nav__btn btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                    {% render 'icon-chevron-right' %}
+                  </button>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+        <div class="slider slider--no-scrollbar" id="slider-{{ section.id }}">
+          <ul class="shoppable-carousel slider__grid grid" role="list" style="
+            --num-slides: {{ section.blocks.size }};
+            --slide-width: {{ section.settings.slide_width }}px;
+            {% if product == blank or section.settings.image_ratio != 'natural' %}
+             --ratio: {% if product == blank and section.settings.image_ratio == 'natural' %}1{% else %}{{ section.settings.image_ratio }}{% endif %};
+            {% endif %}">
+            {%- for block in section.blocks -%}
+              <li class="slider__item flex items-center justify-center{% if forloop.first %} slider__item-first{% endif %}{% if forloop.last %} slider__item-last{% endif %}" {{ block.shopify_attributes }}>
+                <div class="shoppable-carousel__image relative w-full text-center">
+                  {%- assign product = block.settings.product -%}
+                  <shoppable-image class="shoppable-image shoppable-image__image shoppable-image--carousel media--has-overlay w-full block relative img--border-radius overflow-hidden{% if product == blank or section.settings.image_ratio != 'natural' %} custom-aspect-ratio{% endif %}{% if block.settings.image == blank %}{% if settings.blend_product_images %} image-blend{% endif %}{% endif %}">
+                    {%- liquid
+                      if block.settings.image
+                        assign img = block.settings.image
+                      else
+                        assign img = product.featured_media.preview_image
+                      endif
+                    -%}
+                    {%- if img != blank -%}
+                      {%- if block.settings.show_hotspot == false and product != empty -%}<a href="{{ product.url }}" class="shoppable-carousel__image-link">{%- endif -%}
+                        {% render 'image',
+                          image: img,
+                          src_width: section.settings.slide_width,
+                          srcset_2x: true,
+                          class: img_class
+                        %}
+                      {%- if block.settings.show_hotspot == false -%}</a>{%- endif -%}
+                    {%- else -%}
+                      {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder img-fit dark w-auto img--border-radius' }}
+
+                    {%- endif -%}
+
+                    <div class="hotspot hotspot--active  text-left absolute" style="--hotspot-top: {{ block.settings.hotspot_y }}%; --hotspot-left: {{ block.settings.hotspot_x }}%; {% if block.settings.enable_mobile_position %}{% endif %}">
+                      {%- if block.settings.show_hotspot -%}
+                        <button type="button" class="hotspot__btn {% if section.settings.hotspot_animation %}hotspot__btn--pulse{% endif %} relative no-js-hidden" aria-expanded="false" data-hotspot-index="0">
+                          <span class="visually-hidden">
+                            {{- 'accessibility.view_details' | t }}{% if product != empty %} - {{ product.title }}{% endif -%}
+                          </span>
+                          {% render 'icon-plus' %}
+                        </button>
+                      {%- endif -%}
+                      <div class="hotspot__card absolute no-js-hidden" aria-hidden="true">
+                        {% if product != empty %}
+                          {% render 'product-card', product: product, card_type: 'related', show_image: section.settings.show_product_images, disable_labels: true %}
+                        {% else %}
+                          <product-card class="card product-card color-scheme color-scheme--{{ settings.product_card_color_scheme.id }} card--related card--row relative flex custom-case">
+                            <div class="card__media has-hover-image relative">
+                              <div class="media relative">
+                                {{ 'product-1' | placeholder_svg_tag: 'media__placeholder dark' }}
+                              </div>
+                            </div>
+
+                            <div class="card__info">
+                              <div class="card__content">
+                                <p class="card__title card__title--product">
+                                  <a href="#" class="card-link text-current text-sm">
+                                      {{ 'onboarding.product.title' | t }}
+                                  </a>
+                                </p>
+
+                                <div class="card__price text-sm">
+                                  <div class="price price--on-sale">
+                                    <div class="price__default">
+                                      {%- if settings.show_product_currency_code -%}
+                                        {{- 1234 | money_with_currency -}}
+                                      {%- else -%}
+                                        {{- 1234 | money -}}
+                                      {%- endif -%}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </product-card>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </shoppable-image>
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+
+        {%- liquid
+          assign slider_nav_footer = false
+          if section.settings.heading == blank or section.settings.heading_align == 'text-center'
+            assign slider_nav_footer = true
+          endif
+        -%}
+        {%- if settings.slider_show_arrows != 'never' and slider_nav_footer -%}
+          <div class="container">
+            <div class="slider-nav slider-nav--alt {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:flex mt-8 gap-x-2 items-center justify-center no-js-hidden">
+              <button type="button" class="slider-nav__btn btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.previous' | t }}">
+                {% render 'icon-chevron-left' %}
+              </button>
+              <button type="button" class="slider-nav__btn btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}" aria-label="{{ 'general.slider.next' | t }}">
+                {% render 'icon-chevron-right' %}
+              </button>
+            </div>
+          </div>
+        {%- endif -%}
+      </carousel-slider>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Shoppable carousel",
+  "tag": "section",
+  "class": "cc-shoppable-carousel cc-shoppable-image non-join",
+  "settings": [
+    {
+      "type": "range",
+      "id": "slide_width",
+      "min": 300,
+      "max": 600,
+      "step": 5,
+      "unit": "px",
+      "label": "Slide width on large screens",
+      "default": 400
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        {
+          "value": "natural",
+          "label": "Natural"
+        },
+        {
+          "value": "1.5",
+          "label": "Landscape (3:2)"
+        },
+        {
+          "value": "1.333",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "1",
+          "label": "Square"
+        },
+        {
+          "value": "0.8",
+          "label": "Portrait (4:5)"
+        },
+        {
+          "value": "0.67",
+          "label": "Portrait (2:3)"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_images",
+      "label": "Show product image in popups",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Size",
+      "options": [
+        {
+          "value": "h4",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "x-large-heading",
+          "label": "Large"
+        },
+        {
+          "value": "xx-large-heading",
+          "label": "Extra large"
+        }
+      ],
+      "default": "x-large-heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_mode",
+      "label": "Section background",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "simple-gradient",
+          "label": "Simple gradient"
+        },
+        {
+          "value": "advanced-gradient",
+          "label": "Advanced gradient"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'color' }}",
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'image' }}",
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_1",
+      "label": "Gradient start",
+      "default": "#cccccc"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "color",
+      "id": "background_gradient_stop_2",
+      "label": "Gradient end",
+      "default": "#ffffff"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'simple-gradient' }}",
+      "type": "select",
+      "id": "background_gradient_curve",
+      "label": "Gradient style",
+      "options": [
+        {
+          "value": "linear",
+          "label": "Linear"
+        },
+        {
+          "value": "ease-up",
+          "label": "Ease up"
+        },
+        {
+          "value": "ease-down",
+          "label": "Ease down"
+        }
+      ],
+      "default": "linear"
+    },
+    {
+      "visible_if": "{{ section.settings.background_mode == 'advanced-gradient' }}",
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Advanced gradient",
+      "default": "linear-gradient(#f8f1f4, #f8f1f4 12%, #c8bdc1, #e8dccc 92%)"
+    },
+    {
+      "type": "checkbox",
+      "id": "hotspot_animation",
+      "label": "Hotspot animation (pulse)",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "hotspot_color",
+      "label": "Hotspot color",
+      "default": "#FFFFFF"
+    }
+  ],
+  "max_blocks": 12,
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_hotspot",
+          "label": "Add hotspot to image",
+          "default": true
+        },
+        {
+          "visible_if": "{{ block.settings.show_hotspot }}",
+          "type": "range",
+          "id": "hotspot_x",
+          "label": "Horizontal position",
+          "min": 10,
+          "max": 90,
+          "unit": "%",
+          "step": 1,
+          "default": 50
+        },
+        {
+          "visible_if": "{{ block.settings.show_hotspot }}",
+          "type": "range",
+          "id": "hotspot_y",
+          "label": "Vertical position",
+          "min": 10,
+          "max": 90,
+          "unit": "%",
+          "step": 1,
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shoppable carousel",
+      "category": "Products",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "hotspot_x": 28,
+            "hotspot_y": 38
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "hotspot_x": 73,
+            "hotspot_y": 35
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "hotspot_x": 71,
+            "hotspot_y": 50
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "hotspot_x": 63,
+            "hotspot_y": 31
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "hotspot_x": 39,
+            "hotspot_y": 70
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "hotspot_x": 21,
+            "hotspot_y": 21
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
