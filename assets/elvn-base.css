@@ -249,21 +249,37 @@
 
 
 
-+/* card__swatches is position:absolute top:0 with solid bg at ALL times —
-+   its children are opacity:0 when not hovered but it still intercepts clicks */
-+.card--standard .card__swatches {
-+  pointer-events: none;
-+}
-+.card--standard .card__swatches :is(a, button, input, label) {
-+  pointer-events: auto;
-+}
-+
-+/* card__info becomes position:absolute bottom:0 during hover, overlaying the image */
-+.card--standard:is(.is-opening, .is-open, .is-closing) .card__info {
-+  pointer-events: none;
-+}
-+.card--standard:is(.is-opening, .is-open, .is-closing)
-+  .card__info
-+  :is(a, button, input, label) {
-+  pointer-events: auto;
-+}
+/* card__swatches is position:absolute top:0 with solid bg at ALL times —
+   its children are opacity:0 when not hovered but it still intercepts clicks */
+.card--standard .card__swatches {
+  pointer-events: none;
+}
+.card--standard .card__swatches :is(a, button, input, label) {
+  pointer-events: auto;
+}
+
+/* card__info becomes position:absolute bottom:0 during hover, overlaying the image */
+.card--standard:is(.is-opening, .is-open, .is-closing) .card__info {
+  pointer-events: none;
+}
+.card--standard:is(.is-opening, .is-open, .is-closing)
+  .card__info
+  :is(a, button, input, label) {
+  pointer-events: auto;
+}
+
+/* ── Parallax performance hints ─────────────────────────────────
+   Promote parallax elements to their own GPU layer on desktop.
+   Scoped to hover devices to avoid memory cost on mobile.        */
+@media (hover: hover) {
+  .parallax-hero,
+  .parallax {
+    will-change: transform;
+  }
+}
+
+/* ── Hero image containment ─────────────────────────────────────
+   Limits the layout scope of the large sticky hero wrapper.      */
+.image-banner__sticky-height-outer {
+  contain: layout;
+}
