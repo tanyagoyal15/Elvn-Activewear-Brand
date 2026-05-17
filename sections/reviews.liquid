@@ -183,60 +183,30 @@
           return;
         }
 
-        function starsHtml(rating) {
-          var html = '<div class="review-card__stars" aria-label="' + rating + ' out of 5 stars">';
-          for (var i = 1; i <= 5; i++) {
-            html += '<span class="review-card__star' + (i <= rating ? ' review-card__star--filled' : '') + '">★</span>';
-          }
-          return html + '</div>';
-        }
-
-        function buildCard(review) {
-          var rating = Math.round(review.rating) || 5;
-          var name = (review.reviewer && review.reviewer.name) ? review.reviewer.name : 'Customer';
-          var initial = name.charAt(0).toUpperCase();
-          var verified = review.verified_buyer
-            ? '<span class="review-card__verified" title="Verified Purchase">✓</span>'
-            : '';
-          var body = review.body || '';
-          if (body.length > 220) body = body.substring(0, 220) + '…';
-          var productTitle = review.product_title
-            ? '<p class="review-card__product text-xs opacity-60 mb-0">' + review.product_title.replace(/</g, '&lt;') + '</p>'
-            : '';
-
-          return '<li class="slider__item reviews__item">'
-            + '<div class="review-card h-full flex flex-col">'
-            + starsHtml(rating)
-            + (body ? '<p class="review-card__text flex-auto">“' + body.replace(/</g, '&lt;') + '”</p>' : '')
-            + '<div class="review-card__footer mt-auto">'
-            +   '<div class="review-card__author-row flex items-center gap-3">'
-            +     '<div class="review-card__avatar review-card__avatar--initials shrink-0" aria-hidden="true">' + initial + '</div>'
-            +     '<div>'
-            +       '<p class="review-card__name font-semibold mb-0 text-sm">' + name.replace(/</g, '&lt;') + verified + '</p>'
-            +       productTitle
-            +     '</div>'
-            +   '</div>'
-            + '</div>'
-            + '</div>'
-            + '</li>';
-        }
-
         var items = sectionEl.querySelectorAll('.reviews__item');
 
-        // Fetch from pre-generated static asset (avoids CORS + keeps private token off browser).
-        // Wrapped in IntersectionObserver so the request only fires when the section is
-        // near the viewport — not on initial page load.
-        var reviewsUrl = {{ 'reviews-data.json' | asset_url | json }};
+        // Build Judge.me public API URL — public token is safe to expose in browser JS.
+        var apiToken   = {{ api_token | json }};
+        var shopDomain = {{ shop.permanent_domain | json }};
+        var minRating  = {{ section.settings.min_rating | default: '3' | json }};
+        var count      = {{ api_count | json }};
+
+        var reviewsUrl = 'https://judge.me/api/v1/reviews'
+          + '?api_token='   + encodeURIComponent(apiToken)
+          + '&shop_domain=' + encodeURIComponent(shopDomain)
+          + '&per_page='    + encodeURIComponent(count)
+          + '&rating[gte]=' + encodeURIComponent(minRating);
 
         function doFetch() {
           fetch(reviewsUrl)
             .then(function (res) {
-              if (!res.ok) throw new Error('reviews-data.json not found: ' + res.status);
+              if (!res.ok) throw new Error('Judge.me API error: ' + res.status);
               return res.json();
             })
             .then(function (data) {
-            var reviews = (Array.isArray(data) ? data : []).slice(0, items.length);
-            console.log('[Elvn Reviews] Loaded', reviews.length, 'reviews');
+            // Judge.me wraps results in { reviews: [...] }
+            var reviews = (data && Array.isArray(data.reviews) ? data.reviews : []).slice(0, items.length);
+            console.log('[Elvn Reviews] Loaded', reviews.length, 'live reviews from Judge.me');
 
             if (reviews.length === 0) {
               sectionEl.style.display = 'none';
@@ -327,13 +297,14 @@
       "id": "use_judgeme_api",
       "label": "Auto-fetch from Judge.me",
       "info": "When ON, reviews are pulled live from Judge.me. Manual review blocks below are ignored.",
-      "default": false
+      "default": true
     },
     {
       "type": "text",
       "id": "judgeme_api_token",
       "label": "Judge.me Public API Token",
-      "info": "Find it in Judge.me → Settings → Integrations → Developers → Public API Token"
+      "default": "XgEPyOnP8cUWWuxY6IUroES8RYQ",
+      "info": "Public token only — safe to expose. Find it in Judge.me → Settings → API → Public Token."
     },
     {
       "type": "range",
@@ -354,7 +325,7 @@
         { "value": "4", "label": "4 stars and above" },
         { "value": "5", "label": "5 stars only" }
       ],
-      "default": "4"
+      "default": "3"
     },
     {
       "type": "header",
