@@ -189,28 +189,20 @@
 
         var items = sectionEl.querySelectorAll('.reviews__item');
 
-        // Fetch via Shopify App Proxy (/apps/judgeme/...) — same-origin, no CORS.
-        // Shopify proxies this to Judge.me's servers server-side.
-        var apiToken  = {{ api_token | json }};
-        var minRating = {{ section.settings.min_rating | default: '3' | json }};
-        var count     = {{ api_count | json }};
-
-        var reviewsUrl = '/apps/judgeme/judge-widget-api/reviews'
-          + '?api_token=' + apiToken
-          + '&per_page='  + count
-          + '&rating[gte]=' + minRating;
+        // Fetch from pre-generated static asset — avoids CORS entirely.
+        // This file is auto-refreshed via GitHub Actions whenever Judge.me publishes a review.
+        var reviewsUrl = {{ 'reviews-data.json' | asset_url | json }};
 
         function doFetch() {
           if (!_fetch) { fetchDone = true; tryReveal(); return; }
           _fetch(reviewsUrl)
             .then(function (res) {
-              if (!res.ok) throw new Error('Judge.me API error: ' + res.status);
+              if (!res.ok) throw new Error('reviews-data.json not found: ' + res.status);
               return res.json();
             })
             .then(function (data) {
-            // Judge.me wraps results in { reviews: [...] }
-            var reviews = (data && Array.isArray(data.reviews) ? data.reviews : []).slice(0, items.length);
-            console.log('[Elvn Reviews] Loaded', reviews.length, 'live reviews from Judge.me');
+            var reviews = (Array.isArray(data) ? data : []).slice(0, items.length);
+            console.log('[Elvn Reviews] Loaded', reviews.length, 'reviews');
 
             if (reviews.length === 0) {
               sectionEl.style.display = 'none';

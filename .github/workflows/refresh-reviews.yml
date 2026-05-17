@@ -1,0 +1,61 @@
+name: Refresh homepage reviews
+
+on:
+  # Triggered by Judge.me webhook (repository_dispatch event)
+  repository_dispatch:
+    types: [judgeme_review_published]
+
+  # Fallback: also run every 2 hours automatically
+  schedule:
+    - cron: '0 */2 * * *'
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch reviews from Judge.me and push to Shopify
+        env:
+          JUDGEME_TOKEN: ${{ secrets.JUDGEME_PRIVATE_TOKEN }}
+          SHOPIFY_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          SHOP_DOMAIN: ejjge0-zf.myshopify.com
+          THEME_ID: "162017706226"
+          MIN_RATING: "3"
+          COUNT: "8"
+        run: |
+          echo "Fetching reviews from Judge.me..."
+          REVIEWS=$(curl -sf \
+            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=${COUNT}&rating[gte]=${MIN_RATING}&sort_by=published_at&sort_dir=desc" \
+            | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          reviews = data.get('reviews', [])
+          output = []
+          for r in reviews:
+            output.append({
+              'rating': r.get('rating', 5),
+              'body': r.get('body', ''),
+              'reviewer': r.get('reviewer', {}),
+              'product_title': r.get('product_title', ''),
+              'verified_buyer': r.get('verified_buyer', False)
+            })
+          print(json.dumps(output))
+          ")
+
+          if [ -z "$REVIEWS" ] || [ "$REVIEWS" = "[]" ]; then
+            echo "No reviews returned, skipping upload."
+            exit 0
+          fi
+
+          echo "Uploading reviews-data.json to Shopify..."
+          ENCODED=$(python3 -c "import json, sys; print(json.dumps(sys.stdin.read()))" <<< "$REVIEWS")
+
+          curl -sf -X PUT \
+            "https://${SHOP_DOMAIN}/admin/api/2024-01/themes/${THEME_ID}/assets.json" \
+            -H "X-Shopify-Access-Token: ${SHOPIFY_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{\"asset\": {\"key\": \"assets/reviews-data.json\", \"value\": ${ENCODED}}}"
+
+          echo "Done! reviews-data.json updated."
