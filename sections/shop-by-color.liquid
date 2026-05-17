@@ -106,8 +106,9 @@
               {%- if _img != blank -%}
                 {%- render 'image',
                   image: _img,
-                  src_width: 480,
-                  srcset_2x: true,
+                  src_width: 400,
+                  widths: '200, 300, 400, 500, 600',
+                  sizes: '(min-width: 1200px) calc((100vw - 42px) / 4.2), (min-width: 990px) calc((100vw - 42px) / 3.5), (min-width: 640px) 34vw, 42vw',
                   class: 'sbc-card__img'
                 -%}
               {%- else -%}

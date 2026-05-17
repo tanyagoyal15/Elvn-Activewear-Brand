@@ -1,5 +1,6 @@
 {% comment %}Build: lg:mb-14{% endcomment %}
-<link rel="stylesheet" href="{{ 'media-gallery.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'media-gallery.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{{ 'media-gallery.css' | asset_url }}"></noscript>
 <script src="{{ 'media-gallery.js' | asset_url }}" defer></script>
 
 <quick-add-drawer class="drawer quick-add-drawer{% if settings.quick_add_sticky_buttons %} overflow-hidden{% else %} overflow-auto{% endif %} fixed top-0 right-0 flex flex-col w-full has-motion js-product js-quickbuy" data-name="quickbuy" role="dialog" tabindex="-1" aria-labelledby="quick-add-heading" aria-modal="true" aria-hidden="true">

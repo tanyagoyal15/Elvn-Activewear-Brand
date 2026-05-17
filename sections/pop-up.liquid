@@ -1,12 +1,12 @@
 {%- if section.blocks.size > 0 or section.settings.image != blank -%}
   {%- unless section.settings.show_to_guests_only and customer and request.design_mode == false -%}
-    {%- if section.settings.delay < 2 -%}
-      {{ 'popup.css' | asset_url | stylesheet_tag }}
-      {{ 'modal.css' | asset_url | stylesheet_tag }}
-    {%- else -%}
-      <link rel="stylesheet" href="{{ 'popup.css' | asset_url }}" media="print" onload="this.media='all'">
-      <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}" media="print" onload="this.media='all'">
-    {%- endif -%}
+    <!-- Popup CSS is always non-blocking: a popup is never visible during initial paint -->
+    <link rel="stylesheet" href="{{ 'popup.css' | asset_url }}" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}" media="print" onload="this.media='all'">
+    <noscript>
+      <link rel="stylesheet" href="{{ 'popup.css' | asset_url }}">
+      <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
+    </noscript>
     <script src="{{ 'pop-up.js' | asset_url }}" defer></script>
 
     {%- liquid

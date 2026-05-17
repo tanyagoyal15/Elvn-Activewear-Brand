@@ -31,12 +31,24 @@
 
   if section.index == 1
     assign lazy_load_images = false
+    assign hero_fetchpriority = 'high'
   else
     assign lazy_load_images = true
+    assign hero_fetchpriority = nil
   endif
 
   assign overlay_position = section.settings.overlay_position | split: ' '
 -%}
+
+{%- if section.index == 1 and img != blank -%}
+  {%- comment -%} Preload the LCP hero image so the browser fetches it immediately,
+  before CSS/JS finish parsing. Using imagesrcset so the browser picks the right size. {%- endcomment -%}
+  <link rel="preload" as="image"
+    href="{{ img | image_url: width: 1400 }}"
+    imagesrcset="{{ img | image_url: width: 800 }} 800w, {{ img | image_url: width: 1200 }} 1200w, {{ img | image_url: width: 1400 }} 1400w, {{ img | image_url: width: 1920 }} 1920w"
+    imagesizes="100vw"
+    fetchpriority="high">
+{%- endif -%}
 
 {%- style -%}
   {%- comment -%} Section variables {%- endcomment -%}
@@ -202,6 +214,7 @@
               src_width_desktop: 1400,
               widths_desktop: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
               lazy_load: lazy_load_images,
+              fetchpriority: hero_fetchpriority,
               sizes: sizes
             -%}
           {%- else -%}

@@ -7,7 +7,7 @@ if (!customElements.get('parallax-container')) {
       this.boundUpdate = () => {
         requestAnimationFrame(this.update.bind(this));
       };
-      window.addEventListener('scroll', this.boundUpdate);
+      window.addEventListener('scroll', this.boundUpdate, { passive: true });
 
       this.resizeObserver = new ResizeObserver(() => {
         requestAnimationFrame(() => {

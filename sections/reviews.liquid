@@ -1,4 +1,6 @@
-<link rel="stylesheet" href="{{ 'reviews.css' | asset_url }}">
+<!-- reviews.css: non-blocking — reviews section is always below the fold -->
+<link rel="stylesheet" href="{{ 'reviews.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{{ 'reviews.css' | asset_url }}"></noscript>
 
 {%- liquid
   assign color_scheme = section.settings.color_scheme
@@ -221,15 +223,18 @@
 
         var items = sectionEl.querySelectorAll('.reviews__item');
 
-        // Fetch from pre-generated static asset (avoids CORS + keeps private token off browser)
+        // Fetch from pre-generated static asset (avoids CORS + keeps private token off browser).
+        // Wrapped in IntersectionObserver so the request only fires when the section is
+        // near the viewport — not on initial page load.
         var reviewsUrl = {{ 'reviews-data.json' | asset_url | json }};
 
-        fetch(reviewsUrl)
-          .then(function (res) {
-            if (!res.ok) throw new Error('reviews-data.json not found: ' + res.status);
-            return res.json();
-          })
-          .then(function (data) {
+        function doFetch() {
+          fetch(reviewsUrl)
+            .then(function (res) {
+              if (!res.ok) throw new Error('reviews-data.json not found: ' + res.status);
+              return res.json();
+            })
+            .then(function (data) {
             var reviews = (Array.isArray(data) ? data : []).slice(0, items.length);
             console.log('[Elvn Reviews] Loaded', reviews.length, 'reviews');
 
@@ -280,13 +285,27 @@
               items[j].style.display = 'none';
             }
           })
-          .catch(function (err) {
-            console.error('[Elvn Reviews] Fetch failed:', err);
-          })
-          .then(function () {
-            fetchDone = true;
-            tryReveal();
-          });
+            .catch(function (err) {
+              console.error('[Elvn Reviews] Fetch failed:', err);
+            })
+            .then(function () {
+              fetchDone = true;
+              tryReveal();
+            });
+        }
+
+        // Fire doFetch only when section scrolls near the viewport (200px early)
+        if ('IntersectionObserver' in window) {
+          var revObserver = new IntersectionObserver(function (entries, obs) {
+            if (entries[0].isIntersecting) {
+              obs.disconnect();
+              doFetch();
+            }
+          }, { rootMargin: '200px' });
+          revObserver.observe(sectionEl);
+        } else {
+          doFetch(); // fallback for old browsers
+        }
       })();
     </script>
 

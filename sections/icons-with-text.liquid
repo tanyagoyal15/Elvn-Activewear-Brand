@@ -1,5 +1,6 @@
 {%- if section.blocks.size > 0 -%}
-  <link rel="stylesheet" href="{{ 'icons-with-text.css' | asset_url }}">
+  <link rel="stylesheet" href="{{ 'icons-with-text.css' | asset_url }}" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ 'icons-with-text.css' | asset_url }}"></noscript>
 
   {%- liquid
     assign color_scheme = section.settings.color_scheme

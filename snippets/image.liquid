@@ -169,6 +169,7 @@
          {% if attributes %}{{ attributes }} {% endif -%}
          {% if disable_focal_point == false and image.presentation %}style="object-position: {{ image.presentation.focal_point }}" {% endif -%}
          loading="{% if lazy_load %}lazy{% else %}eager{% endif %}"
+         decoding="{% if lazy_load %}async{% else %}sync{% endif %}"
          width="{{ image_width }}"
          height="{{ image_height }}"
          {% if fetchpriority %}fetchpriority="{{ fetchpriority }}"{% endif %}
