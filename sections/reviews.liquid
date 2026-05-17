@@ -146,6 +146,10 @@
 
     <script>
       (function () {
+        // Capture the native fetch RIGHT NOW — before Shopify web-pixel scripts
+        // (shop_events_listener etc.) patch window.fetch and block external origins.
+        var _fetch = window.fetch ? window.fetch.bind(window) : null;
+
         var sectionEl = document.getElementById('{{ section.id }}');
         if (!sectionEl) return;
 
@@ -198,7 +202,8 @@
           + '&rating[gte]=' + encodeURIComponent(minRating);
 
         function doFetch() {
-          fetch(reviewsUrl)
+          if (!_fetch) { fetchDone = true; tryReveal(); return; }
+          _fetch(reviewsUrl)
             .then(function (res) {
               if (!res.ok) throw new Error('Judge.me API error: ' + res.status);
               return res.json();
