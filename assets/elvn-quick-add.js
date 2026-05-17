@@ -51,47 +51,41 @@
   }
 
   /**
-   * Update the cart count badge in the header.
-   * Handles the edge case where badge doesn't exist (empty cart).
+   * Optimistically bump the cart count badge by `by` without any network request.
+   * Reads the current displayed count from the DOM and increments it immediately.
+   * Falls back gracefully if the badge doesn't exist yet (first-ever item added).
    */
-  async function updateCartCount() {
+  function bumpCartCount(by) {
     try {
-      const res = await fetch("/cart.js");
-      const cart = await res.json();
-      const count = cart.item_count;
-
       let badge = document.querySelector(".header__cart-count");
 
       if (!badge) {
         const cartIcon = document.querySelector("#cart-icon");
         if (!cartIcon) return;
-
-        const newBadge = document.createElement("div");
-        newBadge.className =
-          "header__cart-count count-badge absolute text-center";
-        cartIcon.appendChild(newBadge);
-        badge = newBadge;
+        badge = document.createElement("div");
+        badge.className = "header__cart-count count-badge absolute text-center";
+        cartIcon.appendChild(badge);
       }
 
       const visibleSpan = badge.querySelector("span[aria-hidden]");
       const hiddenSpan = badge.querySelector(".visually-hidden");
+      const current = parseInt(visibleSpan?.textContent || "0", 10);
+      const next = current + by;
 
-      if (count < 100) {
+      if (next < 100) {
         if (visibleSpan) {
-          visibleSpan.textContent = count;
+          visibleSpan.textContent = next;
         } else {
           badge.insertAdjacentHTML(
             "afterbegin",
-            `<span aria-hidden="true">${count}</span>`,
+            `<span aria-hidden="true">${next}</span>`,
           );
         }
       } else {
         if (visibleSpan) visibleSpan.remove();
       }
 
-      if (hiddenSpan) {
-        hiddenSpan.textContent = `${count} items in cart`;
-      }
+      if (hiddenSpan) hiddenSpan.textContent = `${next} items in cart`;
 
       badge.classList.add("elvn-count-bump");
       setTimeout(() => badge.classList.remove("elvn-count-bump"), 400);
@@ -354,7 +348,7 @@
 
       this.isAdding = true;
       this.addBtn.disabled = true;
-      this.addBtn.textContent = "...";
+      this.addBtn.textContent = "Adding...";
       this.clearMsg();
 
       try {
@@ -375,28 +369,24 @@
           throw new Error(err.description || "Could not add to cart");
         }
 
-        await updateCartCount();
+        // Show success state immediately — don't wait for the drawer fetch.
+        this.addBtn.textContent = "Added ✓";
+        this.addBtn.classList.add("is-added");
 
+        // Optimistic count bump: no /cart.js fetch needed, saves ~150ms.
+        bumpCartCount(1);
+
+        // Fetch and open the cart drawer (Shopify server-renders this — unavoidable).
         const cartDrawer = document.querySelector("cart-drawer");
-
         if (cartDrawer) {
           const drawerRes = await fetch("/?section_id=cart-drawer");
           const html = await drawerRes.text();
-
           const temp = document.createElement("div");
           temp.innerHTML = html;
-
           const newDrawer = temp.querySelector("cart-drawer");
-
-          if (newDrawer) {
-            cartDrawer.innerHTML = newDrawer.innerHTML;
-          }
-
+          if (newDrawer) cartDrawer.innerHTML = newDrawer.innerHTML;
           cartDrawer.open();
         }
-
-        this.addBtn.textContent = "Added ✓";
-        this.addBtn.classList.add("is-added");
 
         setTimeout(() => {
           this.addBtn.classList.remove("is-added");
@@ -435,6 +425,9 @@
       this.strip.querySelector(".elvn-size-strip__msg")?.remove();
     }
   }
+
+  // Expose for use by matching-sets.js and any other module
+  window.elvnBumpCartCount = bumpCartCount;
 
   function initCards() {
     document.querySelectorAll("product-card").forEach((card) => {

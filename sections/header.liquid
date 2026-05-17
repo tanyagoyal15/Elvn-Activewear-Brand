@@ -104,8 +104,14 @@
             {%- endif -%}
           {%- endif -%}
 
-          {%- if request.page_type == 'index' and section.settings.logo_h1 -%}
-            <h1 class="logo__text x-large-heading text-theme-text m-0{% if section.settings.logo != blank %} visually-hidden{% endif %}">{{ shop.name }}</h1>
+          {%- comment -%}
+            Use h1 only when: homepage + logo_h1 setting enabled + NO logo image.
+            When a logo image is set it is already the visual brand identifier,
+            so the text becomes a visually-hidden span — avoids duplicate H1 with
+            any content heading (e.g. featured-collection) that also uses h1.
+          {%- endcomment -%}
+          {%- if request.page_type == 'index' and section.settings.logo_h1 and section.settings.logo == blank -%}
+            <h1 class="logo__text x-large-heading text-theme-text m-0">{{ shop.name }}</h1>
           {%- else -%}
             <span class="logo__text x-large-heading text-theme-text m-0{% if section.settings.logo != blank %} visually-hidden{% endif %}">{{ shop.name }}</span>
           {%- endif -%}

@@ -334,7 +334,8 @@
             </div>
 
             {%- if carousel and use_swiper -%}
-              {{ 'swiper.css' | asset_url | stylesheet_tag }}
+              <link rel="stylesheet" href="{{ 'swiper.css' | asset_url }}" media="print" onload="this.media='all'">
+              <noscript><link rel="stylesheet" href="{{ 'swiper.css' | asset_url }}"></noscript>
               <script src="{{ 'product-swiper.js' | asset_url }}" defer></script>
               <script src="{{ 'swiper.js' | asset_url }}" onload="document.dispatchEvent(new CustomEvent('swiper-loaded'))" defer></script>
             {%- endif -%}
