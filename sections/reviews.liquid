@@ -189,17 +189,16 @@
 
         var items = sectionEl.querySelectorAll('.reviews__item');
 
-        // Build Judge.me public API URL — public token is safe to expose in browser JS.
-        var apiToken   = {{ api_token | json }};
-        var shopDomain = {{ shop.permanent_domain | json }};
-        var minRating  = {{ section.settings.min_rating | default: '3' | json }};
-        var count      = {{ api_count | json }};
+        // Fetch via Shopify App Proxy (/apps/judgeme/...) — same-origin, no CORS.
+        // Shopify proxies this to Judge.me's servers server-side.
+        var apiToken  = {{ api_token | json }};
+        var minRating = {{ section.settings.min_rating | default: '3' | json }};
+        var count     = {{ api_count | json }};
 
-        var reviewsUrl = 'https://judge.me/api/v1/reviews'
-          + '?api_token='   + encodeURIComponent(apiToken)
-          + '&shop_domain=' + encodeURIComponent(shopDomain)
-          + '&per_page='    + encodeURIComponent(count)
-          + '&rating[gte]=' + encodeURIComponent(minRating);
+        var reviewsUrl = '/apps/judgeme/judge-widget-api/reviews'
+          + '?api_token=' + apiToken
+          + '&per_page='  + count
+          + '&rating[gte]=' + minRating;
 
         function doFetch() {
           if (!_fetch) { fetchDone = true; tryReveal(); return; }
