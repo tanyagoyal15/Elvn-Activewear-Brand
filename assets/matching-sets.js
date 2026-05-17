@@ -638,6 +638,12 @@ async function addAllToCart() {
 
     if (!res.ok) throw new Error("Cart error");
 
+    // Show success + optimistic count bump immediately
+    if (cta) cta.textContent = "Added ✓";
+    if (typeof window.elvnBumpCartCount === "function") {
+      window.elvnBumpCartCount(items.length);
+    }
+
     const cartDrawer = document.querySelector("cart-drawer");
     if (cartDrawer) {
       const html = await fetch("/?section_id=cart-drawer").then((r) =>
@@ -651,7 +657,6 @@ async function addAllToCart() {
     }
 
     closeDrawer();
-    if (cta) cta.textContent = "Added ✓";
   } catch (err) {
     console.error(err);
     if (cta) cta.textContent = "Error";

@@ -26,6 +26,15 @@
   <link rel="apple-touch-icon" href="{{ settings.favicon | image_url: width: 180, height: 180 }}">
 {%- endif -%}
 
-{%- if page_description -%}
-  <meta name="description" content="{{ page_description | escape }}">
+{%- liquid
+  assign meta_description = page_description
+  if meta_description == blank
+    assign meta_description = shop.description
+  endif
+  if meta_description == blank and request.page_type == 'index'
+    assign meta_description = 'Shop Elvn Active — premium activewear for women. Leggings, sports bras, shorts & co-ords built for yoga, running & everyday movement. Free shipping on orders above ₹999.'
+  endif
+-%}
+{%- if meta_description != blank -%}
+  <meta name="description" content="{{ meta_description | escape }}">
 {%- endif -%}
