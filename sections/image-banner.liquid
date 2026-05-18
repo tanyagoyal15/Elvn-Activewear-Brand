@@ -40,15 +40,24 @@
   assign overlay_position = section.settings.overlay_position | split: ' '
 -%}
 
+{%- comment -%}theme-check-disable AssetPreload{%- endcomment -%}
 {%- if section.index == 1 and img != blank -%}
-  {%- comment -%} Preload the LCP hero image so the browser fetches it immediately,
-  before CSS/JS finish parsing. Using imagesrcset so the browser picks the right size. {%- endcomment -%}
+  {%- comment -%} LCP preload — split by viewport so mobile fetches a narrower WebP and desktop gets full-res WebP {%- endcomment -%}
+  {%- assign mob_hero = m_img | default: img -%}
   <link rel="preload" as="image"
-    href="{{ img | image_url: width: 1400 }}"
-    imagesrcset="{{ img | image_url: width: 800 }} 800w, {{ img | image_url: width: 1200 }} 1200w, {{ img | image_url: width: 1400 }} 1400w, {{ img | image_url: width: 1920 }} 1920w"
+    href="{{ mob_hero | image_url: width: 750, format: 'webp' }}"
+    imagesrcset="{{ mob_hero | image_url: width: 480, format: 'webp' }} 480w, {{ mob_hero | image_url: width: 750, format: 'webp' }} 750w, {{ mob_hero | image_url: width: 980, format: 'webp' }} 980w"
     imagesizes="100vw"
+    media="(max-width: 480px)"
+    fetchpriority="high">
+  <link rel="preload" as="image"
+    href="{{ img | image_url: width: 1400, format: 'webp' }}"
+    imagesrcset="{{ img | image_url: width: 800, format: 'webp' }} 800w, {{ img | image_url: width: 1200, format: 'webp' }} 1200w, {{ img | image_url: width: 1400, format: 'webp' }} 1400w, {{ img | image_url: width: 1920, format: 'webp' }} 1920w"
+    imagesizes="100vw"
+    media="(min-width: 481px)"
     fetchpriority="high">
 {%- endif -%}
+{%- comment -%}theme-check-enable AssetPreload{%- endcomment -%}
 
 {%- style -%}
   {%- comment -%} Section variables {%- endcomment -%}

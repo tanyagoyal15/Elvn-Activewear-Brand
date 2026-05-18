@@ -35,8 +35,8 @@
 
     if image.width >= src_width_2x
       capture srcset
-        echo image | image_url: width: src_width | append: ', '
-        echo image | image_url: width: src_width_2x | append: ' 2x'
+        echo image | image_url: width: src_width, format: 'webp' | append: ', '
+        echo image | image_url: width: src_width_2x, format: 'webp' | append: ' 2x'
       endcapture
 
       assign src_width = src_width_2x
@@ -79,7 +79,7 @@
           echo ', '
         endunless
         assign output_image_width = size | times: quality | round
-        echo image | image_url: width: output_image_width | append: ' ' | append: size | append: 'w'
+        echo image | image_url: width: output_image_width, format: 'webp' | append: ' ' | append: size | append: 'w'
       endcapture
 
       if forloop.last
@@ -117,7 +117,7 @@
           unless forloop.first
             echo ', '
           endunless
-          echo image | image_url: width: size | append: ' ' | append: size | append: 'w'
+          echo image | image_url: width: size, format: 'webp' | append: ' ' | append: size | append: 'w'
         endcapture
 
         if forloop.last
@@ -152,7 +152,7 @@
   {%- if as_mobile_source -%}
     <source {% if srcset %}srcset="{{ srcset }}" {% endif -%}
          {% if sizes and srcset %}sizes="{{ sizes }}" {% endif -%}
-         og-src="{{ image | image_url: width: src_width }}"
+         og-src="{{ image | image_url: width: src_width, format: 'webp' }}"
          {% if class %}class="{{ class }}" {% endif -%}
          {% if attributes %}{{ attributes }} {% endif -%}
          {% if disable_focal_point == false and image.presentation %}style="object-position: {{ image.presentation.focal_point }}" {% endif -%}
@@ -164,7 +164,7 @@
   {%- else -%}
     <img {% if srcset %}srcset="{{ srcset }}" {% endif -%}
          {% if sizes and srcset %}sizes="{{ sizes }}" {% endif -%}
-         src="{{ image | image_url: width: src_width }}"
+         src="{{ image | image_url: width: src_width, format: 'webp' }}"
          {% if class %}class="{{ class }}" {% endif -%}
          {% if attributes %}{{ attributes }} {% endif -%}
          {% if disable_focal_point == false and image.presentation %}style="object-position: {{ image.presentation.focal_point }}" {% endif -%}
