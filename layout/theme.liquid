@@ -22,8 +22,9 @@
   <!-- Preconnect to CDN origins used on every page -->
   <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
   <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-  <!-- DNS prefetch for third-party origins to reduce lookup latency -->
-  <link rel="dns-prefetch" href="https://pdp.gokwik.co">
+  <!-- Full preconnect for GoKwik (blocking scripts) so TCP+TLS is ready before they download -->
+  <link rel="preconnect" href="https://pdp.gokwik.co" crossorigin>
+  <!-- DNS prefetch for other third-party origins -->
   <link rel="dns-prefetch" href="https://connect.facebook.net">
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <link rel="dns-prefetch" href="https://strn.rise-ai.com">
