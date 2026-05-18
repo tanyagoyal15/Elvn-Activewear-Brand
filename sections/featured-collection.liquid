@@ -252,8 +252,6 @@
         <div class="{% if section.settings.full_width == false or carousel == false %}container container--text{% endif %}">
           <div class="section__block {% if section.settings.card_cutout %}mt-8{% else %}mt-12{% endif %} mb-12">
             {%- if settings.enable_quick_shop -%}
-              <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
-              <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
               <script src="{{ 'quick-add.js' | asset_url }}" defer></script>
               <script src="{{ 'variant-picker.js' | asset_url }}" defer></script>
               <script src="{{ 'product-form.js' | asset_url }}" defer></script>

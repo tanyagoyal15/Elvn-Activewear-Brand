@@ -11,7 +11,7 @@
   
     <div class="set-image">
       <img
-        src="{{ set.image | image_url: width: card_image_width }}"
+        src="{{ set.image | image_url: width: card_image_width, format: 'webp' }}"
         width="{{ card_image_width }}"
         height="{{ card_image_height }}"
         class="set-img"

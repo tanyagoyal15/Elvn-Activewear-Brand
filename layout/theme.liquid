@@ -22,6 +22,11 @@
   <!-- Preconnect to CDN origins used on every page -->
   <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
   <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <!-- DNS prefetch for third-party origins to reduce lookup latency -->
+  <link rel="dns-prefetch" href="https://pdp.gokwik.co">
+  <link rel="dns-prefetch" href="https://connect.facebook.net">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://strn.rise-ai.com">
 
   {%- comment -%}
     Elvn brand font — uncomment below and update --elvn-heading-font in elvn-base.css
@@ -51,6 +56,15 @@
   <link rel="stylesheet" href="{{ 'elvn-quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="{{ 'elvn-quick-add.css' | asset_url }}"></noscript>
   <script src="{{ 'elvn-quick-add.js' | asset_url }}" defer></script>
+  {%- if settings.enable_quick_shop -%}
+    <!-- quick-add/product CSS loaded once globally so multiple sections don't duplicate it -->
+    <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+    <noscript>
+      <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}">
+      <link rel="stylesheet" href="{{ 'product.css' | asset_url }}">
+    </noscript>
+  {%- endif -%}
 
   {%- unless settings.body_font.system? -%}
     <link rel="preload" href="{{ settings.body_font | font_url }}" as="font" type="font/woff2" crossorigin fetchpriority="high">
