@@ -321,11 +321,34 @@
         errEl.textContent = (!bottoms && !m2 && m1) ? 'Please enter your underbust measurement.' : 'Please enter your measurements above.';
         return;
       }
+
+      /* ── Plausibility check — catch typos like 1000 or 5 ── */
+      var m1In = toInches(m1);
+      var m2In = m2 ? toInches(m2) : null;
+      var plaus = bottoms
+        ? { min1: 16, max1: 60, lbl1: 'waist', min2: 24, max2: 70, lbl2: 'hip' }
+        : { min1: 20, max1: 65, lbl1: 'bust', min2: 16, max2: 58, lbl2: 'underbust' };
+      if (m1In < plaus.min1 || m1In > plaus.max1) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Your ' + plaus.lbl1 + ' measurement doesn\'t look right. Please double-check and try again.';
+        return;
+      }
+      if (m2In !== null && (m2In < plaus.min2 || m2In > plaus.max2)) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Your ' + plaus.lbl2 + ' measurement doesn\'t look right. Please double-check and try again.';
+        return;
+      }
+
       var fitPref = (sg.querySelector('input[name="elvn-fit"]:checked') || {}).value || 'standard';
       var heightCm = getHeightCm(sg);
       if (!heightCm) {
         errEl.style.display = 'block';
         errEl.textContent = 'Please enter your height.';
+        return;
+      }
+      if (heightCm < 100 || heightCm > 240) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Your height doesn\'t look right. Please double-check and try again.';
         return;
       }
       showResult(sg, recommend(toInches(m1), m2 ? toInches(m2) : null, fitPref), m1, m2, fitPref, heightCm);

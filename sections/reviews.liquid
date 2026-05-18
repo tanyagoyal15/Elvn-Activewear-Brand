@@ -89,16 +89,6 @@
                       {%- if block.settings.review_text != blank -%}
                         <p class="review-card__text flex-auto">"{{ block.settings.review_text | escape }}"</p>
                       {%- endif -%}
-                      {%- assign fit = block.settings.fit_rating -%}
-                      {%- liquid
-                        if fit == 'runs_small'
-                          assign fit_label = 'Runs small'
-                        elsif fit == 'runs_large'
-                          assign fit_label = 'Runs large'
-                        else
-                          assign fit_label = 'True to size'
-                        endif
-                      -%}
                       <div class="review-card__footer mt-auto">
                         <div class="review-card__author-row flex items-center gap-3">
                           {%- if block.settings.reviewer_image != blank -%}
@@ -127,9 +117,6 @@
                               </p>
                             {%- endif -%}
                           </div>
-                          {%- if fit != blank and fit != 'none' -%}
-                            <div class="review-card__fit-badge ms-auto shrink-0">{{ fit_label }}</div>
-                          {%- endif -%}
                         </div>
                       </div>
                     </div>
@@ -395,18 +382,6 @@
           "default": true
         },
         {
-          "type": "select",
-          "id": "fit_rating",
-          "label": "Size fit",
-          "options": [
-            { "value": "none", "label": "— None —" },
-            { "value": "runs_small", "label": "Runs small" },
-            { "value": "true_to_size", "label": "True to size" },
-            { "value": "runs_large", "label": "Runs large" }
-          ],
-          "default": "true_to_size"
-        },
-        {
           "type": "text",
           "id": "product_name",
           "label": "Product name",
@@ -430,7 +405,6 @@
             "rating": 5,
             "reviewer_name": "Priya M.",
             "review_text": "Absolutely love these leggings! The fabric is so soft and they hold everything in perfectly. I wore them for a 2-hour session and they stayed in place the whole time.",
-            "fit_rating": "true_to_size",
             "product_name": "PowerSculpt Leggings",
             "verified": true
           }
@@ -441,7 +415,6 @@
             "rating": 5,
             "reviewer_name": "Anika R.",
             "review_text": "The matching set is everything — I get compliments every time I wear it to the gym. Quality is top-notch and the sizing is true to fit.",
-            "fit_rating": "true_to_size",
             "product_name": "Court Muse Set",
             "verified": true
           }
@@ -452,7 +425,6 @@
             "rating": 4,
             "reviewer_name": "Simran K.",
             "review_text": "Really comfortable for yoga and pilates. The high waist stays up perfectly and doesn't roll down. Will definitely be ordering more colors.",
-            "fit_rating": "runs_small",
             "product_name": "Yoga Pilates Bra",
             "verified": true
           }
@@ -463,7 +435,6 @@
             "rating": 5,
             "reviewer_name": "Divya S.",
             "review_text": "I was hesitant to spend this much on activewear but it is 100% worth it. The quality is so much better than anything I've tried before.",
-            "fit_rating": "runs_large",
             "product_name": "MatchPoint Collection",
             "verified": true
           }
