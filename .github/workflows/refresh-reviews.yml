@@ -21,7 +21,7 @@ jobs:
           JUDGEME_TOKEN: ${{ secrets.JUDGEME_PRIVATE_TOKEN }}
           SHOPIFY_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
           SHOP_DOMAIN: ejjge0-zf.myshopify.com
-          THEME_ID: "162017706226"
+          THEME_ID: "161366671602"
           MIN_RATING: "3"
           COUNT: "8"
         run: |
