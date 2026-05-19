@@ -26,8 +26,8 @@ jobs:
           COUNT: "8"
         run: |
           echo "Fetching reviews from Judge.me..."
-          RAW=$(curl -s \
-            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=${COUNT}&rating[gte]=${MIN_RATING}&sort_by=published_at&sort_dir=desc")
+          RAW=$(curl -sg \
+            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=${COUNT}&rating%5Bgte%5D=${MIN_RATING}&sort_by=published_at&sort_dir=desc")
 
           echo "Judge.me response (first 300 chars): ${RAW:0:300}"
 
