@@ -26,11 +26,18 @@ jobs:
           COUNT: "8"
         run: |
           echo "Fetching reviews from Judge.me..."
-          REVIEWS=$(curl -sf \
-            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=${COUNT}&rating[gte]=${MIN_RATING}&sort_by=published_at&sort_dir=desc" \
-            | python3 -c "
+          RAW=$(curl -s \
+            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=${COUNT}&rating[gte]=${MIN_RATING}&sort_by=published_at&sort_dir=desc")
+
+          echo "Judge.me response (first 300 chars): ${RAW:0:300}"
+
+          REVIEWS=$(echo "$RAW" | python3 -c "
           import json, sys
-          data = json.load(sys.stdin)
+          try:
+            data = json.load(sys.stdin)
+          except Exception as e:
+            print('JSON parse error: ' + str(e), file=sys.stderr)
+            sys.exit(1)
           reviews = data.get('reviews', [])
           output = []
           generic = {'customer name.', 'customer name', 'customer', ''}
