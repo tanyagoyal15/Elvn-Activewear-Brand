@@ -22,14 +22,10 @@ jobs:
           SHOPIFY_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
           SHOP_DOMAIN: ejjge0-zf.myshopify.com
           THEME_ID: "161366671602"
-          MIN_RATING: "3"
-          COUNT: "8"
         run: |
           echo "Fetching reviews from Judge.me..."
           RAW=$(curl -sg \
             "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=50&sort_by=published_at&sort_dir=desc")
-
-          echo "Judge.me response (first 300 chars): ${RAW:0:300}"
 
           REVIEWS=$(echo "$RAW" | python3 -c "
           import json, sys
@@ -38,15 +34,10 @@ jobs:
           except Exception as e:
             print('JSON parse error: ' + str(e), file=sys.stderr)
             sys.exit(1)
-          import os
-          min_rating = int(os.environ.get('MIN_RATING', 3))
-          count = int(os.environ.get('COUNT', 8))
           reviews = data.get('reviews', [])
           output = []
           generic = {'customer name.', 'customer name', 'customer', ''}
           for r in reviews:
-            if r.get('rating', 0) < min_rating:
-              continue
             raw_name = (r.get('reviewer') or {}).get('name', '').strip()
             display_name = 'Verified Customer' if raw_name.lower() in generic else raw_name
             output.append({
@@ -56,7 +47,7 @@ jobs:
               'product_title': r.get('product_title', ''),
               'verified_buyer': r.get('verified_buyer', False)
             })
-          print(json.dumps(output[:count]))
+          print(json.dumps(output))
           ")
 
           if [ -z "$REVIEWS" ] || [ "$REVIEWS" = "[]" ]; then
@@ -64,13 +55,19 @@ jobs:
             exit 0
           fi
 
-          echo "Uploading reviews-data.json to Shopify..."
+          echo "Got $(echo "$REVIEWS" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))') reviews. Uploading to Shopify..."
           ENCODED=$(python3 -c "import json, sys; print(json.dumps(sys.stdin.read()))" <<< "$REVIEWS")
 
-          curl -sf -X PUT \
+          SHOPIFY_RESPONSE=$(curl -s -X PUT \
             "https://${SHOP_DOMAIN}/admin/api/2024-01/themes/${THEME_ID}/assets.json" \
             -H "X-Shopify-Access-Token: ${SHOPIFY_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d "{\"asset\": {\"key\": \"assets/reviews-data.json\", \"value\": ${ENCODED}}}"
+            -d "{\"asset\": {\"key\": \"assets/reviews-data.json\", \"value\": ${ENCODED}}}")
 
-          echo "Done! reviews-data.json updated."
+          echo "Shopify response (first 200 chars): ${SHOPIFY_RESPONSE:0:200}"
+
+          if echo "$SHOPIFY_RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'asset' in d else 1)" 2>/dev/null; then
+            echo "Done! reviews-data.json updated."
+          else
+            echo "Shopify upload failed." && exit 1
+          fi
