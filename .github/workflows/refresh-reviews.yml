@@ -33,11 +33,14 @@ jobs:
           data = json.load(sys.stdin)
           reviews = data.get('reviews', [])
           output = []
+          generic = {'customer name.', 'customer name', 'customer', ''}
           for r in reviews:
+            raw_name = (r.get('reviewer') or {}).get('name', '').strip()
+            display_name = 'Verified Customer' if raw_name.lower() in generic else raw_name
             output.append({
               'rating': r.get('rating', 5),
               'body': r.get('body', ''),
-              'reviewer': r.get('reviewer', {}),
+              'reviewer': {'name': display_name},
               'product_title': r.get('product_title', ''),
               'verified_buyer': r.get('verified_buyer', False)
             })

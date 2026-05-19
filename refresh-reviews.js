@@ -12,7 +12,7 @@ const https = require('https');
 // ── Config ────────────────────────────────────────────────────────────────────
 const JUDGEME_TOKEN  = 'eQqnPJZkoTo8DIVtlfIT1O1zHT4';   // private token (server-side only)
 const SHOP_DOMAIN    = 'ejjge0-zf.myshopify.com';
-const THEME_ID       = '162017706226';                     // draft theme
+const THEME_ID       = '161366671602';                     // live theme
 const MIN_RATING     = 3;
 const COUNT          = 8;
 
@@ -79,13 +79,18 @@ async function main() {
     + `&sort_by=published_at&sort_dir=desc`;
 
   const data = await get(url);
-  const reviews = (data.reviews || []).map(r => ({
-    rating:         r.rating,
-    body:           r.body,
-    reviewer:       r.reviewer,
-    product_title:  r.product_title,
-    verified_buyer: r.verified_buyer,
-  }));
+  const reviews = (data.reviews || []).map(r => {
+    const rawName = (r.reviewer && r.reviewer.name) ? r.reviewer.name.trim() : '';
+    const genericNames = ['customer name.', 'customer name', 'customer', ''];
+    const displayName = genericNames.includes(rawName.toLowerCase()) ? 'Verified Customer' : rawName;
+    return {
+      rating:         r.rating,
+      body:           r.body,
+      reviewer:       { name: displayName },
+      product_title:  r.product_title,
+      verified_buyer: r.verified_buyer,
+    };
+  });
 
   console.log(`✅  Got ${reviews.length} reviews (${MIN_RATING}★+)`);
 
