@@ -27,7 +27,7 @@ jobs:
         run: |
           echo "Fetching reviews from Judge.me..."
           RAW=$(curl -sg \
-            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=${COUNT}&rating%5Bgte%5D=${MIN_RATING}&sort_by=published_at&sort_dir=desc")
+            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=50&sort_by=published_at&sort_dir=desc")
 
           echo "Judge.me response (first 300 chars): ${RAW:0:300}"
 
@@ -38,10 +38,15 @@ jobs:
           except Exception as e:
             print('JSON parse error: ' + str(e), file=sys.stderr)
             sys.exit(1)
+          import os
+          min_rating = int(os.environ.get('MIN_RATING', 3))
+          count = int(os.environ.get('COUNT', 8))
           reviews = data.get('reviews', [])
           output = []
           generic = {'customer name.', 'customer name', 'customer', ''}
           for r in reviews:
+            if r.get('rating', 0) < min_rating:
+              continue
             raw_name = (r.get('reviewer') or {}).get('name', '').strip()
             display_name = 'Verified Customer' if raw_name.lower() in generic else raw_name
             output.append({
@@ -51,7 +56,7 @@ jobs:
               'product_title': r.get('product_title', ''),
               'verified_buyer': r.get('verified_buyer', False)
             })
-          print(json.dumps(output))
+          print(json.dumps(output[:count]))
           ")
 
           if [ -z "$REVIEWS" ] || [ "$REVIEWS" = "[]" ]; then
