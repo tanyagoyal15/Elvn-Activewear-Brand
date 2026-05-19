@@ -63,5 +63,6 @@ jobs:
             --store ejjge0-zf.myshopify.com \
             --theme 161366671602 \
             --only assets/reviews-data.json \
+            --allow-live \
             --no-color
           echo "Done! reviews-data.json updated on Shopify."
