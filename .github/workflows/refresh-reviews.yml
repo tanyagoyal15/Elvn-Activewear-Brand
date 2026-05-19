@@ -59,7 +59,8 @@ jobs:
           ENCODED=$(python3 -c "import json, sys; print(json.dumps(sys.stdin.read()))" <<< "$REVIEWS")
 
           SHOPIFY_RESPONSE=$(curl -s -X PUT \
-            "https://${SHOP_DOMAIN}/admin/api/2024-01/themes/${THEME_ID}/assets.json" \
+            "https://theme-kit-access.shopifyapps.com/cli/sfr/themes/${THEME_ID}/assets.json" \
+            -H "X-Shopify-Shop: ${SHOP_DOMAIN}" \
             -H "X-Shopify-Access-Token: ${SHOPIFY_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "{\"asset\": {\"key\": \"assets/reviews-data.json\", \"value\": ${ENCODED}}}")
