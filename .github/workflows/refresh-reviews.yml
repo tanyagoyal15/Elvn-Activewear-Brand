@@ -3,8 +3,11 @@ name: Refresh homepage reviews
 on:
   repository_dispatch:
     types: [judgeme_review_published]
+
+  # Every 6 hours — GitHub throttles schedules more frequent than this on free plans
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 */6 * * *'
+
   workflow_dispatch:
 
 jobs:
@@ -27,7 +30,7 @@ jobs:
         run: |
           echo "Fetching reviews from Judge.me..."
           RAW=$(curl -sg \
-            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=50&sort_by=published_at&sort_dir=desc")
+            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=50&rating[gte]=4&sort_by=published_at&sort_dir=desc")
 
           echo "$RAW" | python3 -c "
           import json, sys
@@ -39,7 +42,7 @@ jobs:
           reviews = data.get('reviews', [])
           output = []
           generic = {'customer name.', 'customer name', 'customer', ''}
-          for r in reviews:
+          for r in reviews[:15]:
             raw_name = (r.get('reviewer') or {}).get('name', '').strip()
             display_name = 'Verified Customer' if raw_name.lower() in generic else raw_name
             output.append({
@@ -53,16 +56,36 @@ jobs:
           " > assets/reviews-data.json
 
           COUNT=$(python3 -c "import json; print(len(json.load(open('assets/reviews-data.json'))))")
-          echo "Got ${COUNT} reviews, saved to assets/reviews-data.json"
+          echo "Got ${COUNT} reviews (4★+, capped at 15), saved to assets/reviews-data.json"
 
-      - name: Push reviews-data.json to Shopify
+      - name: Detect live theme and push reviews
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          SHOP_DOMAIN: ejjge0-zf.myshopify.com
         run: |
+          echo "Detecting live theme ID..."
+          LIVE_THEME_ID=$(curl -sf \
+            "https://${SHOP_DOMAIN}/admin/api/2024-01/themes.json" \
+            -H "X-Shopify-Access-Token: ${SHOPIFY_CLI_THEME_TOKEN}" \
+            | python3 -c "
+          import json, sys
+          themes = json.load(sys.stdin).get('themes', [])
+          live = next((str(t['id']) for t in themes if t.get('role') == 'main'), '')
+          print(live)
+          ")
+
+          if [ -z "$LIVE_THEME_ID" ]; then
+            echo "Could not detect live theme ID, aborting."
+            exit 1
+          fi
+
+          echo "Live theme ID: ${LIVE_THEME_ID}"
+
           shopify theme push \
             --store ejjge0-zf.myshopify.com \
-            --theme 161366671602 \
+            --theme "$LIVE_THEME_ID" \
             --only assets/reviews-data.json \
             --allow-live \
             --no-color
-          echo "Done! reviews-data.json updated on Shopify."
+
+          echo "Done! reviews-data.json updated on live theme ${LIVE_THEME_ID}."
