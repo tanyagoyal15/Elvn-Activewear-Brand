@@ -5,9 +5,9 @@ on:
   repository_dispatch:
     types: [judgeme_review_published]
 
-  # Run every 30 minutes automatically
+  # Run every 6 hours
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 */6 * * *'
 
   # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:
@@ -16,12 +16,11 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch reviews from Judge.me and push to Shopify
+      - name: Fetch reviews from Judge.me and push to live Shopify theme
         env:
           JUDGEME_TOKEN: ${{ secrets.JUDGEME_PRIVATE_TOKEN }}
           SHOPIFY_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
           SHOP_DOMAIN: ejjge0-zf.myshopify.com
-          THEME_ID: "161366671602"
           MIN_RATING: "3"
           COUNT: "8"
         run: |
@@ -52,13 +51,31 @@ jobs:
             exit 0
           fi
 
+          echo "Detecting live theme ID..."
+          LIVE_THEME_ID=$(curl -sf \
+            "https://${SHOP_DOMAIN}/admin/api/2024-01/themes.json" \
+            -H "X-Shopify-Access-Token: ${SHOPIFY_TOKEN}" \
+            | python3 -c "
+          import json, sys
+          themes = json.load(sys.stdin).get('themes', [])
+          live = next((t['id'] for t in themes if t.get('role') == 'main'), None)
+          print(live)
+          ")
+
+          if [ -z "$LIVE_THEME_ID" ] || [ "$LIVE_THEME_ID" = "None" ]; then
+            echo "Could not detect live theme ID, aborting."
+            exit 1
+          fi
+
+          echo "Live theme ID: ${LIVE_THEME_ID}"
+
           echo "Uploading reviews-data.json to Shopify..."
           ENCODED=$(python3 -c "import json, sys; print(json.dumps(sys.stdin.read()))" <<< "$REVIEWS")
 
-          curl -sf -X PUT \
-            "https://${SHOP_DOMAIN}/admin/api/2024-01/themes/${THEME_ID}/assets.json" \
+          RESPONSE=$(curl -sf -X PUT \
+            "https://${SHOP_DOMAIN}/admin/api/2024-01/themes/${LIVE_THEME_ID}/assets.json" \
             -H "X-Shopify-Access-Token: ${SHOPIFY_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d "{\"asset\": {\"key\": \"assets/reviews-data.json\", \"value\": ${ENCODED}}}"
+            -d "{\"asset\": {\"key\": \"assets/reviews-data.json\", \"value\": ${ENCODED}}}" 2>&1)
 
-          echo "Done! reviews-data.json updated."
+          echo "Done! reviews-data.json updated on live theme ${LIVE_THEME_ID}."
