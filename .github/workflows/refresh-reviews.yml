@@ -66,9 +66,17 @@ jobs:
           LIVE_THEME_ID=$(shopify theme list \
             --store ejjge0-zf.myshopify.com \
             --no-color \
-            | grep '\[live\]' \
-            | grep -oE '#[0-9]+' \
-            | tr -d '#')
+            | python3 -c "
+          import sys, re
+          lines = sys.stdin.readlines()
+          for i, line in enumerate(lines):
+              if '[live]' in line:
+                  combined = line + (lines[i+1] if i+1 < len(lines) else '')
+                  m = re.search(r'\d{12}', ''.join(re.findall(r'\d+', combined)))
+                  if m:
+                      print(m.group())
+                  break
+          ")
 
           if [ -z "$LIVE_THEME_ID" ]; then
             echo "Could not detect live theme ID, aborting."
