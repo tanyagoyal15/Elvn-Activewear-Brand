@@ -61,18 +61,14 @@ jobs:
       - name: Detect live theme and push reviews
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
-          SHOP_DOMAIN: ejjge0-zf.myshopify.com
         run: |
           echo "Detecting live theme ID..."
-          LIVE_THEME_ID=$(curl -sf \
-            "https://${SHOP_DOMAIN}/admin/api/2024-01/themes.json" \
-            -H "X-Shopify-Access-Token: ${SHOPIFY_CLI_THEME_TOKEN}" \
-            | python3 -c "
-          import json, sys
-          themes = json.load(sys.stdin).get('themes', [])
-          live = next((str(t['id']) for t in themes if t.get('role') == 'main'), '')
-          print(live)
-          ")
+          LIVE_THEME_ID=$(shopify theme list \
+            --store ejjge0-zf.myshopify.com \
+            --no-color \
+            | grep '\[live\]' \
+            | grep -oE '#[0-9]+' \
+            | tr -d '#')
 
           if [ -z "$LIVE_THEME_ID" ]; then
             echo "Could not detect live theme ID, aborting."
