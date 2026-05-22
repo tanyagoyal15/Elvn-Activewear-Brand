@@ -30,7 +30,7 @@ jobs:
         run: |
           echo "Fetching reviews from Judge.me..."
           RAW=$(curl -sg \
-            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=50&rating[gte]=4&sort_by=published_at&sort_dir=desc")
+            "https://judge.me/api/v1/reviews?api_token=${JUDGEME_TOKEN}&shop_domain=${SHOP_DOMAIN}&per_page=50&sort_by=published_at&sort_dir=desc")
 
           echo "$RAW" | python3 -c "
           import json, sys
@@ -42,7 +42,9 @@ jobs:
           reviews = data.get('reviews', [])
           output = []
           generic = {'customer name.', 'customer name', 'customer', ''}
-          for r in reviews[:15]:
+          for r in reviews:
+            if r.get('rating', 0) < 4:
+              continue
             raw_name = (r.get('reviewer') or {}).get('name', '').strip()
             display_name = 'Verified Customer' if raw_name.lower() in generic else raw_name
             output.append({
@@ -52,6 +54,8 @@ jobs:
               'product_title': r.get('product_title', ''),
               'verified_buyer': r.get('verified_buyer', False)
             })
+            if len(output) == 15:
+              break
           print(json.dumps(output))
           " > assets/reviews-data.json
 
