@@ -61,7 +61,7 @@ jobs:
       - name: Push reviews to live theme
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
-          LIVE_THEME_ID: ${{ vars.LIVE_THEME_ID }}
+          LIVE_THEME_ID: "161366671602"
         run: |
           if [ -z "$LIVE_THEME_ID" ]; then
             echo "LIVE_THEME_ID variable not set. Go to GitHub → Settings → Actions → Variables and add it."
