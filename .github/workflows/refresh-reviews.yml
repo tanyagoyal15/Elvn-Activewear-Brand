@@ -58,36 +58,17 @@ jobs:
           COUNT=$(python3 -c "import json; print(len(json.load(open('assets/reviews-data.json'))))")
           echo "Got ${COUNT} reviews (4★+, capped at 15), saved to assets/reviews-data.json"
 
-      - name: Detect live theme and push reviews
+      - name: Push reviews to live theme
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+          LIVE_THEME_ID: ${{ vars.LIVE_THEME_ID }}
         run: |
-          echo "Detecting live theme ID..."
-          LIVE_THEME_ID=$(shopify theme list \
-            --store ejjge0-zf.myshopify.com \
-            --no-color \
-            2>&1 \
-            | python3 -c "
-          import sys, re
-          def strip_ansi(text):
-              return re.sub(r'\x1b\[[0-9;]*[mGKHFABCDJKST]', '', text)
-          lines = [strip_ansi(l) for l in sys.stdin.readlines()]
-          for i, line in enumerate(lines):
-              if '[live]' in line:
-                  combined = line + (lines[i+1] if i+1 < len(lines) else '')
-                  joined = ''.join(re.findall(r'\d+', combined))
-                  m = re.search(r'\d{12}', joined)
-                  if m:
-                      print(m.group())
-                  break
-          ")
-
           if [ -z "$LIVE_THEME_ID" ]; then
-            echo "Could not detect live theme ID, aborting."
+            echo "LIVE_THEME_ID variable not set. Go to GitHub → Settings → Actions → Variables and add it."
             exit 1
           fi
 
-          echo "Live theme ID: ${LIVE_THEME_ID}"
+          echo "Pushing reviews to live theme ID: ${LIVE_THEME_ID}"
 
           shopify theme push \
             --store ejjge0-zf.myshopify.com \
@@ -96,4 +77,4 @@ jobs:
             --allow-live \
             --no-color
 
-          echo "Done! reviews-data.json updated on live theme ${LIVE_THEME_ID}."
+          echo "Done! reviews-data.json updated on theme ${LIVE_THEME_ID}."
