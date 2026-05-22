@@ -61,10 +61,32 @@ jobs:
       - name: Push reviews to live theme
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
-          LIVE_THEME_ID: ${{ vars.LIVE_THEME_ID }}
+          FALLBACK_THEME_ID: ${{ vars.LIVE_THEME_ID }}
+          SHOP_DOMAIN: ejjge0-zf.myshopify.com
         run: |
+          echo "Auto-detecting live theme ID..."
+          LIVE_THEME_ID=$(curl -sf \
+            "https://theme-kit-access.shopifyapps.com/cli/sfr/themes.json" \
+            -H "X-Shopify-Shop: ${SHOP_DOMAIN}" \
+            -H "X-Shopify-Access-Token: ${SHOPIFY_CLI_THEME_TOKEN}" \
+            2>/dev/null \
+            | python3 -c "
+          import json, sys
+          try:
+            data = json.load(sys.stdin)
+            themes = data if isinstance(data, list) else data.get('themes', [])
+            print(next((str(t['id']) for t in themes if t.get('role') == 'main'), ''))
+          except:
+            print('')
+          ")
+
           if [ -z "$LIVE_THEME_ID" ]; then
-            echo "LIVE_THEME_ID variable not set. Go to GitHub → Settings → Actions → Variables and add it."
+            echo "Auto-detect failed, using fallback theme ID..."
+            LIVE_THEME_ID="${FALLBACK_THEME_ID}"
+          fi
+
+          if [ -z "$LIVE_THEME_ID" ]; then
+            echo "No theme ID found. Set LIVE_THEME_ID in GitHub → Settings → Actions → Variables."
             exit 1
           fi
 
