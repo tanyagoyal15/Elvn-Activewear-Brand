@@ -65,15 +65,21 @@ jobs:
           echo "Detecting live theme ID..."
           LIVE_THEME_ID=$(shopify theme list \
             --store ejjge0-zf.myshopify.com \
-            --json \
-            2>/dev/null \
+            --no-color \
+            2>&1 \
             | python3 -c "
-          import json, sys
-          themes = json.load(sys.stdin)
-          if not isinstance(themes, list):
-              themes = themes.get('themes', [])
-          live = next((str(t['id']) for t in themes if t.get('role') in ('main', 'live')), '')
-          print(live)
+          import sys, re
+          def strip_ansi(text):
+              return re.sub(r'\x1b\[[0-9;]*[mGKHFABCDJKST]', '', text)
+          lines = [strip_ansi(l) for l in sys.stdin.readlines()]
+          for i, line in enumerate(lines):
+              if '[live]' in line:
+                  combined = line + (lines[i+1] if i+1 < len(lines) else '')
+                  joined = ''.join(re.findall(r'\d+', combined))
+                  m = re.search(r'\d{12}', joined)
+                  if m:
+                      print(m.group())
+                  break
           ")
 
           if [ -z "$LIVE_THEME_ID" ]; then
